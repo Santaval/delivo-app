@@ -1,8 +1,10 @@
-import { ScrollView, StyleSheet } from "react-native";
-import { ThemedView } from "@/components/ThemedView";
-import { ThemedText } from "@/components/ThemedText";
 import { BusinessCard } from "@/components/BusinessCard";
+import { PrimaryButton } from "@/components/PrimaryButton";
+import { SocialButton } from "@/components/SocialButton";
+import { ThemedText } from "@/components/ThemedText";
+import { ThemedView } from "@/components/ThemedView";
 import { Spacing } from "@/constants/Theme";
+import { ScrollView, StyleSheet } from "react-native";
 
 export default function Index() {
   return (
@@ -40,6 +42,21 @@ export default function Index() {
           subtitle="Fuel & time saved"
           onPress={() => console.log('Route savings pressed')}
         />
+
+        {/* Button Examples */}
+        <ThemedText variant="subtitle" style={styles.sectionTitle}>
+          Button Examples
+        </ThemedText>
+
+        {/* Social Login Buttons */}
+        <SocialButton provider="google" />
+        <SocialButton provider="apple" />
+
+        {/* Primary Buttons */}
+        <PrimaryButton title="Add New Expense" variant="primary" fullWidth />
+        <PrimaryButton title="Add Income" variant="secondary" fullWidth />
+        <PrimaryButton title="View Reports" variant="outline" fullWidth />
+        <PrimaryButton title="Delete Item" variant="danger" size="small" />
         
         <ThemedText variant="caption" style={styles.footer}>
           Theme: Primary color #0f49bd | Ready for dark mode

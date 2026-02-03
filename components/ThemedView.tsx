@@ -1,6 +1,6 @@
+import { useThemeColor } from '@/hooks/useColorScheme';
 import React from 'react';
 import { View as RNView, ViewProps } from 'react-native';
-import { useThemeColor } from '@/hooks/useColorScheme';
 
 export type ThemedViewProps = ViewProps & {
   variant?: 'default' | 'surface' | 'card' | 'primary' | 'success' | 'warning' | 'danger';

@@ -1,9 +1,9 @@
+import { BorderRadius, Shadows, Spacing } from '@/constants/Theme';
+import { useThemeColor } from '@/hooks/useColorScheme';
 import React from 'react';
 import { StyleSheet, TouchableOpacity, TouchableOpacityProps } from 'react-native';
-import { ThemedView } from './ThemedView';
 import { ThemedText } from './ThemedText';
-import { useThemeColor } from '@/hooks/useColorScheme';
-import { BorderRadius, Spacing, Shadows } from '@/constants/Theme';
+import { ThemedView } from './ThemedView';
 
 export type BusinessCardProps = TouchableOpacityProps & {
   title: string;

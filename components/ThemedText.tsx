@@ -1,7 +1,7 @@
+import { Typography } from '@/constants/Theme';
+import { useThemeColor } from '@/hooks/useColorScheme';
 import React from 'react';
 import { Text as RNText, TextProps, TextStyle } from 'react-native';
-import { useThemeColor } from '@/hooks/useColorScheme';
-import { Typography } from '@/constants/Theme';
 
 export type ThemedTextProps = TextProps & {
   variant?: 'default' | 'title' | 'subtitle' | 'caption' | 'link' | 'success' | 'warning' | 'danger';
