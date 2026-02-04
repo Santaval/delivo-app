@@ -1,9 +1,9 @@
-import React, { useState, useEffect, useRef } from 'react';
-import { StyleSheet, TextInput, View, TouchableOpacity } from 'react-native';
-import { ThemedView } from './ThemedView';
+import { BorderRadius, Spacing, Typography } from '@/constants';
 import { useThemeColor } from '@/hooks/useColorScheme';
 import { MaterialIcons } from '@expo/vector-icons';
-import { BorderRadius, Spacing, Typography } from '@/constants';
+import React, { useEffect, useRef, useState } from 'react';
+import { StyleSheet, TextInput, TouchableOpacity, View } from 'react-native';
+import { ThemedView } from './ThemedView';
 
 export type SearchBarProps = {
   placeholder?: string;
