@@ -1,4 +1,4 @@
-import { ClientCard, TopBar } from '@/components';
+import { ClientCard, SearchBar, TopBar } from '@/components';
 import { Spacing } from '@/constants';
 import useClients from '@/hooks/useClients';
 import React from 'react';
@@ -6,7 +6,7 @@ import { StyleSheet, Text } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 export default function Clients() {
-  const { clients, loading, error } = useClients();
+  const { clients, loading, error, searchClients } = useClients();
 
   if (loading) {
     return (
@@ -29,6 +29,12 @@ export default function Clients() {
       <TopBar 
         title='Clients'
       />
+
+      <SearchBar 
+        onSearch={searchClients}
+        showClearButton
+      />
+
       {clients.map(client => (
         <ClientCard 
         key={client.id}
