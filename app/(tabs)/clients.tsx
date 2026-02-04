@@ -45,7 +45,7 @@ export default function Clients() {
           key={client.id}
           name={client.name}
           phone={client.phoneNumber}
-
+          onPress={() => router.push(`/clients/profile/${client.id}`)}
         />
       ))}
 
