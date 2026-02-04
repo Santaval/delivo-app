@@ -4,6 +4,7 @@ import { ThemedText } from "@/components/ThemedText";
 import { ThemedView } from "@/components/ThemedView";
 import { Spacing, Typography } from "@/constants";
 import { useThemeColor } from "@/hooks/useColorScheme";
+import { Link } from "expo-router";
 import { StatusBar, StyleSheet, View } from "react-native";
 
 export default function Index() {
@@ -59,6 +60,14 @@ export default function Index() {
           >
             Privacy Policy
           </ThemedText>
+          <ThemedText
+            variant="link"
+            style={styles.footerLink}
+            onPress={() => console.log('Privacy pressed')}
+          >
+            Privacy Policy
+          </ThemedText>
+          <Link href={"/(tabs)/home"} >Home</Link>
         </View>
       </View>
     </ThemedView>
