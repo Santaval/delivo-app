@@ -9,7 +9,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 export default function Clients() {
   const { clients, loading, error, searchClients } = useClients();
 
-    const handleAddClient = () => {
+  const handleAddClient = () => {
     router.push('/clients/add');
   };
 
@@ -31,22 +31,22 @@ export default function Clients() {
 
   return (
     <SafeAreaView style={styles.container}>
-      <TopBar 
+      <TopBar
         title='Clients'
       />
 
-      <SearchBar 
+      <SearchBar
         onSearch={searchClients}
         showClearButton
       />
 
       {clients.map(client => (
-        <ClientCard 
-        key={client.id}
-        name={client.name}
-        phone={client.phoneNumber}
+        <ClientCard
+          key={client.id}
+          name={client.name}
+          phone={client.phoneNumber}
 
-      />
+        />
       ))}
 
       <FloatingActionButton

@@ -1,7 +1,7 @@
-import { BorderRadius, Shadows, Spacing, Typography } from '@/constants/Theme';
+import { BorderRadius, Shadows, Spacing, Typography } from '@/constants';
 import { useThemeColor } from '@/hooks/useColorScheme';
 import React from 'react';
-import { StyleSheet, TouchableOpacity } from 'react-native';
+import { StyleSheet, TouchableOpacity, ViewStyle } from 'react-native';
 import { ThemedText } from './ThemedText';
 
 export type PrimaryButtonProps = {
@@ -11,6 +11,7 @@ export type PrimaryButtonProps = {
   onPress?: () => void;
   disabled?: boolean;
   fullWidth?: boolean;
+  style?: ViewStyle;
 };
 
 export function PrimaryButton({ 
@@ -20,6 +21,7 @@ export function PrimaryButton({
   onPress = () => console.log(`${title} button pressed`),
   disabled = false,
   fullWidth = false,
+  style,
 }: PrimaryButtonProps) {
   const colors = useThemeColor();
 
@@ -117,6 +119,7 @@ export function PrimaryButton({
         getSizeStyles(),
         fullWidth && styles.fullWidth,
         disabled && styles.disabled,
+        style,
       ]}
       onPress={onPress}
       disabled={disabled}

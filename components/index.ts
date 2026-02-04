@@ -4,6 +4,7 @@ export { ClientCard, type ClientCardProps } from './ClientCard';
 export { IncomeCard, type IncomeCardProps } from './financial/IncomeCard';
 export { IncomeTrendsChart, type IncomeTrendsChartProps } from './financial/IncomeTrendsChart';
 export { FloatingActionButton, type FloatingActionButtonProps } from './FloatingActionButton';
+export { FormField, type FormFieldProps } from './FormField';
 export { default as Logo } from './Logo';
 export { PrimaryButton, type PrimaryButtonProps } from './PrimaryButton';
 export { QuickLinkCard, type QuickLinkCardProps } from './QuickLinkCard';
