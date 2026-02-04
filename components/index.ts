@@ -9,6 +9,7 @@ export { FormField, type FormFieldProps } from './FormField';
 export { LocationSearch, type LocationSearchProps } from './LocationSearch';
 export { default as Logo } from './Logo';
 export { PrimaryButton, type PrimaryButtonProps } from './PrimaryButton';
+export { ProductSelect, type OrderItem, type ProductSelectProps } from './ProductSelect';
 export { QuickLinkCard, type QuickLinkCardProps } from './QuickLinkCard';
 export { QuickLinks, type QuickLinkData, type QuickLinksProps } from './QuickLinks';
 export { SearchBar, type SearchBarProps } from './SearchBar';

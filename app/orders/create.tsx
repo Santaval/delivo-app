@@ -1,4 +1,4 @@
-import { ClientSelect, TopBar } from '@/components';
+import { ClientSelect, ProductSelect, TopBar } from '@/components';
 import { Spacing } from '@/constants';
 import { useRoute } from '@react-navigation/native';
 import React from 'react';
@@ -20,6 +20,13 @@ export default function create() {
         defaultClientId={clientId}
         onClientSelect={client => console.log('Selected client:', client)}
         onClientClear={() => console.log('Client selection cleared')}
+      />
+
+      <ProductSelect
+        label="Products"
+        maxItems={100}
+        // error={orderItems.length === 0 ? "Please add products" : undefined}
+        onProductsChange={() => { }}
       />
     </SafeAreaView>
   )
