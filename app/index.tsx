@@ -6,50 +6,21 @@ import { Spacing, Typography } from "@/constants";
 import { useThemeColor } from "@/hooks/useColorScheme";
 import { StatusBar, StyleSheet, View } from "react-native";
 
-const quickLinksData = [
-  {
-    id: 'products',
-    title: 'Products',
-    subtitle: 'Manage inventory & pricing',
-    icon: '📦',
-    iconColor: '#3b82f6', // Blue
-  },
-  {
-    id: 'clients',
-    title: 'Clients',
-    subtitle: 'Client directory & CRM',
-    icon: '👥',
-    iconColor: '#8b5cf6', // Purple
-  },
-  {
-    id: 'bills',
-    title: 'Bills & Invoices',
-    subtitle: 'Track expenses & tax',
-    icon: '📄',
-    iconColor: '#10b981', // Green
-  }
-];
-
 export default function Index() {
   const colors = useThemeColor();
 
   return (
     <ThemedView style={styles.container}>
       <StatusBar barStyle="dark-content" backgroundColor={colors.background} />
-      
+
       {/* Logo Section */}
       <View style={styles.logoSection}>
         <Logo />
-        <ThemedText variant="subtitle" style={styles.logoSubtext}>
-          TributoCR
-        </ThemedText>
+
       </View>
 
       {/* App Title & Subtitle */}
       <View style={styles.titleSection}>
-        <ThemedText variant="title" style={styles.appTitle}>
-          TributoCR
-        </ThemedText>
         <ThemedText variant="caption" style={styles.appSubtitle}>
           Manage your business with ease
         </ThemedText>
@@ -57,13 +28,13 @@ export default function Index() {
 
       {/* Social Login Buttons */}
       <View style={styles.buttonSection}>
-        <SocialButton 
-          provider="google" 
+        <SocialButton
+          provider="google"
           onPress={() => console.log('Google login pressed')}
         />
-        
-        <SocialButton 
-          provider="apple" 
+
+        <SocialButton
+          provider="apple"
           onPress={() => console.log('Apple login pressed')}
         />
       </View>
@@ -71,8 +42,8 @@ export default function Index() {
       {/* Footer Links */}
       <View style={styles.footer}>
         <View style={styles.footerLinks}>
-          <ThemedText 
-            variant="link" 
+          <ThemedText
+            variant="link"
             style={styles.footerLink}
             onPress={() => console.log('Terms pressed')}
           >
@@ -81,8 +52,8 @@ export default function Index() {
           <ThemedText variant="caption" style={styles.footerSeparator}>
             •
           </ThemedText>
-          <ThemedText 
-            variant="link" 
+          <ThemedText
+            variant="link"
             style={styles.footerLink}
             onPress={() => console.log('Privacy pressed')}
           >
