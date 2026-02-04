@@ -1,14 +1,14 @@
+import { BorderRadius, Spacing, Typography } from '@/constants';
+import { useThemeColor } from '@/hooks/useColorScheme';
 import React from 'react';
 import { StyleSheet, TouchableOpacity, View } from 'react-native';
 import { ThemedText } from './ThemedText';
 import { ThemedView } from './ThemedView';
-import { useThemeColor } from '@/hooks/useColorScheme';
-import { BorderRadius, Spacing, Typography } from '@/constants';
 
 export type QuickLinkCardProps = {
   title: string;
   subtitle: string;
-  icon: string; // Using emoji for now, can be replaced with actual icons later
+  icon: React.ReactNode; // Using emoji for now, can be replaced with actual icons later
   iconColor?: string;
   onPress?: () => void;
   showChevron?: boolean;

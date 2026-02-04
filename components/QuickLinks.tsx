@@ -1,9 +1,9 @@
+import { BorderRadius, Shadows, Spacing } from '@/constants';
 import React from 'react';
 import { StyleSheet, View } from 'react-native';
+import { QuickLinkCard, type QuickLinkCardProps } from './QuickLinkCard';
 import { ThemedText } from './ThemedText';
 import { ThemedView } from './ThemedView';
-import { QuickLinkCard, type QuickLinkCardProps } from './QuickLinkCard';
-import { BorderRadius, Spacing, Shadows } from '@/constants';
 
 export type QuickLinkData = Omit<QuickLinkCardProps, 'onPress'> & {
   id: string;

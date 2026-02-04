@@ -1,9 +1,10 @@
 import { BorderRadius, Spacing, Typography } from '@/constants';
 import { useThemeColor } from '@/hooks/useColorScheme';
+import React from 'react';
 import { Dimensions, StyleSheet, View } from 'react-native';
 import Svg, { Circle, Path } from 'react-native-svg';
-import { ThemedText } from './ThemedText';
-import { ThemedView } from './ThemedView';
+import { ThemedText } from '../ThemedText';
+import { ThemedView } from '../ThemedView';
 
 export type ChartDataPoint = {
   value: number;

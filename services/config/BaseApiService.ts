@@ -1,34 +1,31 @@
+import config from "@/config/env";
 import axios, { AxiosRequestConfig, AxiosResponse } from "axios";
-
+console.log('API URL:', config.apiUrl);
 export default class BaseApiService {
 
-  private api;
-
-  constructor() {
-    this.api = axios.create({
-      baseURL: process.env.API_URL || 'http://localhost:3000',
-      headers: {
-        'Content-Type': 'application/json',
-        "Authorization": `Bearer ${process.env.API_ACCESS_TOKEN}`,
-        "x-company-id": process.env.COMPANY_ID || 'default-company-id',
-      },
-    });
-  }
+  static api = axios.create({
+    baseURL: config.apiUrl || 'http://localhost:3000',
+    headers: {
+      'Content-Type': 'application/json',
+      "Authorization": `Bearer ${config.apiKey}`,
+      "x-company-id": config.companyId || 'default-company-id',
+    },
+  });
 
 
-  public get<T>(url: string, config?: AxiosRequestConfig): Promise<AxiosResponse<T>> {
+  static get<T>(url: string, config?: AxiosRequestConfig): Promise<AxiosResponse<T>> {
     return this.api.get<T>(url, config);
   }
 
-  public post<T>(url: string, data: any, config?: AxiosRequestConfig): Promise<AxiosResponse<T>> {
+  static post<T>(url: string, data: any, config?: AxiosRequestConfig): Promise<AxiosResponse<T>> {
     return this.api.post<T>(url, data, config);
   }
 
-  public put<T>(url: string, data: any, config?: AxiosRequestConfig): Promise<AxiosResponse<T>> {
+  static put<T>(url: string, data: any, config?: AxiosRequestConfig): Promise<AxiosResponse<T>> {
     return this.api.put<T>(url, data, config);
   }
 
-  public delete<T>(url: string, config?: AxiosRequestConfig): Promise<AxiosResponse<T>> {
+  static delete<T>(url: string, config?: AxiosRequestConfig): Promise<AxiosResponse<T>> {
     return this.api.delete<T>(url, config);
   }
 

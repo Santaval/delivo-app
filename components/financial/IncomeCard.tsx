@@ -1,8 +1,9 @@
 import { BorderRadius, Shadows, Spacing } from '@/constants';
 import { useThemeColor } from '@/hooks/useColorScheme';
+import React from 'react';
 import { StyleSheet, View } from 'react-native';
-import { ThemedText } from './ThemedText';
-import { ThemedView } from './ThemedView';
+import { ThemedText } from '../ThemedText';
+import { ThemedView } from '../ThemedView';
 
 export type IncomeCardProps = {
   title: string;
