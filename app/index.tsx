@@ -6,6 +6,30 @@ import { Spacing, Typography } from "@/constants";
 import { useThemeColor } from "@/hooks/useColorScheme";
 import { StatusBar, StyleSheet, View } from "react-native";
 
+const quickLinksData = [
+  {
+    id: 'products',
+    title: 'Products',
+    subtitle: 'Manage inventory & pricing',
+    icon: '📦',
+    iconColor: '#3b82f6', // Blue
+  },
+  {
+    id: 'clients',
+    title: 'Clients',
+    subtitle: 'Client directory & CRM',
+    icon: '👥',
+    iconColor: '#8b5cf6', // Purple
+  },
+  {
+    id: 'bills',
+    title: 'Bills & Invoices',
+    subtitle: 'Track expenses & tax',
+    icon: '📄',
+    iconColor: '#10b981', // Green
+  }
+];
+
 export default function Index() {
   const colors = useThemeColor();
 
@@ -42,8 +66,6 @@ export default function Index() {
           provider="apple" 
           onPress={() => console.log('Apple login pressed')}
         />
-
-
       </View>
 
       {/* Footer Links */}
