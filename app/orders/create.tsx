@@ -1,14 +1,47 @@
-import { ClientSelect, ProductSelect, TopBar } from '@/components';
+import { ClientSelect, OrderItem, PrimaryButton, ProductSelect, TopBar } from '@/components';
 import { Spacing } from '@/constants';
+import OrdersService from '@/services/orders/Orders.service';
 import { useRoute } from '@react-navigation/native';
-import React from 'react';
+import { router } from 'expo-router';
+import React, { useEffect } from 'react';
 import { StyleSheet } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 export default function create() {
+  const [orderItems, setOrderItems] = React.useState<OrderItem[]>([]);
+  const [clientId, setClientId] = React.useState<string | undefined>(undefined);
+  const [isSaving, setIsSaving] = React.useState<boolean>(false);
   // load client id param from route params
   const route = useRoute();
-  const { clientId } = route.params as { clientId?: string };
+  const { clientId: defaultClientId } = route.params as { clientId?: string };
+
+  useEffect(() => {
+    setClientId(defaultClientId);
+  }, [defaultClientId]);
+
+  const handleSaveOrder = async  () => {
+    try {
+      setIsSaving(true);
+      // create order
+      const order = await OrdersService.create({
+        clientId,
+      });
+
+      // add items
+      const promises = orderItems.map(item => OrdersService.addItemToOrder(order.id, {
+        productId: item.product.id,
+        quantity: item.quantity,
+      }));
+      await Promise.all(promises);
+
+      router.push(`/orders/view/${order.id}`);
+
+    } catch (error) {
+      console.error('Error saving order:', error);
+    } finally {
+      setIsSaving(false);
+    }
+  };
 
   return (
     <SafeAreaView style={styles.container}>
@@ -17,16 +50,22 @@ export default function create() {
       />
       <ClientSelect
         label="ASSIGNED CLIENT"
-        defaultClientId={clientId}
-        onClientSelect={client => console.log('Selected client:', client)}
-        onClientClear={() => console.log('Client selection cleared')}
+        defaultClientId={defaultClientId}
+        onClientSelect={client => setClientId(client.id)}
+        onClientClear={() => setClientId(undefined)}
       />
 
       <ProductSelect
         label="Products"
         maxItems={100}
         // error={orderItems.length === 0 ? "Please add products" : undefined}
-        onProductsChange={() => { }}
+        onProductsChange={setOrderItems}
+      />
+
+      <PrimaryButton
+        title="Save Order"
+        onPress={handleSaveOrder}
+        disabled={!clientId || orderItems.length === 0 || isSaving}
       />
     </SafeAreaView>
   )

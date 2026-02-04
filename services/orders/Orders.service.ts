@@ -8,4 +8,8 @@ export default class OrdersService extends BaseApiService {
     return order;
   }
 
+  static async addItemToOrder(orderId: string, item: any): Promise<void> {
+    await this.post(`/orders/${orderId}/items`, item);
+  }
+
 }
