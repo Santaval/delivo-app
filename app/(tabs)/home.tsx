@@ -1,4 +1,4 @@
-import { IncomeCard, IncomeTrendsChart, QuickLinks } from '@/components';
+import { IncomeCard, IncomeTrendsChart, QuickLinks, TopBar } from '@/components';
 import { Spacing } from '@/constants';
 import { useThemeColor } from '@/hooks';
 import useFinancialSummary from '@/hooks/useFinanancialSummary';
@@ -24,6 +24,9 @@ export default function Home() {
 
   return (
     <SafeAreaView style={styles.container}>
+      <TopBar 
+        title='Home'
+      />
       <IncomeCard
         amount={data.incomes.total}
         title='Monthly Income'

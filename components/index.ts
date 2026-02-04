@@ -9,4 +9,5 @@ export { QuickLinks, type QuickLinkData, type QuickLinksProps } from './QuickLin
 export { SocialButton, type SocialButtonProps } from './SocialButton';
 export { ThemedText, type ThemedTextProps } from './ThemedText';
 export { ThemedView, type ThemedViewProps } from './ThemedView';
+export { TopBar, type TopBarProps } from './TopBar';
 
