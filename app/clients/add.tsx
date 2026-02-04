@@ -1,6 +1,7 @@
-import { FormField, PrimaryButton, ThemedText, ThemedView, TopBar } from '@/components';
+import { FormField, LocationSearch, PrimaryButton, ThemedText, ThemedView, TopBar } from '@/components';
 import { Spacing, Typography } from '@/constants';
 import { Colors } from '@/constants/Colors';
+import ClientsService from '@/services/clients/Clients.service';
 import { useRouter } from 'expo-router';
 import React, { useState } from 'react';
 import { Alert, KeyboardAvoidingView, Platform, ScrollView, StyleSheet, View } from 'react-native';
@@ -11,9 +12,9 @@ import { z } from 'zod';
 const clientSchema = z.object({
   name: z.string().min(1, 'Business name is required').min(2, 'Business name must be at least 2 characters'),
   phoneNumber: z.string().min(1, 'Contact name is required').min(2, 'Contact name must be at least 2 characters'),
-  email: z.string().optional(),
-  lat: z.string().min(-90, 'Latitude is required').max(90, 'Latitude must be between -90 and 90'),
-  lng: z.string().min(-180, 'Longitude is required').max(180, 'Longitude must be between -180 and 180'),
+  email: z.email().optional().nullable(),
+  lat: z.number().refine(val => val !== 0, { message: 'Please select a location' }),
+  lng: z.number().refine(val => val !== 0, { message: 'Please select a location' }),
 });
 
 type ClientFormData = z.infer<typeof clientSchema>;
@@ -23,11 +24,13 @@ export default function AddClient() {
 
   const [formData, setFormData] = useState<ClientFormData>({
     name: '',
-    email: '',
+    email: null,
     phoneNumber: '',
-    lat: '',
-    lng: '',
+    lat: 0,
+    lng: 0,
   });
+
+  const [selectedLocationName, setSelectedLocationName] = useState<string>('');
 
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -65,11 +68,7 @@ export default function AddClient() {
     setIsSubmitting(true);
 
     try {
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 1000));
-
-      // Mock client creation
-      console.log('Creating client:', formData);
+      await ClientsService.createClient(formData);
 
       Alert.alert(
         'Success',
@@ -84,6 +83,7 @@ export default function AddClient() {
         ]
       );
     } catch (error) {
+      console.error('Error creating client:', error);
       Alert.alert('Error', 'Failed to create client. Please try again.');
     } finally {
       setIsSubmitting(false);
@@ -135,29 +135,22 @@ export default function AddClient() {
               error={errors.email}
             />
 
-           
-
-            <FormField
-              label="Latitude"
-              value={formData.lat.toString()}
-              onChangeText={(value) => handleInputChange('lat', value)}
-              placeholder="-12.345678"
-              keyboardType="numeric"
-              error={errors.lat}
+            <LocationSearch
+              label="Location"
+              placeholder="Search for a location..."
+              onLocationSelect={(location) => {
+                handleInputChange('lat', location.latitude);
+                handleInputChange('lng', location.longitude);
+                setSelectedLocationName(location.description);
+              }}
+              onLocationClear={() => {
+                handleInputChange('lat', 0);
+                handleInputChange('lng', 0);
+                setSelectedLocationName('');
+              }}
+              error={errors.lat || errors.lng}
               required
             />
-
-            <FormField
-              label="Longitude"
-              value={formData.lng.toString()}
-              onChangeText={(value) => handleInputChange('lng', value)}
-              placeholder="-12.345678"
-              keyboardType="numeric"
-              error={errors.lng}
-              required
-            />
-
-
 
             <View style={styles.buttonContainer}>
               <PrimaryButton
