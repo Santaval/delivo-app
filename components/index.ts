@@ -1,8 +1,9 @@
 // Component exports
 export { BusinessCard, type BusinessCardProps } from './BusinessCard';
+export { ClientCard, type ClientCardProps } from './ClientCard';
 export { IncomeCard, type IncomeCardProps } from './financial/IncomeCard';
 export { IncomeTrendsChart, type IncomeTrendsChartProps } from './financial/IncomeTrendsChart';
-export { Logo, type LogoProps } from './Logo';
+export { default as Logo } from './Logo';
 export { PrimaryButton, type PrimaryButtonProps } from './PrimaryButton';
 export { QuickLinkCard, type QuickLinkCardProps } from './QuickLinkCard';
 export { QuickLinks, type QuickLinkData, type QuickLinksProps } from './QuickLinks';
