@@ -1,6 +1,7 @@
 // Component exports
 export { BusinessCard, type BusinessCardProps } from './BusinessCard';
 export { ClientCard, type ClientCardProps } from './ClientCard';
+export { ClientSelect, type ClientSelectProps } from './ClientSelect';
 export { IncomeCard, type IncomeCardProps } from './financial/IncomeCard';
 export { IncomeTrendsChart, type IncomeTrendsChartProps } from './financial/IncomeTrendsChart';
 export { FloatingActionButton, type FloatingActionButtonProps } from './FloatingActionButton';

@@ -1,4 +1,5 @@
 import {
+  FloatingActionButton,
   PrimaryButton,
   ThemedText,
   ThemedView,
@@ -9,7 +10,7 @@ import { Colors } from '@/constants/Colors';
 import { useThemeColor } from '@/hooks/useColorScheme';
 import ClientsService from '@/services/clients/Clients.service';
 import { MaterialIcons } from '@expo/vector-icons';
-import { useLocalSearchParams } from 'expo-router';
+import { router, useLocalSearchParams } from 'expo-router';
 import React, { useEffect, useState } from 'react';
 import {
   Alert,
@@ -188,9 +189,16 @@ export default function ClientProfile() {
           </View>
         </ThemedView>
 
-  
+              
       </ScrollView>
-m    </SafeAreaView>
+
+      <FloatingActionButton
+        icon="add-shopping-cart"
+        onPress={() => {
+          router.push(`/orders/create?clientId=${client.id}`);
+        }}
+      />
+    </SafeAreaView>
   );
 }
 
