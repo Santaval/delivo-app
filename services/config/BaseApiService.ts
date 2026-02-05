@@ -1,6 +1,5 @@
 import { AxiosRequestConfig, AxiosResponse } from "axios";
 import api from "../api";
-console.log(api.defaults)
 export default class BaseApiService {
   static get<T>(url: string, config?: AxiosRequestConfig): Promise<AxiosResponse<T>> {
     return api.get<T>(url, config);

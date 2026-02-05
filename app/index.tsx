@@ -48,6 +48,7 @@ export default function Index() {
           onPress={onAppleSignIn}
         />
 
+
         {/* <SocialButton
           provider="apple"
           onPress={() => console.log('Apple login pressed')}

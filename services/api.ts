@@ -5,7 +5,6 @@ const api = axios.create({
   baseURL: config.apiUrl || 'http://localhost:3000',
   headers: {
     'Content-Type': 'application/json',
-    "x-company-id": config.companyId || 'default-company-id',
   },
 });
 
