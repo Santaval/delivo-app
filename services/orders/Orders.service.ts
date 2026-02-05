@@ -1,4 +1,3 @@
-import { Order } from "@/types/Order";
 import BaseApiService from "../config/BaseApiService";
 
 export default class OrdersService extends BaseApiService {
@@ -6,6 +5,11 @@ export default class OrdersService extends BaseApiService {
   static async create(data: any): Promise<Order> {
     const { data: order } = await this.post<Order>('/orders', data);
     return order;
+  }
+
+  static async getOrderById(id: string): Promise<Order | null> {
+    const { data: order } = await this.get<Order>(`/orders/${id}`);
+    return order || null;
   }
 
   static async addItemToOrder(orderId: string, item: any): Promise<void> {

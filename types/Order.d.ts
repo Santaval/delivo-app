@@ -13,7 +13,7 @@ interface Order {
   updatedAt?: string;
 }
 
-export default interface OrderItem extends Product {
+interface OrderItem extends Product {
   quantity: number;
   productId: string;
 }
