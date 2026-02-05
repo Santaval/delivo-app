@@ -3,5 +3,6 @@ interface User {
   email: string;
   name: string;
   surnames: string;
+  companies: Company[];
 }
 
