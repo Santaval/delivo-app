@@ -1,14 +1,24 @@
+import AppleSignInButton from "@/components/AppleSignInButton";
 import Logo from "@/components/Logo";
 import { SocialButton } from "@/components/SocialButton";
 import { ThemedText } from "@/components/ThemedText";
 import { ThemedView } from "@/components/ThemedView";
 import { Spacing, Typography } from "@/constants";
+import { useAppleAuth } from "@/hooks/useAppleAuth";
 import { useThemeColor } from "@/hooks/useColorScheme";
-import { Link } from "expo-router";
+import { useGoogleAuth } from "@/hooks/useGoogleAuh";
+import { Link, router } from "expo-router";
 import { StatusBar, StyleSheet, View } from "react-native";
 
 export default function Index() {
   const colors = useThemeColor();
+  const { onGoogleSignIn } = useGoogleAuth();
+  const { onAppleSignIn } = useAppleAuth();
+
+  const handleGoogleSignIn = async () => {
+    await onGoogleSignIn();
+    router.push("/(tabs)/home");
+  };
 
   return (
     <ThemedView style={styles.container}>
@@ -31,13 +41,17 @@ export default function Index() {
       <View style={styles.buttonSection}>
         <SocialButton
           provider="google"
-          onPress={() => console.log('Google login pressed')}
+          onPress={handleGoogleSignIn}
         />
 
-        <SocialButton
+        <AppleSignInButton
+          onPress={onAppleSignIn}
+        />
+
+        {/* <SocialButton
           provider="apple"
           onPress={() => console.log('Apple login pressed')}
-        />
+        /> */}
       </View>
 
       {/* Footer Links */}

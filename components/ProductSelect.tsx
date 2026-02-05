@@ -14,7 +14,8 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native';
-import { ThemedText, ThemedView } from './';
+import { ThemedText } from './ThemedText';
+import { ThemedView } from './ThemedView';
 
 export type OrderItem = {
   product: Product;
