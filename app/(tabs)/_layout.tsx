@@ -1,4 +1,4 @@
-import { MaterialIcons } from '@expo/vector-icons';
+import { MaterialCommunityIcons, MaterialIcons } from '@expo/vector-icons';
 import { Tabs } from 'expo-router';
 import React from 'react';
 import { Platform } from 'react-native';
@@ -30,6 +30,15 @@ export default function TabLayout() {
           title: 'Home',
           tabBarIcon: ({ color }) => (
             <MaterialIcons name="home" size={28} color={color} />
+          ),
+        }}
+      />
+        <Tabs.Screen
+        name='products'
+        options={{
+          title: 'Products',
+          tabBarIcon: ({ color }) => (
+            <MaterialCommunityIcons name="package" size={28} color={color} />
           ),
         }}
       />

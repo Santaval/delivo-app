@@ -1,0 +1,103 @@
+import { BorderRadius, Colors, Shadows, Spacing, Typography } from '@/constants';
+import { useThemeColor } from '@/hooks/useColorScheme';
+import { MaterialIcons } from '@expo/vector-icons';
+import React from 'react';
+import { StyleSheet, TouchableOpacity, View } from 'react-native';
+import { ThemedText } from './ThemedText';
+import { ThemedView } from './ThemedView';
+
+type Props = {
+  item: Product;
+  onEdit?: (id: string) => void;
+};
+
+export default function ProductCard({ item, onEdit }: Props) {
+  const colors = useThemeColor();
+  
+  const formatCurrency = (value: number) => {
+    return `$${value.toFixed(2)}`;
+  };
+
+  return (
+    <ThemedView style={[styles.card, { backgroundColor: colors.surface }]}>
+      <View style={styles.row}>
+        <View style={styles.info}>
+          <ThemedText style={styles.title}>{item.name}</ThemedText>
+          <View style={styles.metaRow}>
+            <View style={styles.metaItem}>
+              <ThemedText variant="caption" style={styles.metaLabel}>NET</ThemedText>
+              <ThemedText style={styles.metaValue}>{formatCurrency(item.pricing.netPrice)}</ThemedText>
+            </View>
+
+            <View style={styles.metaItem}>
+              <ThemedText variant="caption" style={styles.metaLabel}>IVA</ThemedText>
+              <ThemedText style={styles.metaValue}>{item.pricing.ivaRate}%</ThemedText>
+            </View>
+
+            <View style={styles.metaItemRight}>
+              <ThemedText variant="caption" style={[styles.metaLabel, { textAlign: 'right' }]}>TOTAL</ThemedText>
+              <ThemedText style={styles.totalValue}>{formatCurrency(item.pricing.totalPrice)}</ThemedText>
+            </View>
+          </View>
+        </View>
+
+        <TouchableOpacity style={styles.editButton} onPress={() => onEdit && onEdit(item.id)} activeOpacity={0.7}>
+          <MaterialIcons name="edit" size={18} color={colors.textTertiary || Colors.light.textTertiary} />
+        </TouchableOpacity>
+      </View>
+    </ThemedView>
+  );
+}
+
+const styles = StyleSheet.create({
+  card: {
+    borderRadius: BorderRadius.lg,
+    padding: Spacing.md,
+    marginVertical: Spacing.sm,
+    ...Shadows.small,
+  },
+  row: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  info: {
+    flex: 1,
+  },
+  title: {
+    fontSize: Typography.fontSize.base,
+    fontWeight: Typography.fontWeight.semibold,
+    marginBottom: Spacing.xs,
+  },
+  metaRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+  },
+  metaItem: {
+    flexDirection: 'column',
+    minWidth: 80,
+  },
+  metaItemRight: {
+    flexDirection: 'column',
+    alignItems: 'flex-end',
+    minWidth: 100,
+  },
+  metaLabel: {
+    fontSize: Typography.fontSize.xs,
+    color: Colors.light.textSecondary,
+  },
+  metaValue: {
+    fontSize: Typography.fontSize.sm,
+    fontWeight: Typography.fontWeight.medium,
+  },
+  totalValue: {
+    fontSize: Typography.fontSize.lg,
+    fontWeight: Typography.fontWeight.bold,
+    color: Colors.light.primary,
+  },
+  editButton: {
+    padding: Spacing.sm,
+    marginLeft: Spacing.md,
+    borderRadius: 8,
+  },
+});
