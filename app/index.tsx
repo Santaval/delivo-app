@@ -4,20 +4,32 @@ import { SocialButton } from "@/components/SocialButton";
 import { ThemedText } from "@/components/ThemedText";
 import { ThemedView } from "@/components/ThemedView";
 import { Spacing, Typography } from "@/constants";
+import { useAuth } from "@/context/AuthContext";
+import { useCompanies } from "@/context/CompaniesContext";
 import { useAppleAuth } from "@/hooks/useAppleAuth";
 import { useThemeColor } from "@/hooks/useColorScheme";
 import { useGoogleAuth } from "@/hooks/useGoogleAuh";
-import { Link } from "expo-router";
+import { Link, router } from "expo-router";
+import { useEffect } from "react";
 import { StatusBar, StyleSheet, View } from "react-native";
 
 export default function Index() {
   const colors = useThemeColor();
+  const { authState } = useAuth();
+  const { activeCompany } = useCompanies();
   const { onGoogleSignIn, isLoading  } = useGoogleAuth();
   const { onAppleSignIn } = useAppleAuth();
 
   const handleGoogleSignIn = async () => {
     await onGoogleSignIn();
   };
+
+  useEffect(() => {
+    if (authState.isLoading) return; // Still loading
+    if (authState.authenticated && activeCompany) {
+      router.replace('/(tabs)/home');
+    }
+  }, [authState, activeCompany]);
 
   return (
     <ThemedView style={styles.container}>
