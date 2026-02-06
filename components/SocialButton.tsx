@@ -9,12 +9,14 @@ export type SocialButtonProps = {
   provider: 'google' | 'apple';
   onPress?: () => void;
   disabled?: boolean;
+  isLoading?: boolean; 
 };
 
 export function SocialButton({ 
   provider, 
   onPress = () => console.log(`${provider} login pressed`),
-  disabled = false 
+  disabled = false,
+  isLoading
 }: SocialButtonProps) {
   const colors = useThemeColor();
 
@@ -91,7 +93,7 @@ export function SocialButton({
             { color: getTextColor() }
           ]}
         >
-          {getButtonText()}
+          {isLoading ? "Solo un momento..." : getButtonText()}
         </ThemedText>
       </View>
     </TouchableOpacity>
@@ -101,7 +103,7 @@ export function SocialButton({
 const styles = StyleSheet.create({
   container: {
     height: 50,
-    borderRadius: BorderRadius.lg,
+    borderRadius: BorderRadius['3xl'],
     paddingHorizontal: Spacing.lg,
     marginVertical: Spacing.xs,
     justifyContent: 'center',

@@ -7,17 +7,16 @@ import { Spacing, Typography } from "@/constants";
 import { useAppleAuth } from "@/hooks/useAppleAuth";
 import { useThemeColor } from "@/hooks/useColorScheme";
 import { useGoogleAuth } from "@/hooks/useGoogleAuh";
-import { Link, router } from "expo-router";
+import { Link } from "expo-router";
 import { StatusBar, StyleSheet, View } from "react-native";
 
 export default function Index() {
   const colors = useThemeColor();
-  const { onGoogleSignIn } = useGoogleAuth();
+  const { onGoogleSignIn, isLoading  } = useGoogleAuth();
   const { onAppleSignIn } = useAppleAuth();
 
   const handleGoogleSignIn = async () => {
     await onGoogleSignIn();
-    router.push("/(tabs)/home");
   };
 
   return (
@@ -42,6 +41,7 @@ export default function Index() {
         <SocialButton
           provider="google"
           onPress={handleGoogleSignIn}
+          disabled={isLoading}
         />
 
         <AppleSignInButton

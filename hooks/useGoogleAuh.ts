@@ -1,7 +1,8 @@
 import { useAuth } from "@/context/AuthContext";
 import * as Google from "expo-auth-session/providers/google";
+import { router } from "expo-router";
 import * as WebBrowser from "expo-web-browser";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 
 WebBrowser.maybeCompleteAuthSession();
 
@@ -12,6 +13,7 @@ const GOOGLE_CLIENT_ID_IOS =
 
 export const useGoogleAuth = () => {
   const { googleAuth } = useAuth();
+  const [isLoading, setIsLoading] = useState(false);
 
 
 
@@ -29,18 +31,34 @@ export const useGoogleAuth = () => {
       const { authentication } = response;
       console.log("Google Authentication:", authentication);
       if (!authentication?.idToken) {
-        throw new Error("No ID token");
+        console.error("No ID token received from Google");
+        return;
       }
 
-      handleGoogleSignIn(authentication.idToken);
+      // Create async function to handle the sign in
+      const processGoogleSignIn = async () => {
+        try {
+          if (!authentication.idToken) return;
+          await handleGoogleSignIn(authentication.idToken);
+          router.push("/(tabs)/home");
+          
+        } catch (error) {
+          console.error("Failed to process Google sign in:", error);
+        }
+      };
+
+      processGoogleSignIn();
     }
   }, [response]);
 
   const handleGoogleSignIn = async (idToken: string) => {
     try {
+      setIsLoading(true);
       await googleAuth(idToken);
     } catch (error) {
       console.error("Google Sign In Error:", error);
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -50,5 +68,6 @@ export const useGoogleAuth = () => {
 
   return {
     onGoogleSignIn,
+    isLoading
   };
 };
