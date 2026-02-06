@@ -1,6 +1,7 @@
 import { Spacing, Typography } from '@/constants';
+import { useAuth } from '@/context/AuthContext';
 import { useThemeColor } from '@/hooks/useColorScheme';
-import { MaterialCommunityIcons } from '@expo/vector-icons';
+import { MaterialCommunityIcons, MaterialIcons } from '@expo/vector-icons';
 import React from 'react';
 import { Image, StyleSheet, TouchableOpacity, View } from 'react-native';
 import { ThemedText } from './ThemedText';
@@ -26,6 +27,7 @@ export function TopBar({
   onUserPress = () => console.log('User profile pressed'),
 }: TopBarProps) {
   const colors = useThemeColor();
+  const { logout } = useAuth();
 
   return (
     <ThemedView style={styles.container}>
@@ -75,6 +77,10 @@ export function TopBar({
           </View>
         </TouchableOpacity>
       )}
+
+      <TouchableOpacity onPress={logout}>
+        <MaterialIcons key="logout" name="logout" size={24} color={colors.text} />
+      </TouchableOpacity>
     </ThemedView>
   );
 }
