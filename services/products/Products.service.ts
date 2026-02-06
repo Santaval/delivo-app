@@ -7,6 +7,9 @@ export default class ProductsService extends BaseApiService {
     return data;
   }
 
-
+  static async create(product: any): Promise<Product> {
+    const { data } = await this.post<Product>('/products', product);
+    return data;
+  }
 
 }

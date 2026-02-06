@@ -1,3 +1,4 @@
+import { FloatingActionButton, TopBar } from '@/components';
 import ProductCard from '@/components/ProductCard';
 import { SearchBar } from '@/components/SearchBar';
 import { ThemedText } from '@/components/ThemedText';
@@ -6,6 +7,7 @@ import { Colors, Spacing, Typography } from '@/constants';
 import { useThemeColor } from '@/hooks/useColorScheme';
 import useProducts from '@/hooks/useProducts';
 import { MaterialIcons } from '@expo/vector-icons';
+import { router } from 'expo-router';
 import React, { useState } from 'react';
 import { ScrollView, StatusBar, StyleSheet, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -27,6 +29,7 @@ export default function Products() {
 
   return (
     <SafeAreaView style={styles.container}>
+      <TopBar title='Products' />
       <StatusBar barStyle="dark-content" backgroundColor={colors.background} />
       
       <ThemedView style={styles.container}>
@@ -52,6 +55,7 @@ export default function Products() {
               <ThemedText style={styles.totalText}>{filteredProducts.length} Total</ThemedText>
             </View>
           </View>
+          
 
           {/* Product Cards */}
           <View style={styles.productsList}>
@@ -83,8 +87,13 @@ export default function Products() {
               </ThemedText>
             </View>
           )}
+        
         </ScrollView>
       </ThemedView>
+      <FloatingActionButton
+          icon="add"
+          onPress={() => router.push('/products/add')}
+        />
     </SafeAreaView>
   );
 }
