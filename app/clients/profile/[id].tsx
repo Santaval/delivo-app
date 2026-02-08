@@ -5,9 +5,11 @@ import {
   ThemedView,
   TopBar
 } from '@/components';
+import { OrdersList } from '@/components/OrdersList';
 import { BorderRadius, Shadows, Spacing, Typography } from '@/constants';
 import { Colors } from '@/constants/Colors';
 import { useThemeColor } from '@/hooks/useColorScheme';
+import useCustomerOrders from '@/hooks/useCustomerOrders';
 import ClientsService from '@/services/clients/Clients.service';
 import { MaterialIcons } from '@expo/vector-icons';
 import { router, useLocalSearchParams } from 'expo-router';
@@ -19,7 +21,6 @@ import {
   ScrollView,
   StyleSheet,
   Text,
-  TouchableOpacity,
   View
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -27,31 +28,22 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 
 
 
-type InfoItemProps = {
-  icon: keyof typeof MaterialIcons.glyphMap;
-  label: string;
-  value: string | null | undefined;
-  onPress?: () => void;
-  isLink?: boolean;
-};
-
-
-
 export default function ClientProfile() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const colors = useThemeColor();
-  
+
   const [client, setClient] = useState<Client | null>(null);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const { orders, loading: ordersLoading, error: ordersError } = useCustomerOrders(id);
 
   const fetchClient = async () => {
     try {
       setError(null);
       const clientData = await ClientsService.getClientById(id);
       setClient(clientData);
-      
+
       if (!clientData) {
         setError('Client not found');
       }
@@ -89,8 +81,8 @@ export default function ClientProfile() {
   if (error || !client) {
     return (
       <ThemedView style={styles.container}>
-        <TopBar 
-          title="Client Profile" 
+        <TopBar
+          title="Client Profile"
         />
         <View style={styles.centerContent}>
           <MaterialIcons name="error-outline" size={48} color={colors.danger} />
@@ -103,17 +95,18 @@ export default function ClientProfile() {
             style={styles.retryButton}
           />
         </View>
+
       </ThemedView>
     );
   }
 
   return (
     <SafeAreaView style={styles.container}>
-      <TopBar 
-        title="Client Profile" 
+      <TopBar
+        title="Client Profile"
       />
-      
-      <ScrollView 
+
+      <ScrollView
         style={styles.scrollView}
         contentContainerStyle={styles.content}
         refreshControl={
@@ -135,12 +128,12 @@ export default function ClientProfile() {
                 {client.name.charAt(0).toUpperCase()}
               </ThemedText>
             </View>
-            
+
             {/* Client name */}
             <ThemedText style={[styles.profileName, { color: colors.text }]}>
               {client.name}
             </ThemedText>
-            
+
             {/* Phone number with country flag concept */}
             {client.phoneNumber && (
               <View style={styles.phoneContainer}>
@@ -149,47 +142,25 @@ export default function ClientProfile() {
                 </ThemedText>
               </View>
             )}
-            
+
             {/* Action buttons */}
             <View style={styles.actionButtonsRow}>
-              {client.phoneNumber && (
-                <TouchableOpacity 
-                  style={[styles.actionButton, { backgroundColor: colors.primary }]}
-                  onPress={handleCall}
-                  activeOpacity={0.8}
-                >
-                  <MaterialIcons name="phone" size={20} color={colors.textInverse} />
-                  <ThemedText style={[styles.actionButtonText, { color: colors.textInverse }]}>
-                    Call
-                  </ThemedText>
-                </TouchableOpacity>
-              )}
-              
-              {client.phoneNumber && (
-                <TouchableOpacity 
-                  style={[styles.actionButton, styles.whatsappButton]}
-                  onPress={() => {
-                    const phoneNumber = client.phoneNumber?.replace(/[^\d]/g, '');
-                    const whatsappUrl = `https://wa.me/${phoneNumber}`;
-                    Linking.openURL(whatsappUrl).catch(err => {
-                      console.error('Error opening WhatsApp:', err);
-                      Alert.alert('Error', 'Could not open WhatsApp');
-                    });
-                  }}
-                  activeOpacity={0.8}
-                >
-                  <MaterialIcons name="chat" size={20} color="#25D366" />
-                  <ThemedText style={[styles.actionButtonText, { color: '#25D366' }]}>
-                    WhatsApp
-                  </ThemedText>
-                </TouchableOpacity>
-              )}
-              
+          
+
+            <OrdersList
+              orders={orders}
+              onOrderPress={(orderId) => router.push(`/orders/view/${orderId}`)}
+            />
+
+
             </View>
+
+
           </View>
+
         </ThemedView>
 
-              
+
       </ScrollView>
 
       <FloatingActionButton

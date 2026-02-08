@@ -8,10 +8,12 @@ interface Order {
     total: number;
   };
   items: OrderItem[];
-  status: "PENDING" | "PAID" | "CANCELLED";
-  createdAt?: string;
-  updatedAt?: string;
+  status: OrderStatus;
+  createdAt: string;
+  updatedAt: string;
 }
+
+type OrderStatus = "PENDING" | "PAID" | "CANCELLED";
 
 interface OrderItem extends Product {
   quantity: number;

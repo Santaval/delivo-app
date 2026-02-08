@@ -16,4 +16,9 @@ export default class OrdersService extends BaseApiService {
     await this.post(`/orders/${orderId}/items`, item);
   }
 
+  static async byCustomerId(customerId: string): Promise<Order[]> {
+    const { data: orders } = await this.get<Order[]>(`/orders/client/${customerId}`);
+    return orders;
+  }
+
 }
