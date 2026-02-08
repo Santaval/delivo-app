@@ -33,7 +33,16 @@ export default function TabLayout() {
           ),
         }}
       />
-        <Tabs.Screen
+      <Tabs.Screen
+        name='orders'
+        options={{
+          title: 'Orders',
+          tabBarIcon: ({ color }) => (
+            <MaterialIcons name="shopping-cart" size={28} color={color} />
+          ),
+        }}
+      />
+      <Tabs.Screen
         name='products'
         options={{
           title: 'Products',
@@ -42,7 +51,7 @@ export default function TabLayout() {
           ),
         }}
       />
-       <Tabs.Screen
+      <Tabs.Screen
         name='clients'
         options={{
           title: 'Clients',

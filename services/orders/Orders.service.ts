@@ -2,6 +2,11 @@ import BaseApiService from "../config/BaseApiService";
 
 export default class OrdersService extends BaseApiService {
 
+  static async all(): Promise<Order[]> {
+    const { data: orders } = await this.get<Order[]>('/orders');
+    return orders;
+  }
+
   static async create(data: any): Promise<Order> {
     const { data: order } = await this.post<Order>('/orders', data);
     return order;
