@@ -4,12 +4,13 @@ import {
   ThemedView,
   TopBar
 } from '@/components';
+import ClientCompactCard from '@/components/clients/ClientCompactCard';
 import { BorderRadius, Shadows, Spacing, Typography } from '@/constants';
 import { Colors } from '@/constants/Colors';
 import { useThemeColor } from '@/hooks/useColorScheme';
 import OrdersService from '@/services/orders/Orders.service';
 import { MaterialIcons } from '@expo/vector-icons';
-import { useLocalSearchParams, useRouter } from 'expo-router';
+import { useLocalSearchParams } from 'expo-router';
 import React, { useEffect, useState } from 'react';
 import {
   ActivityIndicator,
@@ -110,7 +111,6 @@ const StatusBadge: React.FC<StatusBadgeProps> = ({ status }) => {
 
 export default function OrderDetailsPage() {
   const { id } = useLocalSearchParams<{ id: string }>();
-  const router = useRouter();
   const colors = useThemeColor();
   
   const [order, setOrder] = useState<Order | null>(null);
@@ -298,24 +298,9 @@ export default function OrderDetailsPage() {
           </View>
         </ThemedView>
 
-        {/* Client Information */}
-        <ThemedView style={[styles.clientCard, { backgroundColor: colors.surface }]}>
-          <View style={styles.clientHeader}>
-            <View style={[styles.clientAvatar, { backgroundColor: colors.primary }]}>
-              <ThemedText style={[styles.clientAvatarText, { color: colors.textInverse }]}>
-                {order.client.name.charAt(0).toUpperCase()}
-              </ThemedText>
-            </View>
-            <View style={styles.clientInfo}>
-              <ThemedText style={[styles.clientName, { color: colors.text }]}>
-                Client: {order.client.name}
-              </ThemedText>
-              <ThemedText style={[styles.clientContact, { color: colors.textSecondary }]}>
-                Contact: {order.client.phoneNumber || 'N/A'}
-              </ThemedText>
-            </View>
-          </View>
-        </ThemedView>
+        <ClientCompactCard 
+          client={order.client}
+        />
 
         {/* Line Items */}
         <ThemedView style={[styles.lineItemsCard, { backgroundColor: colors.surface }]}>
@@ -482,39 +467,7 @@ const styles = StyleSheet.create({
     textTransform: 'uppercase',
     letterSpacing: 0.5,
   },
-  clientCard: {
-    borderRadius: BorderRadius.lg,
-    padding: Spacing.lg,
-    marginBottom: Spacing.lg,
-    ...Shadows.small,
-  },
-  clientHeader: {
-    flexDirection: 'row',
-    alignItems: 'center',
-  },
-  clientAvatar: {
-    width: 48,
-    height: 48,
-    borderRadius: 24,
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginRight: Spacing.md,
-  },
-  clientAvatarText: {
-    fontSize: Typography.fontSize.lg,
-    fontWeight: Typography.fontWeight.bold,
-  },
-  clientInfo: {
-    flex: 1,
-  },
-  clientName: {
-    fontSize: Typography.fontSize.base,
-    fontWeight: Typography.fontWeight.semibold,
-    marginBottom: 2,
-  },
-  clientContact: {
-    fontSize: Typography.fontSize.sm,
-  },
+  
   lineItemsCard: {
     borderRadius: BorderRadius.lg,
     padding: Spacing.lg,

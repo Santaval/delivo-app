@@ -5,6 +5,7 @@ import {
   ThemedView,
   TopBar
 } from '@/components';
+import ClientCompactCard from '@/components/clients/ClientCompactCard';
 import { OrdersList } from '@/components/OrdersList';
 import { BorderRadius, Shadows, Spacing, Typography } from '@/constants';
 import { Colors } from '@/constants/Colors';
@@ -119,46 +120,16 @@ export default function ClientProfile() {
         }
         showsVerticalScrollIndicator={false}
       >
-        {/* Profile Header */}
-        <ThemedView style={[styles.profileHeader, { backgroundColor: colors.surface }]}>
-          <View style={styles.profileContent}>
-            {/* Large centered avatar */}
-            <View style={[styles.profileAvatar, { backgroundColor: colors.primary }]}>
-              <ThemedText style={styles.profileAvatarText}>
-                {client.name.charAt(0).toUpperCase()}
-              </ThemedText>
-            </View>
 
-            {/* Client name */}
-            <ThemedText style={[styles.profileName, { color: colors.text }]}>
-              {client.name}
-            </ThemedText>
+        <ClientCompactCard
+          client={client}
+        />
 
-            {/* Phone number with country flag concept */}
-            {client.phoneNumber && (
-              <View style={styles.phoneContainer}>
-                <ThemedText style={[styles.phoneNumber, { color: colors.textSecondary }]}>
-                  {client.phoneNumber}
-                </ThemedText>
-              </View>
-            )}
+        <OrdersList
+          orders={orders}
+          onOrderPress={(orderId) => router.push(`/orders/view/${orderId}`)}
+        />
 
-            {/* Action buttons */}
-            <View style={styles.actionButtonsRow}>
-          
-
-            <OrdersList
-              orders={orders}
-              onOrderPress={(orderId) => router.push(`/orders/view/${orderId}`)}
-            />
-
-
-            </View>
-
-
-          </View>
-
-        </ThemedView>
 
 
       </ScrollView>
@@ -176,7 +147,7 @@ export default function ClientProfile() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: Colors.light.background,
+    backgroundColor: Colors.light.backgroundSecondary,
   },
   scrollView: {
     flex: 1,
