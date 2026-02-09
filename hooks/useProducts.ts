@@ -36,7 +36,7 @@ const useProducts = () => {
     fetchProducts();
   }, []);
 
-  return { products, loading, error, searchProducts };
+  return { products, loading, error, searchProducts, refresh: fetchProducts };
 };
 
 export default useProducts;

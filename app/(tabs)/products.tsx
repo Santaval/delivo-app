@@ -9,12 +9,12 @@ import useProducts from '@/hooks/useProducts';
 import { MaterialIcons } from '@expo/vector-icons';
 import { router } from 'expo-router';
 import React, { useState } from 'react';
-import { ScrollView, StatusBar, StyleSheet, View } from 'react-native';
+import { RefreshControl, ScrollView, StatusBar, StyleSheet, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 export default function Products() {
   const colors = useThemeColor();
-  const { products } = useProducts();
+  const { products, loading, error, refresh } = useProducts();
   const [searchQuery, setSearchQuery] = useState('');
 
   // Filter products based on search query
@@ -47,6 +47,7 @@ export default function Products() {
           style={styles.scrollView}
           contentContainerStyle={styles.scrollContent}
           showsVerticalScrollIndicator={false}
+          refreshControl={<RefreshControl refreshing={loading} onRefresh={refresh} />}
         >
           {/* Section Header */}
           <View style={styles.sectionHeader}>
