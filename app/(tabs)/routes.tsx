@@ -35,6 +35,9 @@ export default function Clients() {
 
       <RoutesList 
         routes={routes}
+        onRoutePress={(routeId) => {
+          router.push(`/routes/view/${routeId}`);
+        }}
       />
       
       <FloatingActionButton
