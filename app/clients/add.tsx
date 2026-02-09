@@ -68,20 +68,9 @@ export default function AddClient() {
     setIsSubmitting(true);
 
     try {
-      await ClientsService.createClient(formData);
+      const client = await ClientsService.createClient(formData);
 
-      Alert.alert(
-        'Success',
-        'Client has been added successfully!',
-        [
-          {
-            text: 'OK',
-            onPress: () => {
-              router.back();
-            }
-          }
-        ]
-      );
+      router.push(`/clients/profile/${client.id}`);
     } catch (error) {
       console.error('Error creating client:', error);
       Alert.alert('Error', 'Failed to create client. Please try again.');
