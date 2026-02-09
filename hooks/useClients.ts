@@ -36,7 +36,7 @@ const useClients = () => {
     fetchClients();
   }, []);
 
-  return { clients, loading, error, searchClients };
+  return { clients, loading, error, searchClients, refresh: fetchClients };
 };
 
 export default useClients;

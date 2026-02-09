@@ -3,23 +3,16 @@ import { Spacing } from '@/constants';
 import useClients from '@/hooks/useClients';
 import { router } from 'expo-router';
 import React from 'react';
-import { StyleSheet, Text } from 'react-native';
+import { RefreshControl, ScrollView, StyleSheet, Text } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 export default function Clients() {
-  const { clients, loading, error, searchClients } = useClients();
+  const { clients, loading, error, searchClients, refresh } = useClients();
 
   const handleAddClient = () => {
     router.push('/clients/add');
   };
 
-  if (loading) {
-    return (
-      <SafeAreaView>
-        <Text>Loading...</Text>
-      </SafeAreaView>
-    );
-  }
 
   if (error) {
     return (
@@ -40,14 +33,18 @@ export default function Clients() {
         showClearButton
       />
 
-      {clients.map(client => (
-        <ClientCard
-          key={client.id}
-          name={client.name}
-          phone={client.phoneNumber}
-          onPress={() => router.push(`/clients/profile/${client.id}`)}
-        />
-      ))}
+      {!loading ? <ScrollView showsVerticalScrollIndicator={false}
+        refreshControl={<RefreshControl refreshing={loading} onRefresh={refresh} />}
+      >
+        {clients.map(client => (
+          <ClientCard
+            key={client.id}
+            name={client.name}
+            phone={client.phoneNumber}
+            onPress={() => router.push(`/clients/profile/${client.id}`)}
+          />
+        ))}
+      </ScrollView> : <Text>Loading...</Text>}
 
       <FloatingActionButton
         onPress={handleAddClient}
