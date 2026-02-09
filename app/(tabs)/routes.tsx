@@ -1,17 +1,17 @@
 import { FloatingActionButton, TopBar } from '@/components';
-import { OrdersList } from '@/components/OrdersList';
+import { RoutesList } from '@/components/RoutesList';
 import { Spacing } from '@/constants';
-import useOrders from '@/hooks/useOrders';
+import useRoutes from '@/hooks/useRoutes';
 import { router } from 'expo-router';
 import React from 'react';
 import { StyleSheet, Text } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 export default function Clients() {
-  const { orders, loading, error,  } = useOrders();
+  const { routes, loading, error} = useRoutes();
 
-  const handleAddOrder = () => {
-    router.push('/orders/create');
+  const handleAddRoute = () => {
+    router.push('/routes/create');
   };
 
   if (loading) {
@@ -25,7 +25,7 @@ export default function Clients() {
   return (
     <SafeAreaView style={styles.container}>
       <TopBar
-        title='Orders'
+        title='Routes'
       />
 
       {/* <SearchBar
@@ -33,12 +33,12 @@ export default function Clients() {
         showClearButton
       /> */}
 
-      <OrdersList 
-        orders={orders}
+      <RoutesList 
+        routes={routes}
       />
       
       <FloatingActionButton
-        onPress={handleAddOrder}
+        onPress={handleAddRoute}
         icon="add"
       />
     </SafeAreaView>
