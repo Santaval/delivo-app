@@ -34,7 +34,6 @@ export default function Clients() {
       /> */}
 
       <OrdersList 
-        onOrderPress={(orderId) => router.push(`/orders/view/${orderId}`)}
         orders={orders}
       />
       
