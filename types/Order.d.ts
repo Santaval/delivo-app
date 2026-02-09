@@ -9,11 +9,13 @@ interface Order {
   };
   items: OrderItem[];
   status: OrderStatus;
+  deliveryStatus: string;
   route?: Route;
   createdAt: string;
   updatedAt: string;
 }
 
+type OrderDeliveryStatus = "PENDING" | "ON_ROUTE" | "IN_TRANSIT" | "DELIVERED" | "RETURNED";
 type OrderStatus = "PENDING" | "PAID" | "CANCELLED";
 
 interface OrderItem extends Product {

@@ -20,7 +20,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 
 export default function AddOrders() {
   const { orders, loading, error } = useOrders();
-  
+  console.log('Fetched orders:', orders); // Debug log to check fetched orders
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedOrders, setSelectedOrders] = useState<Set<string>>(new Set());
   const [isAddingToRoute, setIsAddingToRoute] = useState(false);
@@ -39,7 +39,7 @@ export default function AddOrders() {
   }, [orders, searchQuery]);
 
   // Get pending orders (not assigned to routes)
-  const pendingOrders = filteredOrders.filter(order => order.status === 'PENDING');
+  const pendingOrders = filteredOrders.filter(order => order.deliveryStatus === 'PENDING');
 
   const toggleOrderSelection = (orderId: string) => {
     const newSelected = new Set(selectedOrders);
