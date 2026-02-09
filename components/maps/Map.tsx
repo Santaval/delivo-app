@@ -1,5 +1,6 @@
+import polyline from "@mapbox/polyline";
 import { StyleSheet } from "react-native";
-import MapView, { Marker } from "react-native-maps";
+import MapView, { Marker, Polyline } from "react-native-maps";
 
 type MarkerProps = {
   coordinate: {
@@ -12,9 +13,10 @@ type MarkerProps = {
 
 type Props = {
   markers?: MarkerProps[];
+  polylines?: string
 };
 
-export default function Map({ markers }: Props) {
+export default function Map({ markers, polylines }: Props) {
 
   // const { location} = useUserLocation()
 
@@ -38,6 +40,14 @@ export default function Map({ markers }: Props) {
         description={marker.description}
       />
     ))}
+
+    {polylines && (
+      <Polyline
+        coordinates={polyline.decode(polylines).map(([lat, lng]) => ({ latitude: lat, longitude: lng }))}
+        strokeColor="#000"
+        strokeWidth={6}
+      />
+    )}
 
   </MapView>
   );

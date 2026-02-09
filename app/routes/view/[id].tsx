@@ -87,6 +87,7 @@ export default function RouteView() {
               title: `${index + 1}. ${point.order.client.name}`,
               description: 'Delivery stop',
             }))}
+            polylines={route.polyline}
           />
         </View>
 

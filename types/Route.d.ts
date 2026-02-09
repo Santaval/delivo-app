@@ -3,6 +3,7 @@ interface Route {
     name: string;
     status: string;
     companyId: string;
+    polyline: string
     points: RoutePoint[];
     createdAt: string;
     updatedAt: string;

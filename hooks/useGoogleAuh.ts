@@ -29,7 +29,6 @@ export const useGoogleAuth = () => {
   useEffect(() => {
     if (response?.type === "success") {
       const { authentication } = response;
-      console.log("Google Authentication:", authentication);
       if (!authentication?.idToken) {
         console.error("No ID token received from Google");
         return;
