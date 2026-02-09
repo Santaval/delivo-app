@@ -1,3 +1,4 @@
+import { RouteStatus } from "@/components/RouteCard";
 import RoutesService from "@/services/routes/Routes.service";
 import { useEffect, useState } from "react";
 
@@ -18,11 +19,15 @@ const useRoutes = () => {
     }
   };
 
+  const filterByStatus = (status: RouteStatus) => {
+    return routes.filter(route => route.status === status);
+  };
+
   useEffect(() => {
     fetchRoutes();
   }, []);
 
-  return { routes, loading, error };
+  return { routes, loading, error, filterByStatus };
 };
 
 export default useRoutes;

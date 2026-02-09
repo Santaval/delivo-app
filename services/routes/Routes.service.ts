@@ -13,8 +13,11 @@ export default class RoutesService extends BaseApiService {
     return this.get<Route>(`/routes/${id}`);
   }
 
-  static async addPoint(routeId: string, point: any) {
-    return this.post<Route>(`/routes/${routeId}/points`, point);
+  static async addPoint(routeId: string, orderId: string) {
+    const { data } = await this.post<Route>(`/routes/${routeId}/points`, {
+      orderId
+    });
+    return data;
   }
 
 }

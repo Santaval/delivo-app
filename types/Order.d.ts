@@ -9,6 +9,7 @@ interface Order {
   };
   items: OrderItem[];
   status: OrderStatus;
+  route?: Route;
   createdAt: string;
   updatedAt: string;
 }
