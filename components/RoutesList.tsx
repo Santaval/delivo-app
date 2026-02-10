@@ -1,7 +1,7 @@
 import { BorderRadius, Colors, Spacing, Typography } from '@/constants';
 import { useThemeColor } from '@/hooks/useColorScheme';
 import React, { useMemo, useState } from 'react';
-import { ScrollView, StyleSheet, TouchableOpacity, View } from 'react-native';
+import { RefreshControl, ScrollView, StyleSheet, TouchableOpacity, View } from 'react-native';
 import { RouteCard } from './RouteCard';
 import { ThemedText } from './ThemedText';
 import { ThemedView } from './ThemedView';
@@ -12,9 +12,11 @@ export type RoutesListProps = {
   routes: Route[];
   onRoutePress?: (routeId: string) => void;
   onRouteDetailsPress?: (routeId: string) => void;
+  isRefreshing: boolean;
+  onRefresh: () => void;
 };
 
-export function RoutesList({ routes, onRoutePress, onRouteDetailsPress }: RoutesListProps) {
+export function RoutesList({ routes, onRoutePress, onRouteDetailsPress, isRefreshing, onRefresh }: RoutesListProps) {
   const colors = useThemeColor();
   const [activeTab, setActiveTab] = useState<TabType>('all');
 
@@ -155,6 +157,9 @@ export function RoutesList({ routes, onRoutePress, onRouteDetailsPress }: Routes
         style={styles.routesContainer}
         contentContainerStyle={styles.routesContent}
         showsVerticalScrollIndicator={false}
+        refreshControl={
+          <RefreshControl refreshing={isRefreshing} onRefresh={onRefresh} />
+        }
       >
         {filteredRoutes.length > 0 ? (
           filteredRoutes.map((route) => (

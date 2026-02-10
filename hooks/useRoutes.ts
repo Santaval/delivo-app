@@ -27,7 +27,7 @@ const useRoutes = () => {
     fetchRoutes();
   }, []);
 
-  return { routes, loading, error, filterByStatus };
+  return { routes, loading, error, filterByStatus, refresh: fetchRoutes };
 };
 
 export default useRoutes;

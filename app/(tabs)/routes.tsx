@@ -4,23 +4,16 @@ import { Spacing } from '@/constants';
 import useRoutes from '@/hooks/useRoutes';
 import { router } from 'expo-router';
 import React from 'react';
-import { StyleSheet, Text } from 'react-native';
+import { StyleSheet } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 export default function Clients() {
-  const { routes, loading, error} = useRoutes();
+  const { routes, loading, error, refresh } = useRoutes();
 
   const handleAddRoute = () => {
     router.push('/routes/create');
   };
 
-  if (loading) {
-    return (
-      <SafeAreaView>
-        <Text>Loading...</Text>
-      </SafeAreaView>
-    );
-  }
 
   return (
     <SafeAreaView style={styles.container}>
@@ -38,6 +31,9 @@ export default function Clients() {
         onRoutePress={(routeId) => {
           router.push(`/routes/view/${routeId}`);
         }}
+
+        isRefreshing={loading}
+        onRefresh={refresh}
       />
       
       <FloatingActionButton
