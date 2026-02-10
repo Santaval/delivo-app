@@ -1,4 +1,4 @@
-import { FloatingActionButton, PrimaryButton, TopBar } from '@/components';
+import { FloatingActionButton, SwipeButton, TopBar } from '@/components';
 import Map from '@/components/maps/Map';
 import { BorderRadius, Colors, Spacing, Typography } from '@/constants';
 import useRoute from '@/hooks/useRoute';
@@ -22,9 +22,24 @@ export default function RouteView() {
     return arrivalTime.format('hh:mm A');
   };
 
-  const handleStartNavigation = () => {
-    // TODO: Implement navigation start logic
-    console.log('Starting navigation for route:', route?.name);
+  const [isStartingNavigation, setIsStartingNavigation] = React.useState(false);
+
+  const handleStartNavigation = async () => {
+    setIsStartingNavigation(true);
+    try {
+      // TODO: Implement actual navigation start logic
+      // await RoutesService.startRoute(route?.id);
+      
+      // Simulate API call
+      await new Promise(resolve => setTimeout(resolve, 1500));
+      
+      console.log('Starting navigation for route:', route?.name);
+      // You might want to navigate to a navigation screen here
+    } catch (error) {
+      console.error('Failed to start navigation:', error);
+    } finally {
+      setIsStartingNavigation(false);
+    }
   };
 
   const renderStopItem = ({ item, index }: { item: RoutePoint; index: number }) => (
@@ -109,9 +124,12 @@ export default function RouteView() {
           />
           
           <View style={styles.navigationButtonContainer}>
-            <PrimaryButton
-              title="Start Navigation"
-              onPress={handleStartNavigation}
+            <SwipeButton
+              onSwipeComplete={handleStartNavigation}
+              text={isStartingNavigation ? 'Starting Navigation...' : 'Slide to Start Navigation'}
+              isLoading={isStartingNavigation}
+              iconName="navigate"
+              backgroundColor={Colors.light.success}
               style={styles.navigationButton}
             />
           </View>

@@ -1,4 +1,4 @@
-import { PrimaryButton, TopBar } from '@/components';
+import { SwipeButton, TopBar } from '@/components';
 import { BorderRadius, Colors, Spacing, Typography } from '@/constants';
 import useOrders from '@/hooks/useOrders';
 import RoutesService from '@/services/routes/Routes.service';
@@ -72,9 +72,7 @@ export default function AddOrders() {
 
     setIsAddingToRoute(true);
     try {
-      // Simulate API call - replace with actual service
       
-      // TODO: Replace with actual API call
       const promises = Array.from(selectedOrders).map(orderId =>
         RoutesService.addPoint(routeId, orderId)
       );
@@ -243,11 +241,13 @@ export default function AddOrders() {
               </Text>
             </View>
             
-            <PrimaryButton
-              title={isAddingToRoute ? 'Adding...' : `Add to Route `}
-              onPress={handleAddToRoute}
-              disabled={isAddingToRoute}
-              style={styles.addButton}
+            {/* Swipe Button */}
+            <SwipeButton
+              onSwipeComplete={handleAddToRoute}
+              text={isAddingToRoute ? 'Adding to Route...' : 'Slide to Add to Route'}
+              isLoading={isAddingToRoute}
+              iconName="rocket"
+              style={styles.swipeButton}
             />
           </View>
         )}
@@ -464,5 +464,8 @@ const styles = StyleSheet.create({
   },
   addButton: {
     marginBottom: 0,
+  },
+  swipeButton: {
+    marginTop: Spacing.sm,
   },
 });

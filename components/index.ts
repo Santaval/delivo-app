@@ -14,6 +14,7 @@ export { QuickLinkCard, type QuickLinkCardProps } from './QuickLinkCard';
 export { QuickLinks, type QuickLinkData, type QuickLinksProps } from './QuickLinks';
 export { SearchBar, type SearchBarProps } from './SearchBar';
 export { SocialButton, type SocialButtonProps } from './SocialButton';
+export { default as SwipeButton, type SwipeButtonProps } from './SwipeButton';
 export { ThemedText, type ThemedTextProps } from './ThemedText';
 export { ThemedView, type ThemedViewProps } from './ThemedView';
 export { TopBar, type TopBarProps } from './TopBar';
