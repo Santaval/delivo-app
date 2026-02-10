@@ -1,27 +1,14 @@
-import RoutesService from "@/services/routes/Routes.service";
-import { useEffect, useState } from "react";
+// This hook has been replaced by RouteContext
+// Please use the useRoute hook from @/context/RouteContext instead
+// 
+// Migration example:
+// Old: const { route, loading, error } = useRoute(routeId);
+// New: 
+//   const { route, isLoading, error, fetchRoute } = useRoute();
+//   useEffect(() => {
+//     if (routeId) {
+//       fetchRoute(routeId);
+//     }
+//   }, [routeId]);
 
-const useRoute = (routeId: string) => {
-  const [route, setRoute] = useState<Route | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-
-  useEffect(() => {
-    const fetchRoute = async () => {
-      try {
-        const routeData = await RoutesService.find(routeId);
-        setRoute(routeData);
-      } catch (err) {
-        setError('Failed to load route');
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchRoute();
-  }, [routeId]);
-
-  return { route, loading, error };
-};
-
-export default useRoute;
+export { useRoute } from "@/context/RouteContext";

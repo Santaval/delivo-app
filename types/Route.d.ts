@@ -1,7 +1,7 @@
 interface Route {
     id: string;
     name: string;
-    status: string;
+    status: "CREATED" | "STARTED" | "COMPLETED";
     companyId: string;
     polyline: string
     points: RoutePoint[];
