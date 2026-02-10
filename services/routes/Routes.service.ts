@@ -21,4 +21,10 @@ export default class RoutesService extends BaseApiService {
     return data;
   }
 
+  static async startNavigation(routeId: string, startLocation: LocationCords) {
+    const { data } = await this.post<Route>(`/routes/${routeId}/start`, {
+      startLocation
+    });
+    return data;
+  }
 }

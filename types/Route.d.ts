@@ -17,3 +17,8 @@ interface RoutePoint {
     createdAt: string;
     updatedAt: string;
 }
+
+interface LocationCords {
+    lat: number;
+    lng: number;
+}

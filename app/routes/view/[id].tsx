@@ -2,39 +2,34 @@ import { FloatingActionButton, SwipeButton, TopBar } from '@/components';
 import Map from '@/components/maps/Map';
 import { BorderRadius, Colors, Spacing, Typography } from '@/constants';
 import useRoute from '@/hooks/useRoute';
+import useUserLocation from '@/hooks/useUserLocation';
+import RoutesService from '@/services/routes/Routes.service';
 import { router, useLocalSearchParams } from 'expo-router';
-import moment from 'moment';
 import React from 'react';
-import { ActivityIndicator, FlatList, StyleSheet, Text, View } from 'react-native';
+import { ActivityIndicator, Alert, FlatList, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 export default function RouteView() {
   const { id } = useLocalSearchParams<{ id: string }>();
 
   const { route, loading, error } = useRoute(id);
-
-  const formatEstimatedArrival = (index: number) => {
-    // Calculate estimated arrival based on start time + travel time
-    const startTime = moment().hour(9).minute(30); // 09:30 AM start
-    const travelTimePerStop = 30; // 30 minutes per stop
-    const arrivalTime = startTime.clone().add(index * travelTimePerStop, 'minutes');
-    
-    return arrivalTime.format('hh:mm A');
-  };
+  const { location } = useUserLocation();
+  
 
   const [isStartingNavigation, setIsStartingNavigation] = React.useState(false);
 
   const handleStartNavigation = async () => {
+    if (!location) {
+      Alert.alert('Location Error', 'Unable to access your location. Please enable location services and try again.');
+      return;
+    }
+    if (!route) return;
     setIsStartingNavigation(true);
     try {
-      // TODO: Implement actual navigation start logic
-      // await RoutesService.startRoute(route?.id);
-      
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 1500));
-      
-      console.log('Starting navigation for route:', route?.name);
-      // You might want to navigate to a navigation screen here
+      await RoutesService.startNavigation(route?.id, {
+        lat: location.coords.latitude,
+        lng: location.coords.longitude,
+      });
     } catch (error) {
       console.error('Failed to start navigation:', error);
     } finally {
