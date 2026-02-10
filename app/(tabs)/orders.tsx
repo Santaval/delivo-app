@@ -4,23 +4,15 @@ import { Spacing } from '@/constants';
 import useOrders from '@/hooks/useOrders';
 import { router } from 'expo-router';
 import React from 'react';
-import { StyleSheet, Text } from 'react-native';
+import { StyleSheet } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 export default function Clients() {
-  const { orders, loading, error,  } = useOrders();
+  const { orders, loading, error, refresh } = useOrders();
 
   const handleAddOrder = () => {
     router.push('/orders/create');
   };
-
-  if (loading) {
-    return (
-      <SafeAreaView>
-        <Text>Loading...</Text>
-      </SafeAreaView>
-    );
-  }
 
   return (
     <SafeAreaView style={styles.container}>
@@ -36,6 +28,8 @@ export default function Clients() {
       <OrdersList 
         onOrderPress={(orderId) => router.push(`/orders/view/${orderId}`)}
         orders={orders}
+        isRefreshing={loading}
+        onRefresh={refresh}
       />
       
       <FloatingActionButton

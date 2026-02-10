@@ -23,7 +23,7 @@ const useOrders = () => {
     fetchOrders();
   }, []);
 
-  return { orders, loading, error };
+  return { orders, loading, error, refresh: fetchOrders };
 };
 
 export default useOrders;

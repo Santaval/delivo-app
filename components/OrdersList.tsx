@@ -1,7 +1,7 @@
 import { BorderRadius, Colors, Spacing, Typography } from '@/constants';
 import { useThemeColor } from '@/hooks/useColorScheme';
 import React, { useMemo, useState } from 'react';
-import { ScrollView, StyleSheet, TouchableOpacity, View } from 'react-native';
+import { RefreshControl, ScrollView, StyleSheet, TouchableOpacity, View } from 'react-native';
 import { OrderCard } from './OrderCard';
 import { ThemedText } from './ThemedText';
 import { ThemedView } from './ThemedView';
@@ -11,9 +11,11 @@ type TabType = 'all' | 'paid' | 'pending';
 export type OrdersListProps = {
   orders: Order[];
   onOrderPress?: (orderId: string) => void;
+  onRefresh: () => void;
+  isRefreshing: boolean;
 };
 
-export function OrdersList({ orders, onOrderPress }: OrdersListProps) {
+export function OrdersList({ orders, onOrderPress, onRefresh, isRefreshing }: OrdersListProps) {
   const colors = useThemeColor();
   const [activeTab, setActiveTab] = useState<TabType>('all');
 
@@ -149,6 +151,9 @@ export function OrdersList({ orders, onOrderPress }: OrdersListProps) {
         style={styles.ordersContainer}
         contentContainerStyle={styles.ordersContent}
         showsVerticalScrollIndicator={false}
+        refreshControl={
+          <RefreshControl refreshing={isRefreshing} onRefresh={onRefresh} />
+        }
       >
         {filteredOrders.length > 0 ? (
           filteredOrders.map((order) => (
