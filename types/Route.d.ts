@@ -12,6 +12,7 @@ interface Route {
 interface RoutePoint {
     id: string;
     status: string;
+    index: number;
     order: Order;
     routeId: string;
     createdAt: string;

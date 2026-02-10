@@ -1,3 +1,4 @@
+import useUserLocation from "@/hooks/useUserLocation";
 import polyline from "@mapbox/polyline";
 import { StyleSheet } from "react-native";
 import MapView, { Marker, Polyline } from "react-native-maps";
@@ -18,15 +19,16 @@ type Props = {
 
 export default function Map({ markers, polylines }: Props) {
 
-  // const { location} = useUserLocation()
+  const { location } = useUserLocation()
+
+  if (!location) return null;
 
   return (
     <MapView
       style={styles.map}
-      // provider={PROVIDER_GOOGLE}
       initialRegion={{
-        latitude: 10.6305,
-        longitude: -85.4393,
+        latitude: location?.coords.latitude || 37.7749,
+        longitude: location?.coords.longitude || -122.4194,
         latitudeDelta: 0.05,
         longitudeDelta: 0.05,
       }}
@@ -34,6 +36,7 @@ export default function Map({ markers, polylines }: Props) {
 
     {markers?.map((marker, index) => (
       <Marker
+      icon={1}
         key={index}
         coordinate={marker.coordinate}
         title={marker.title}

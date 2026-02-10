@@ -1,5 +1,5 @@
 import RoutesService from "@/services/routes/Routes.service";
-import { createContext, useContext, useEffect, useState, ReactNode } from "react";
+import { createContext, ReactNode, useContext, useEffect, useState } from "react";
 
 /**
  * Represents the route state of the application
@@ -27,6 +27,12 @@ interface RouteContextType extends RouteState {
   updateRoute: (route: Route) => void;
   /** Function to clear error */
   clearError: () => void;
+  /** Function to get the current point */
+  getCurrentPoint: () => RoutePoint | null;
+  /** Function to get the next point */
+  getNextPoint: () => RoutePoint | null;
+  /** Function to complete the current delivery */
+  completeCurrentDelivery: () => Promise<void>;
 }
 
 /**
@@ -51,6 +57,7 @@ export const RouteProvider = ({ children, routeId }: RouteProviderProps) => {
   const [route, setRoute] = useState<Route | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [currentPointIndex, setCurrentPointIndex] = useState<number | null>(null);
 
   /**
    * Fetches a route by ID
@@ -61,7 +68,10 @@ export const RouteProvider = ({ children, routeId }: RouteProviderProps) => {
       setIsLoading(true);
       setError(null);
       const routeData = await RoutesService.find(id);
+      const orderedPoints = routeData.points.sort((a, b) => a.index - b.index);
+      routeData.points = orderedPoints;
       setRoute(routeData);
+      setCurrentPointIndex(orderedPoints.findIndex(point => point.status === 'CREATED') || null);
     } catch (err) {
       setError('Failed to load route');
       console.error('Failed to fetch route:', err);
@@ -78,6 +88,8 @@ export const RouteProvider = ({ children, routeId }: RouteProviderProps) => {
       clearRoute();
     }
   }, [routeId]);
+
+
 
   /**
    * Clears the current route
@@ -103,6 +115,32 @@ export const RouteProvider = ({ children, routeId }: RouteProviderProps) => {
     setError(null);
   };
 
+  const getCurrentPoint = () => {
+    if (!route) return null;
+    return route.points[currentPointIndex || 0] || null;
+  };
+
+  const getNextPoint = () => {
+    if (!route) return null;
+    const nextIndex = currentPointIndex !== null ? currentPointIndex + 1 : 0;
+    if (nextIndex >= route.points.length) return null;
+    return route.points[nextIndex] || null;
+  };
+
+  const completeCurrentDelivery = async () => {
+    const currentPoint = getCurrentPoint();
+    if (!currentPoint) return;
+
+    try {
+      // await RoutesService.completeDelivery(currentPoint.id);
+      // Alert.alert('Success', 'Delivery completed successfully.');
+      setCurrentPointIndex(prevIndex => (prevIndex !== null ? prevIndex + 1 : 0));
+    } catch (error) {
+      console.error('Failed to complete delivery:', error);
+      // Alert.alert('Error', 'Failed to complete delivery. Please try again.');
+    }
+  };
+
   const value: RouteContextType = {
     route,
     isLoading,
@@ -111,6 +149,9 @@ export const RouteProvider = ({ children, routeId }: RouteProviderProps) => {
     clearRoute,
     updateRoute,
     clearError,
+    getCurrentPoint,
+    getNextPoint,
+    completeCurrentDelivery
   };
 
   return (

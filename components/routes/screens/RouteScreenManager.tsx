@@ -1,5 +1,6 @@
 
 import { useRoute } from '@/context/RouteContext';
+import RouteDeliveryScreen from './RouteDelivery';
 import RoutePlanningScreen from './RoutePlanning';
 
 export default function RouteScreenManager() {
@@ -8,8 +9,8 @@ export default function RouteScreenManager() {
   switch (route?.status) {
     case 'CREATED':
       return <RoutePlanningScreen />;
-    // case 'STARTED':
-    //   return <InactiveRouteScreen />;
+    case 'STARTED':
+      return <RouteDeliveryScreen />;
     default:
       return <RoutePlanningScreen />;
   }
