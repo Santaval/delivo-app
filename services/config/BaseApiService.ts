@@ -17,4 +17,8 @@ export default class BaseApiService {
     return api.delete<T>(url, config);
   }
 
+  static patch<T>(url: string, data: any, config?: AxiosRequestConfig): Promise<AxiosResponse<T>> {
+    return api.patch<T>(url, data, config);
+  }
+
 }

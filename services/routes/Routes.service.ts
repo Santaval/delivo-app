@@ -27,4 +27,9 @@ export default class RoutesService extends BaseApiService {
     });
     return data;
   }
+
+  static async completeDelivery(pointId: string) {
+    const { data } = await this.patch<RoutePoint>(`/routes/points/${pointId}/complete`, {});
+    return data;
+  }
 }
