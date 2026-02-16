@@ -19,7 +19,7 @@ export function IncomeCard({
   amount,
   percentage,
   timeStamp,
-  currency = '$',
+  currency = '₡',
   variant = 'light',
   onPress = () => console.log('Income card pressed'),
 }: IncomeCardProps) {

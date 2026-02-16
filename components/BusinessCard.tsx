@@ -19,7 +19,7 @@ export function BusinessCard({
   amount,
   type,
   subtitle,
-  currency = '$',
+  currency = '₡',
   onPress,
   style,
   ...rest

@@ -220,7 +220,7 @@ export default function AddProduct() {
             <View style={styles.totalRow}>
               <ThemedText style={styles.totalLabel}>Total Price</ThemedText>
               <ThemedText style={styles.totalValue}>
-                ${formatCurrency(grossPrice)}
+                ₡{formatCurrency(grossPrice)}
               </ThemedText>
             </View>
             <ThemedText style={styles.totalSubtext}>

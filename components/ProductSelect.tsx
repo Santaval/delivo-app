@@ -325,7 +325,7 @@ export function ProductSelect({
               Total Order Value:
             </ThemedText>
             <ThemedText style={[styles.totalValue, { color: colors.primary }]}>
-              ${totalValue.toFixed(2)}
+              ₡{totalValue.toFixed(2)}
             </ThemedText>
           </View>
         </View>
