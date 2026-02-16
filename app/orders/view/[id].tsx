@@ -5,6 +5,7 @@ import {
   TopBar
 } from '@/components';
 import ClientCompactCard from '@/components/clients/ClientCompactCard';
+import CurrencyText from '@/components/currency/CurrencyText';
 import { BorderRadius, Shadows, Spacing, Typography } from '@/constants';
 import { Colors } from '@/constants/Colors';
 import { useThemeColor } from '@/hooks/useColorScheme';
@@ -44,18 +45,14 @@ const LineItemRow: React.FC<LineItemRowProps> = ({ item, index, total }) => {
           <ThemedText style={[styles.productName, { color: colors.text }]}>
             {item.name}
           </ThemedText>
-          <ThemedText style={[styles.unitPrice, { color: colors.textSecondary }]}>
-            {formatPrice(item.pricing.totalPrice)}
-          </ThemedText>
+          <CurrencyText style={[styles.unitPrice, { color: colors.textSecondary }]} amount={item.pricing.totalPrice} />
         </View>
         
         <View style={styles.lineItemRight}>
           <ThemedText style={[styles.quantity, { color: colors.text }]}>
             {item.quantity}
           </ThemedText>
-          <ThemedText style={[styles.total, { color: colors.text }]}>
-            {formatPrice(itemTotal)}
-          </ThemedText>
+          <CurrencyText style={[styles.total, { color: colors.text }]} amount={itemTotal} />
         </View>
       </View>
     </View>
@@ -349,27 +346,21 @@ export default function OrderDetailsPage() {
             <ThemedText style={[styles.summaryLabel, { color: colors.textSecondary }]}>
               Subtotal
             </ThemedText>
-            <ThemedText style={[styles.summaryValue, { color: colors.text }]}>
-              {formatPrice(order.pricing.subtotal)}
-            </ThemedText>
+            <CurrencyText style={[styles.summaryValue, { color: colors.text }]} amount={order.pricing.subtotal} />
           </View>
           
           <View style={styles.summaryRow}>
             <ThemedText style={[styles.summaryLabel, { color: colors.textSecondary }]}>
               IVA Amount ({((order.pricing.ivaTotal / order.pricing.subtotal) * 100).toFixed(0)}%)
             </ThemedText>
-            <ThemedText style={[styles.summaryValue, { color: colors.text }]}>
-              {formatPrice(order.pricing.ivaTotal)}
-            </ThemedText>
+            <CurrencyText style={[styles.summaryValue, { color: colors.text }]} amount={order.pricing.ivaTotal} />
           </View>
           
           <View style={[styles.summaryRow, styles.totalRow, { borderTopColor: colors.border }]}>
             <ThemedText style={[styles.totalLabel, { color: colors.text }]}>
               Grand Total
             </ThemedText>
-            <ThemedText style={[styles.totalValue, { color: colors.primary }]}>
-              {formatPrice(order.pricing.total)}
-            </ThemedText>
+            <CurrencyText style={[styles.totalValue, { color: colors.primary }]} amount={order.pricing.total} />
           </View>
         </ThemedView>
 

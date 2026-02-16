@@ -5,6 +5,7 @@ import React from 'react';
 import { StyleSheet, TouchableOpacity, View } from 'react-native';
 import { ThemedText } from './ThemedText';
 import { ThemedView } from './ThemedView';
+import CurrencyText from './currency/CurrencyText';
 
 
 export type OrderCardProps = {
@@ -18,16 +19,13 @@ export function OrderCard({
 }: OrderCardProps) {
   const colors = useThemeColor();
 
-  const formatCurrency = (value: number) => {
-    return `₡${value.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
-  };
 
   const formatDate = (dateString: string) => {
     const date = new Date(dateString);
-    return date.toLocaleDateString('en-US', { 
-      month: 'short', 
-      day: 'numeric', 
-      year: 'numeric' 
+    return date.toLocaleDateString('en-US', {
+      month: 'short',
+      day: 'numeric',
+      year: 'numeric'
     });
   };
 
@@ -103,9 +101,7 @@ export function OrderCard({
 
           {/* Right Section */}
           <View style={styles.rightSection}>
-            <ThemedText style={styles.amount}>
-              {formatCurrency(order.pricing.total)}
-            </ThemedText>
+            <CurrencyText style={styles.amount} amount={order.pricing.total} />
             <MaterialIcons
               name="chevron-right"
               size={20}
