@@ -70,7 +70,6 @@ export const RouteProvider = ({ children, routeId }: RouteProviderProps) => {
       const routeData = await RoutesService.find(id);
       const orderedPoints = routeData.points.sort((a, b) => a.index - b.index);
       routeData.points = orderedPoints;
-      console.log('Fetched route:', orderedPoints);
       setRoute(routeData);
       setCurrentPointIndex(orderedPoints.findIndex(point => point.status === 'CREATED') || null);
     } catch (err) {
@@ -131,10 +130,21 @@ export const RouteProvider = ({ children, routeId }: RouteProviderProps) => {
   const completeCurrentDelivery = async () => {
     const currentPoint = getCurrentPoint();
     if (!currentPoint) return;
+    if(!route) return;
 
     try {
       await RoutesService.completeDelivery(currentPoint.id);
-      setCurrentPointIndex(prevIndex => (prevIndex !== null ? prevIndex + 1 : 0));
+      // check if is last 
+      if (currentPointIndex === route.points.length - 1) {
+        setCurrentPointIndex(null);
+        setRoute(prev => prev ? {
+          ...prev,
+          status: 'COMPLETED'
+        } : null)
+      } else {
+        setCurrentPointIndex(prevIndex => (prevIndex !== null ? prevIndex + 1 : 0));
+      }
+
     } catch (error) {
       console.error('Failed to complete delivery:', error);
       // Alert.alert('Error', 'Failed to complete delivery. Please try again.');

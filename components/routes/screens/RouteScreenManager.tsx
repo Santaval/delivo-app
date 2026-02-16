@@ -1,6 +1,7 @@
 
 import { useRoute } from '@/context/RouteContext';
 import RouteDeliveryScreen from './RouteDelivery';
+import RouteFinishedScreen from './RouteFinished';
 import RoutePlanningScreen from './RoutePlanning';
 
 export default function RouteScreenManager() {
@@ -11,6 +12,8 @@ export default function RouteScreenManager() {
       return <RoutePlanningScreen />;
     case 'STARTED':
       return <RouteDeliveryScreen />;
+    case 'COMPLETED':
+      return <RouteFinishedScreen />;
     default:
       return <RoutePlanningScreen />;
   }
