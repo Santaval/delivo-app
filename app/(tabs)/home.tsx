@@ -9,7 +9,7 @@ import { StyleSheet, Text } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 export default function Home() {
-  const { data, loading, error } = useFinancialSummary();
+  const { data, loading } = useFinancialSummary();
 
   const colors = useThemeColor();
 
@@ -30,14 +30,12 @@ export default function Home() {
       <IncomeCard
         amount={data.incomes.total}
         title='Monthly Income'
-        currency='₡'
         percentage={data.incomes.increasePercentage || 0}
         timeStamp='Since last month'
       />
       <IncomeTrendsChart
         data={Object.entries(data.incomes.byDay).map(([label, value]) => ({ label, value })) as any}
         title='Income Trends'
-        currency='₡'
         averageValue={data.incomes.averagePerDay}
       />
 

@@ -5,6 +5,7 @@ import { Dimensions, StyleSheet, View } from 'react-native';
 import Svg, { Circle, Path } from 'react-native-svg';
 import { ThemedText } from '../ThemedText';
 import { ThemedView } from '../ThemedView';
+import CurrencyText from '../currency/CurrencyText';
 
 export type ChartDataPoint = {
   value: number;
@@ -17,7 +18,6 @@ export type IncomeTrendsChartProps = {
   averageValue?: number;
   data: ChartDataPoint[];
   timeLabels?: string[];
-  currency?: string;
   height?: number;
   showGrid?: boolean;
   onPress?: () => void;
@@ -29,7 +29,6 @@ export function IncomeTrendsChart({
   averageValue,
   data,
   timeLabels = ['WEEK 1', 'WEEK 2', 'WEEK 3', 'WEEK 4'],
-  currency = '$',
   height = 180,
   showGrid = false,
   onPress = () => console.log('Chart pressed'),
@@ -78,9 +77,6 @@ export function IncomeTrendsChart({
     return path;
   };
 
-  const formatAverage = (value: number) => {
-    return `AVG: ${currency}${value.toLocaleString('en-US')}`;
-  };
 
   return (
     <ThemedView style={[styles.container, { height }]}>
@@ -94,7 +90,7 @@ export function IncomeTrendsChart({
         </View>
         {averageValue !== undefined && (
           <ThemedText style={[styles.average, { color: colors.primary }]}>
-            {formatAverage(averageValue)}
+            AVG: <CurrencyText amount={averageValue} />
           </ThemedText>
         )}
       </View>

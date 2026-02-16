@@ -4,13 +4,13 @@ import React from 'react';
 import { StyleSheet, View } from 'react-native';
 import { ThemedText } from '../ThemedText';
 import { ThemedView } from '../ThemedView';
+import CurrencyText from '../currency/CurrencyText';
 
 export type IncomeCardProps = {
   title: string;
   amount: number;
   percentage?: number;
   timeStamp?: string;
-  currency?: string;
   variant?: 'light' | 'default';
   onPress?: () => void;
 };
@@ -20,7 +20,6 @@ export function IncomeCard({
   amount,
   percentage,
   timeStamp,
-  currency = '$',
   variant = 'light',
   onPress = () => console.log('Income card pressed'),
 }: IncomeCardProps) {
@@ -49,12 +48,6 @@ export function IncomeCard({
     }
   };
 
-  const formatAmount = (value: number) => {
-    return `${currency}${value.toLocaleString('en-US', {
-      minimumFractionDigits: 2,
-      maximumFractionDigits: 2,
-    })}`;
-  };
 
   const formatPercentage = (value?: number) => {
     if (value === undefined) return null;
@@ -93,9 +86,7 @@ export function IncomeCard({
       </View>
 
       <View style={styles.amountSection}>
-        <ThemedText style={styles.amount}>
-          {formatAmount(amount)}
-        </ThemedText>
+        <CurrencyText style={styles.amount} amount={amount} />
       </View>
 
       {timeStamp && (
