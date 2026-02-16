@@ -24,7 +24,7 @@ export default function Home() {
 
   return (
     <SafeAreaView style={styles.container}>
-      <TopBar 
+      <TopBar
         title='Home'
       />
       <IncomeCard
@@ -39,7 +39,7 @@ export default function Home() {
         averageValue={data.incomes.averagePerDay}
       />
 
-      <QuickLinks 
+      <QuickLinks
         links={[
 
           {
@@ -47,17 +47,17 @@ export default function Home() {
             id: 'clients',
             title: 'Clients',
             subtitle: 'View detailed client information',
-              onPress: () => router.push('/'),
-            },
+            onPress: () => router.push('/'),
+          },
 
           {
             icon: <MaterialCommunityIcons name="package" size={24} color={colors.textInverse} />,
             id: 'products',
             title: 'Products',
             subtitle: 'View detailed product information',
-              onPress: () => router.push('/'),
-            },
-          
+            onPress: () => router.push('/'),
+          },
+
         ]}
       />
     </SafeAreaView>
