@@ -51,10 +51,26 @@ export default function Home() {
           },
 
           {
+            icon:  <MaterialIcons name="shopping-cart" size={28} color={colors.textInverse} />,
+            id: 'orders',
+            title: 'Orders',
+            subtitle: 'View detailed order information',
+            onPress: () => router.push('/'),
+          },
+
+          {
             icon: <MaterialCommunityIcons name="package" size={24} color={colors.textInverse} />,
             id: 'products',
             title: 'Products',
             subtitle: 'View detailed product information',
+            onPress: () => router.push('/'),
+          },
+
+          {
+            icon: <MaterialIcons name="map" size={28} color={colors.textInverse} />,
+            id: 'routes',
+            title: 'Routes',
+            subtitle: 'View detailed route information',
             onPress: () => router.push('/'),
           },
 

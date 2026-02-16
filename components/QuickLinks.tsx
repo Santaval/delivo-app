@@ -1,6 +1,6 @@
 import { BorderRadius, Shadows, Spacing } from '@/constants';
 import React from 'react';
-import { StyleSheet, View } from 'react-native';
+import { ScrollView, StyleSheet, View } from 'react-native';
 import { QuickLinkCard, type QuickLinkCardProps } from './QuickLinkCard';
 import { ThemedText } from './ThemedText';
 import { ThemedView } from './ThemedView';
@@ -44,7 +44,7 @@ export function QuickLinks({
       </View>
 
       {/* Links */}
-      <View style={styles.linksContainer}>
+      <ScrollView style={styles.linksContainer}>
         {links.map((link) => (
           <QuickLinkCard
             key={link.id}
@@ -56,7 +56,7 @@ export function QuickLinks({
             onPress={() => handleLinkPress(link)}
           />
         ))}
-      </View>
+      </ScrollView>
     </ThemedView>
   );
 }
@@ -82,5 +82,6 @@ const styles = StyleSheet.create({
   },
   linksContainer: {
     gap: Spacing.xs,
+    height: 150,
   },
 });
