@@ -5,6 +5,7 @@ import React from 'react';
 import { StyleSheet, TouchableOpacity, View } from 'react-native';
 import { ThemedText } from './ThemedText';
 import { ThemedView } from './ThemedView';
+import CurrencyText from './currency/CurrencyText';
 
 type Props = {
   item: Product;
@@ -14,10 +15,7 @@ type Props = {
 export default function ProductCard({ item, onEdit }: Props) {
   const colors = useThemeColor();
   
-  const formatCurrency = (value: number) => {
-    return `$${value.toFixed(2)}`;
-  };
-
+  
   return (
     <ThemedView style={[styles.card, { backgroundColor: colors.surface }]}>
       <View style={styles.row}>
@@ -26,7 +24,7 @@ export default function ProductCard({ item, onEdit }: Props) {
           <View style={styles.metaRow}>
             <View style={styles.metaItem}>
               <ThemedText variant="caption" style={styles.metaLabel}>NET</ThemedText>
-              <ThemedText style={styles.metaValue}>{formatCurrency(item.pricing.netPrice)}</ThemedText>
+              <CurrencyText style={styles.metaValue} amount={item.pricing.netPrice} />
             </View>
 
             <View style={styles.metaItem}>
@@ -36,7 +34,7 @@ export default function ProductCard({ item, onEdit }: Props) {
 
             <View style={styles.metaItemRight}>
               <ThemedText variant="caption" style={[styles.metaLabel, { textAlign: 'right' }]}>TOTAL</ThemedText>
-              <ThemedText style={styles.totalValue}>{formatCurrency(item.pricing.totalPrice)}</ThemedText>
+              <CurrencyText style={styles.totalValue} amount={item.pricing.totalPrice} />
             </View>
           </View>
         </View>
