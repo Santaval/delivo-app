@@ -21,7 +21,19 @@ const useCustomerOrders = (customerId: string) => {
     fetchOrders();
   }, [customerId]);
 
-  return { orders, loading, error };
+  const refreshOrders = async () => {
+    setLoading(true);
+    try {
+      const fetchedOrders = await OrdersService.byCustomerId(customerId);
+      setOrders(fetchedOrders);
+    } catch (err) {
+      setError('Failed to fetch orders');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return { orders, loading, error, refreshOrders };
 };
 
 export default useCustomerOrders

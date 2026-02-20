@@ -6,15 +6,16 @@ import {
   TopBar
 } from '@/components';
 import ClientCompactCard from '@/components/clients/ClientCompactCard';
+import ClientLocationView from '@/components/clients/ClientLocationView';
 import { OrdersList } from '@/components/OrdersList';
 import { BorderRadius, Shadows, Spacing, Typography } from '@/constants';
 import { Colors } from '@/constants/Colors';
+import useClient from '@/hooks/useClient';
 import { useThemeColor } from '@/hooks/useColorScheme';
 import useCustomerOrders from '@/hooks/useCustomerOrders';
-import ClientsService from '@/services/clients/Clients.service';
-import { MaterialIcons } from '@expo/vector-icons';
+import { Ionicons, MaterialIcons } from '@expo/vector-icons';
 import { router, useLocalSearchParams } from 'expo-router';
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import {
   Alert,
   Linking,
@@ -22,9 +23,12 @@ import {
   ScrollView,
   StyleSheet,
   Text,
+  TouchableOpacity,
   View
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+
+type TabType = 'bills' | 'location';
 
 
 
@@ -32,35 +36,11 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 export default function ClientProfile() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const colors = useThemeColor();
+  const {client, loading, error, refreshClient, updateLocation} = useClient(id);
+  const [activeTab, setActiveTab] = useState<TabType>('bills');
+  const { orders, loading: ordersLoading, refreshOrders  } = useCustomerOrders(id);
 
-  const [client, setClient] = useState<Client | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [refreshing, setRefreshing] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-  const { orders, loading: ordersLoading, error: ordersError } = useCustomerOrders(id);
-
-  const fetchClient = async () => {
-    try {
-      setError(null);
-      const clientData = await ClientsService.getClientById(id);
-      setClient(clientData);
-
-      if (!clientData) {
-        setError('Client not found');
-      }
-    } catch (err) {
-      setError('Failed to load client information');
-      console.error('Error fetching client:', err);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const handleRefresh = async () => {
-    setRefreshing(true);
-    await fetchClient();
-    setRefreshing(false);
-  };
+  
 
   const handleCall = () => {
     if (client?.phoneNumber) {
@@ -71,9 +51,31 @@ export default function ClientProfile() {
     }
   };
 
-  useEffect(() => {
-    fetchClient();
-  }, [id]);
+  const handleWhatsApp = () => {
+    if (client?.phoneNumber) {
+      const phoneNumber = client.phoneNumber.replace(/[^0-9]/g, '');
+      Linking.openURL(`whatsapp://send?phone=${phoneNumber}`).catch(err => {
+        console.error('Error opening WhatsApp:', err);
+        Alert.alert('Error', 'Could not open WhatsApp. Make sure it is installed.');
+      });
+    }
+  };
+
+  const handleEmail = () => {
+    if (client?.email) {
+      Linking.openURL(`mailto:${client.email}`).catch(err => {
+        console.error('Error opening email:', err);
+        Alert.alert('Error', 'Could not open email application');
+      });
+    }
+  };
+
+  const calculatePendingBalance = () => {
+    if (!orders) return 0;
+    return orders
+      .filter(order => order.status === 'PENDING')
+      .reduce((sum, order) => sum + order.pricing.total, 0);
+  };
 
   if (loading) {
     return (<Text>Loading...</Text>);
@@ -92,7 +94,7 @@ export default function ClientProfile() {
           </ThemedText>
           <PrimaryButton
             title="Try Again"
-            onPress={fetchClient}
+            onPress={refreshClient}
             style={styles.retryButton}
           />
         </View>
@@ -112,27 +114,78 @@ export default function ClientProfile() {
         contentContainerStyle={styles.content}
         refreshControl={
           <RefreshControl
-            refreshing={refreshing}
-            onRefresh={handleRefresh}
+            refreshing={ordersLoading}
+            onRefresh={refreshOrders}
             colors={[colors.primary]}
             tintColor={colors.primary}
           />
         }
         showsVerticalScrollIndicator={false}
       >
-
+        {/* Client Info Card */}
         <ClientCompactCard
           client={client}
         />
 
-        <OrdersList
-          orders={orders}
-          onOrderPress={(orderId) => router.push(`/orders/view/${orderId}`)}
-        />
+        {/* Balance Card */}
+        <View style={styles.balanceCard}>
+          <Text style={styles.balanceLabel}>PENDING BALANCE</Text>
+          <Text style={styles.balanceAmount}>${calculatePendingBalance().toFixed(2)}</Text>
+        </View>
 
+        {/* Tabs */}
+        <View style={styles.tabsContainer}>
+          <TouchableOpacity
+            style={[styles.tab, activeTab === 'bills' && styles.activeTab]}
+            onPress={() => setActiveTab('bills')}
+          >
+            <Text style={[styles.tabText, activeTab === 'bills' && styles.activeTabText]}>
+              Bills
+            </Text>
+          </TouchableOpacity>
+          
+          <TouchableOpacity
+            style={[styles.tab, activeTab === 'location' && styles.activeTab]}
+            onPress={() => setActiveTab('location')}
+          >
+            <Text style={[styles.tabText, activeTab === 'location' && styles.activeTabText]}>
+              Location
+            </Text>
+          </TouchableOpacity>
+        </View>
 
-
+        {/* Tab Content */}
+        {activeTab === 'bills' ? (
+          <OrdersList 
+            orders={orders || []}
+            isRefreshing={loading}
+            onRefresh={refreshClient}
+            onOrderPress={(orderId) => router.push(`/orders/view/${orderId}`)}
+          />
+        ) : (
+          <View style={styles.tabContent}>
+            <ClientLocationView 
+              client={client}
+              onUpdateLocation={updateLocation}
+            />
+          </View>
+        )}
       </ScrollView>
+
+      {/* Contact Buttons - Fixed at bottom */}
+      <View style={styles.contactButtonsContainer}>
+        <TouchableOpacity style={styles.contactButton} onPress={handleCall}>
+          <Ionicons name="call" size={20} color={Colors.light.primary} />
+        </TouchableOpacity>
+        
+        <TouchableOpacity style={styles.contactButton} onPress={handleWhatsApp}>
+          <Ionicons name="logo-whatsapp" size={20} color="#25D366" />
+        </TouchableOpacity>
+        
+        <TouchableOpacity style={styles.contactButton} onPress={handleEmail}>
+          <Ionicons name="mail" size={20} color={Colors.light.primary} />
+        </TouchableOpacity>
+      </View>
 
       <FloatingActionButton
         icon="add-shopping-cart"
@@ -147,14 +200,14 @@ export default function ClientProfile() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    padding: Spacing.lg,
     backgroundColor: Colors.light.backgroundSecondary,
   },
   scrollView: {
     flex: 1,
   },
   content: {
-    padding: Spacing.lg,
-    paddingBottom: Spacing.xl * 2,
+    paddingBottom: Spacing.xl * 4, // Extra space for contact buttons
   },
   centerContent: {
     flex: 1,
@@ -166,6 +219,7 @@ const styles = StyleSheet.create({
     marginTop: Spacing.md,
     fontSize: Typography.fontSize.base,
     textAlign: 'center',
+    color: Colors.light.textSecondary,
   },
   errorText: {
     fontSize: Typography.fontSize.lg,
@@ -177,73 +231,221 @@ const styles = StyleSheet.create({
   retryButton: {
     paddingHorizontal: Spacing.xl,
   },
-  profileHeader: {
-    borderRadius: BorderRadius.xl,
-    padding: Spacing.xl,
-    marginBottom: Spacing.lg,
+  clientInfoCard: {
+    backgroundColor: Colors.light.background,
+    padding: Spacing.lg,
+    marginHorizontal: Spacing.lg,
+    marginTop: Spacing.lg,
+    marginBottom: Spacing.md,
+    borderRadius: BorderRadius.lg,
+    flexDirection: 'row',
     alignItems: 'center',
-  },
-  profileContent: {
-    alignItems: 'center',
-    width: '100%',
-  },
-  profileAvatar: {
-    width: 100,
-    height: 100,
-    borderRadius: 50,
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginBottom: Spacing.lg,
     ...Shadows.small,
   },
-  profileAvatarText: {
-    fontSize: Typography.fontSize['4xl'],
+  clientAvatar: {
+    width: 60,
+    height: 60,
+    borderRadius: 30,
+    backgroundColor: Colors.light.primary,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginRight: Spacing.md,
+  },
+  clientAvatarText: {
+    fontSize: Typography.fontSize['2xl'],
     fontWeight: Typography.fontWeight.bold,
     color: Colors.light.textInverse,
   },
-  profileName: {
-    fontSize: Typography.fontSize['2xl'],
-    fontWeight: Typography.fontWeight.semibold,
-    textAlign: 'center',
-    marginBottom: Spacing.sm,
+  clientInfo: {
+    flex: 1,
   },
-  phoneContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginBottom: Spacing.lg,
-    paddingHorizontal: Spacing.md,
-    paddingVertical: Spacing.sm,
-    borderRadius: BorderRadius.md,
+  clientName: {
+    fontSize: Typography.fontSize.lg,
+    fontWeight: Typography.fontWeight.bold,
+    color: Colors.light.text,
+    marginBottom: Spacing.xs / 2,
   },
-  phoneNumber: {
-    fontSize: Typography.fontSize.base,
-    fontWeight: Typography.fontWeight.medium,
+  clientPhone: {
+    fontSize: Typography.fontSize.sm,
+    color: Colors.light.textSecondary,
+    marginBottom: Spacing.xs / 2,
   },
-  actionButtonsRow: {
-    flexDirection: 'row',
-    justifyContent: 'center',
-    alignItems: 'center',
-    gap: Spacing.md,
-    flexWrap: 'wrap',
+  clientEmail: {
+    fontSize: Typography.fontSize.sm,
+    color: Colors.light.textSecondary,
   },
-  actionButton: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    paddingHorizontal: Spacing.lg,
-    paddingVertical: Spacing.md,
+  balanceCard: {
+    backgroundColor: Colors.light.background,
+    padding: Spacing.xl,
+    marginHorizontal: Spacing.lg,
+    marginBottom: Spacing.md,
     borderRadius: BorderRadius.lg,
-    minWidth: 100,
-    justifyContent: 'center',
+    alignItems: 'center',
     ...Shadows.small,
   },
-  whatsappButton: {
-    backgroundColor: '#F0FDF4',
-    borderWidth: 1,
-    borderColor: '#25D366',
-  },
-  actionButtonText: {
-    fontSize: Typography.fontSize.sm,
+  balanceLabel: {
+    fontSize: Typography.fontSize.xs,
     fontWeight: Typography.fontWeight.semibold,
-    marginLeft: Spacing.xs,
+    color: Colors.light.textSecondary,
+    letterSpacing: 1,
+    marginBottom: Spacing.xs,
+  },
+  balanceAmount: {
+    fontSize: Typography.fontSize['4xl'],
+    fontWeight: Typography.fontWeight.bold,
+    color: Colors.light.text,
+  },
+  tabsContainer: {
+    flexDirection: 'row',
+    paddingHorizontal: Spacing.lg,
+    marginBottom: Spacing.md,
+    gap: Spacing.md,
+  },
+  tab: {
+    flex: 1,
+    paddingVertical: Spacing.sm,
+    alignItems: 'center',
+    borderBottomWidth: 2,
+    borderBottomColor: 'transparent',
+  },
+  activeTab: {
+    borderBottomColor: Colors.light.primary,
+  },
+  tabText: {
+    fontSize: Typography.fontSize.base,
+    fontWeight: Typography.fontWeight.medium,
+    color: Colors.light.textSecondary,
+  },
+  activeTabText: {
+    color: Colors.light.primary,
+    fontWeight: Typography.fontWeight.semibold,
+  },
+  tabContent: {
+    paddingHorizontal: Spacing.lg,
+  },
+  statusChips: {
+    flexDirection: 'row',
+    gap: Spacing.sm,
+    marginBottom: Spacing.lg,
+  },
+  chip: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingHorizontal: Spacing.md,
+    paddingVertical: Spacing.sm,
+    borderRadius: BorderRadius.full,
+    backgroundColor: Colors.light.background,
+    borderWidth: 1,
+    borderColor: Colors.light.border,
+    gap: Spacing.xs,
+  },
+  allChip: {
+    backgroundColor: Colors.light.primary + '15',
+    borderColor: Colors.light.primary,
+  },
+  chipText: {
+    fontSize: Typography.fontSize.sm,
+    color: Colors.light.textSecondary,
+    fontWeight: Typography.fontWeight.medium,
+  },
+  allChipText: {
+    fontSize: Typography.fontSize.sm,
+    color: Colors.light.primary,
+    fontWeight: Typography.fontWeight.semibold,
+  },
+  chipBadge: {
+    backgroundColor: Colors.light.primary,
+    borderRadius: BorderRadius.full,
+    minWidth: 20,
+    height: 20,
+    justifyContent: 'center',
+    alignItems: 'center',
+    paddingHorizontal: Spacing.xs,
+  },
+  pendingBadge: {
+    backgroundColor: Colors.light.backgroundSecondary,
+  },
+  chipBadgeText: {
+    fontSize: Typography.fontSize.xs,
+    color: Colors.light.textInverse,
+    fontWeight: Typography.fontWeight.bold,
+  },
+  loadingContainer: {
+    paddingVertical: Spacing.xl * 2,
+    alignItems: 'center',
+  },
+  ordersList: {
+    gap: Spacing.md,
+  },
+  orderItem: {
+    backgroundColor: Colors.light.background,
+    padding: Spacing.lg,
+    borderRadius: BorderRadius.lg,
+    ...Shadows.small,
+  },
+  orderHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: Spacing.sm,
+  },
+  orderStatusBadge: {
+    paddingHorizontal: Spacing.sm,
+    paddingVertical: Spacing.xs / 2,
+    borderRadius: BorderRadius.sm,
+    backgroundColor: Colors.light.backgroundSecondary,
+  },
+  orderStatusText: {
+    fontSize: Typography.fontSize.xs,
+    fontWeight: Typography.fontWeight.bold,
+    color: Colors.light.textSecondary,
+    textTransform: 'uppercase',
+  },
+  paidStatus: {
+    color: Colors.light.success,
+  },
+  pendingStatus: {
+    color: Colors.light.warning,
+  },
+  orderAmount: {
+    fontSize: Typography.fontSize.lg,
+    fontWeight: Typography.fontWeight.bold,
+    color: Colors.light.text,
+  },
+  orderNumber: {
+    fontSize: Typography.fontSize.base,
+    fontWeight: Typography.fontWeight.semibold,
+    color: Colors.light.text,
+    marginBottom: Spacing.xs / 2,
+  },
+  orderDate: {
+    fontSize: Typography.fontSize.sm,
+    color: Colors.light.textSecondary,
+  },
+  emptyContainer: {
+    paddingVertical: Spacing.xl * 2,
+    alignItems: 'center',
+  },
+  emptyText: {
+    marginTop: Spacing.md,
+    fontSize: Typography.fontSize.base,
+    color: Colors.light.textSecondary,
+  },
+  contactButtonsContainer: {
+    position: 'absolute',
+    bottom: Spacing.xl * 4,
+    left: Spacing.lg,
+    flexDirection: 'column',
+    gap: Spacing.sm,
+    ...Shadows.medium,
+  },
+  contactButton: {
+    width: 48,
+    height: 48,
+    borderRadius: 24,
+    backgroundColor: Colors.light.background,
+    justifyContent: 'center',
+    alignItems: 'center',
+    ...Shadows.small,
   },
 });
