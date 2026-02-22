@@ -7,6 +7,7 @@ import {
 } from '@/components';
 import ClientCompactCard from '@/components/clients/ClientCompactCard';
 import ClientLocationView from '@/components/clients/ClientLocationView';
+import CurrencyText from '@/components/currency/CurrencyText';
 import { OrdersList } from '@/components/OrdersList';
 import { BorderRadius, Shadows, Spacing, Typography } from '@/constants';
 import { Colors } from '@/constants/Colors';
@@ -74,7 +75,7 @@ export default function ClientProfile() {
     if (!orders) return 0;
     return orders
       .filter(order => order.status === 'PENDING')
-      .reduce((sum, order) => sum + order.pricing.total, 0);
+      .reduce((sum, order) => sum + order.pricing.total - order.paid, 0);
   };
 
   if (loading) {
@@ -130,7 +131,7 @@ export default function ClientProfile() {
         {/* Balance Card */}
         <View style={styles.balanceCard}>
           <Text style={styles.balanceLabel}>PENDING BALANCE</Text>
-          <Text style={styles.balanceAmount}>${calculatePendingBalance().toFixed(2)}</Text>
+          <CurrencyText style={styles.balanceAmount} amount={calculatePendingBalance()} />
         </View>
 
         {/* Tabs */}

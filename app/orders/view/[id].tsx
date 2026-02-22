@@ -305,6 +305,12 @@ export default function OrderDetailsPage() {
             </ThemedText>
             <CurrencyText style={[styles.totalValue, { color: colors.primary }]} amount={order.pricing.total} />
           </View>
+          <View style={[styles.summaryRow, styles.totalRow, { borderTopColor: colors.border }]}>
+            <ThemedText style={[styles.totalLabel, { color: colors.text }]}>
+              Pending Payment
+            </ThemedText>
+            <CurrencyText style={[styles.totalValue, { color: colors.danger }]} amount={order.pricing.total - order.paid} />
+          </View>
         </ThemedView>
 
         {/* Action Buttons */}
