@@ -6,6 +6,7 @@ import {
 } from '@/components';
 import ClientCompactCard from '@/components/clients/ClientCompactCard';
 import CurrencyText from '@/components/currency/CurrencyText';
+import RecordPaymentModal from '@/components/orders/RecordPaymentModal';
 import { BorderRadius, Shadows, Spacing, Typography } from '@/constants';
 import { Colors } from '@/constants/Colors';
 import { useThemeColor } from '@/hooks/useColorScheme';
@@ -15,11 +16,8 @@ import { useLocalSearchParams } from 'expo-router';
 import React, { useEffect, useState } from 'react';
 import {
   ActivityIndicator,
-  Alert,
-  Linking,
   RefreshControl,
   ScrollView,
-  Share,
   StyleSheet,
   View
 } from 'react-native';
@@ -35,7 +33,6 @@ type LineItemRowProps = {
 const LineItemRow: React.FC<LineItemRowProps> = ({ item, index, total }) => {
   const colors = useThemeColor();
   
-  const formatPrice = (price: number) => `$${price.toFixed(2)}`;
   const itemTotal = item.pricing.totalPrice * item.quantity;
 
   return (
@@ -115,6 +112,7 @@ export default function OrderDetailsPage() {
   const [refreshing, setRefreshing] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [isProcessing, setIsProcessing] = useState(false);
+  const [showPaymentModal, setShowPaymentModal] = useState(false);
 
   const fetchOrder = async () => {
     try {
@@ -150,73 +148,18 @@ export default function OrderDetailsPage() {
     });
   };
 
-  const formatPrice = (price: number) => `$${price.toFixed(2)}`;
 
   const generateInvoiceNumber = (orderNumber: number) => {
     return `INV-${orderNumber.toString().padStart(3, '0')}`;
   };
 
-  const handleDownloadPDF = () => {
-    Alert.alert('Download PDF', 'PDF generation will be implemented here');
-  };
 
-  const handleShareWhatsApp = async () => {
-    if (!order) return;
 
-    const message = `Invoice ${generateInvoiceNumber(order.number)}\n` +
-                   `Client: ${order.client.name}\n` +
-                   `Total: ${formatPrice(order.pricing.total)}\n` +
-                   `Status: ${order.status}`;
+  
 
-    if (order.client.phoneNumber) {
-      const phoneNumber = order.client.phoneNumber.replace(/[^\d]/g, '');
-      const whatsappUrl = `https://wa.me/${phoneNumber}?text=${encodeURIComponent(message)}`;
-      
-      try {
-        await Linking.openURL(whatsappUrl);
-      } catch (error) {
-        Alert.alert('Error', 'Could not open WhatsApp');
-      }
-    } else {
-      // Use general share if no phone number
-      try {
-        await Share.share({ message });
-      } catch (error) {
-        Alert.alert('Error', 'Could not share invoice');
-      }
-    }
-  };
-
-  const handleMarkAsPaid = async () => {
-    if (!order || order.status === 'PAID') return;
-
-    Alert.alert(
-      'Mark as Paid',
-      `Are you sure you want to mark invoice ${generateInvoiceNumber(order.number)} as paid?`,
-      [
-        { text: 'Cancel', style: 'cancel' },
-        {
-          text: 'Mark as Paid',
-          onPress: async () => {
-            setIsProcessing(true);
-            try {
-              // const success = await OrdersService.markAsPaid(order.id);
-              const success = true
-              if (success) {
-                setOrder({ ...order, status: 'PAID' });
-                Alert.alert('Success', 'Order marked as paid');
-              } else {
-                Alert.alert('Error', 'Failed to update order status');
-              }
-            } catch (err) {
-              Alert.alert('Error', 'Failed to update order status');
-            } finally {
-              setIsProcessing(false);
-            }
-          }
-        }
-      ]
-    );
+  const handlePaymentRecorded = async () => {
+    // Refresh order data after payment is recorded
+    await fetchOrder();
   };
 
   useEffect(() => {
@@ -365,32 +308,29 @@ export default function OrderDetailsPage() {
         </ThemedView>
 
         {/* Action Buttons */}
-        <View style={styles.actionButtons}>
-          <PrimaryButton
-            title="Download PDF"
-            onPress={handleDownloadPDF}
-            style={styles.actionButton}
-            variant="outline"
-          />
-          
-          <PrimaryButton
-            title="Share via WhatsApp"
-            onPress={handleShareWhatsApp}
-            style={styles.actionButton}
-            variant="outline"
-          />
+        <View style={styles.actionButtons}>          
           
           {order.status !== 'PAID' && (
             <PrimaryButton
-              title={isProcessing ? "Processing..." : "Mark as Paid"}
-              onPress={handleMarkAsPaid}
-              disabled={isProcessing}
+              title="Add Payment"
+              onPress={() => setShowPaymentModal(true)}
               style={styles.actionButton}
               variant="primary"
             />
           )}
         </View>
       </ScrollView>
+
+      {/* Payment Modal */}
+      {order && (
+        <RecordPaymentModal
+          visible={showPaymentModal}
+          onClose={() => setShowPaymentModal(false)}
+          orderId={order.id}
+          remainingBalance={order.pricing.total}
+          onPaymentRecorded={handlePaymentRecorded}
+        />
+      )}
     </SafeAreaView>
   );
 }

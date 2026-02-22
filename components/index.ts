@@ -8,6 +8,7 @@ export { FloatingActionButton, type FloatingActionButtonProps } from './Floating
 export { FormField, type FormFieldProps } from './FormField';
 export { LocationSearch, type LocationSearchProps } from './LocationSearch';
 export { default as Logo } from './Logo';
+export { default as RecordPaymentModal } from './orders/RecordPaymentModal';
 export { PrimaryButton, type PrimaryButtonProps } from './PrimaryButton';
 export { ProductSelect, type OrderItem, type ProductSelectProps } from './ProductSelect';
 export { QuickLinkCard, type QuickLinkCardProps } from './QuickLinkCard';

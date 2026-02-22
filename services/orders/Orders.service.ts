@@ -26,4 +26,8 @@ export default class OrdersService extends BaseApiService {
     return orders;
   }
 
+  static async addPayment(orderId: string, amount: number, methodId: string): Promise<void> {
+    await this.post(`/orders/${orderId}/payments`, { amount, methodId });
+  }
+
 }
