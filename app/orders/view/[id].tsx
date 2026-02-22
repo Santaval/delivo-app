@@ -327,7 +327,7 @@ export default function OrderDetailsPage() {
           visible={showPaymentModal}
           onClose={() => setShowPaymentModal(false)}
           orderId={order.id}
-          remainingBalance={order.pricing.total}
+          remainingBalance={order.pricing.total - order.paid}
           onPaymentRecorded={handlePaymentRecorded}
         />
       )}
