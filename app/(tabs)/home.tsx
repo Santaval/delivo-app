@@ -47,7 +47,7 @@ export default function Home() {
             id: 'clients',
             title: 'Clients',
             subtitle: 'View detailed client information',
-            onPress: () => router.push('/'),
+            onPress: () => router.push('/(tabs)/clients'),
           },
 
           {
@@ -55,7 +55,7 @@ export default function Home() {
             id: 'orders',
             title: 'Orders',
             subtitle: 'View detailed order information',
-            onPress: () => router.push('/'),
+            onPress: () => router.push('/(tabs)/orders'),
           },
 
           {
@@ -63,7 +63,7 @@ export default function Home() {
             id: 'products',
             title: 'Products',
             subtitle: 'View detailed product information',
-            onPress: () => router.push('/'),
+            onPress: () => router.push('/(tabs)/products'),
           },
 
           {
@@ -71,7 +71,7 @@ export default function Home() {
             id: 'routes',
             title: 'Routes',
             subtitle: 'View detailed route information',
-            onPress: () => router.push('/'),
+            onPress: () => router.push('/(tabs)/routes'),
           },
 
         ]}

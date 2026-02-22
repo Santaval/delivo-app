@@ -1,12 +1,12 @@
 import { PrimaryButton, ThemedText, ThemedView } from '@/components';
+import PaymentMethodSelect from '@/components/PaymentMethodSelect';
 import { BorderRadius, Shadows, Spacing, Typography } from '@/constants';
 import { useThemeColor } from '@/hooks/useColorScheme';
-import usePaymentMethods from '@/hooks/usePaymentMethods';
 import OrdersService from '@/services/orders/Orders.service';
 import { MaterialIcons } from '@expo/vector-icons';
+import { router } from 'expo-router';
 import React, { useState } from 'react';
 import {
-  ActivityIndicator,
   KeyboardAvoidingView,
   Modal,
   Platform,
@@ -32,14 +32,10 @@ const RecordPaymentModal: React.FC<RecordPaymentModalProps> = ({
   onPaymentRecorded,
 }) => {
   const colors = useThemeColor();
-  const { loading, paymentMethods } = usePaymentMethods();
   
   const [selectedMethodId, setSelectedMethodId] = useState<string>('');
   const [amount, setAmount] = useState<string>('0.00');
-  const [showMethodDropdown, setShowMethodDropdown] = useState(false);
   const [isProcessing, setIsProcessing] = useState(false);
-
-  const selectedMethod = paymentMethods.find(m => m.id === selectedMethodId);
 
   const handlePayFull = () => {
     setAmount(remainingBalance.toFixed(2));
@@ -70,7 +66,6 @@ const RecordPaymentModal: React.FC<RecordPaymentModalProps> = ({
   const handleCancel = () => {
     setSelectedMethodId('');
     setAmount('0.00');
-    setShowMethodDropdown(false);
     onClose();
   };
 
@@ -90,6 +85,14 @@ const RecordPaymentModal: React.FC<RecordPaymentModalProps> = ({
     }
     
     setAmount(cleaned);
+  };
+
+  const handleAddNewPaymentMethod = () => {
+    // Close modal first, then navigate
+    onClose();
+    setTimeout(() => {
+      router.push('/payment-methods/add');
+    }, 300); // Small delay to ensure modal is closed
   };
 
   return (
@@ -129,65 +132,12 @@ const RecordPaymentModal: React.FC<RecordPaymentModalProps> = ({
               Payment Method
             </ThemedText>
             
-            {loading ? (
-              <View style={[styles.loadingContainer, { backgroundColor: colors.background }]}>
-                <ActivityIndicator size="small" color={colors.primary} />
-              </View>
-            ) : (
-              <TouchableOpacity
-                style={[
-                  styles.dropdown,
-                  { 
-                    backgroundColor: colors.background,
-                    borderColor: colors.border,
-                  }
-                ]}
-                onPress={() => setShowMethodDropdown(!showMethodDropdown)}
-              >
-                <ThemedText style={[styles.dropdownText, { color: selectedMethod ? colors.text : colors.textSecondary }]}>
-                  {selectedMethod ? selectedMethod.name : 'Select Payment Method'}
-                </ThemedText>
-                <MaterialIcons 
-                  name={showMethodDropdown ? "keyboard-arrow-up" : "keyboard-arrow-down"} 
-                  size={24} 
-                  color={colors.textSecondary} 
-                />
-              </TouchableOpacity>
-            )}
-
-            {/* Dropdown Options */}
-            {showMethodDropdown && !loading && (
-              <View style={[
-                styles.dropdownOptions,
-                { 
-                  backgroundColor: colors.surface,
-                  borderColor: colors.border,
-                },
-                Platform.OS === 'ios' ? Shadows.medium : {},
-              ]}>
-                {paymentMethods.map((method) => (
-                  <TouchableOpacity
-                    key={method.id}
-                    style={[
-                      styles.dropdownOption,
-                      { borderBottomColor: colors.border },
-                      selectedMethodId === method.id && { backgroundColor: colors.background }
-                    ]}
-                    onPress={() => {
-                      setSelectedMethodId(method.id);
-                      setShowMethodDropdown(false);
-                    }}
-                  >
-                    <ThemedText style={[styles.dropdownOptionText, { color: colors.text }]}>
-                      {method.name}
-                    </ThemedText>
-                    {selectedMethodId === method.id && (
-                      <MaterialIcons name="check" size={20} color={colors.primary} />
-                    )}
-                  </TouchableOpacity>
-                ))}
-              </View>
-            )}
+            <PaymentMethodSelect
+              value={selectedMethodId}
+              onChange={setSelectedMethodId}
+              placeholder="Select Payment Method"
+              onAddNew={handleAddNewPaymentMethod}
+            />
           </View>
 
           {/* Amount Input */}
@@ -305,43 +255,6 @@ const styles = StyleSheet.create({
     fontSize: Typography.fontSize.sm,
     fontWeight: Typography.fontWeight.medium,
     marginBottom: Spacing.sm,
-  },
-  dropdown: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    padding: Spacing.md,
-    borderRadius: BorderRadius.md,
-    borderWidth: 1,
-  },
-  dropdownText: {
-    fontSize: Typography.fontSize.base,
-  },
-  loadingContainer: {
-    padding: Spacing.md,
-    borderRadius: BorderRadius.md,
-    alignItems: 'center',
-  },
-  dropdownOptions: {
-    position: 'absolute',
-    top: 68,
-    left: 0,
-    right: 0,
-    borderRadius: BorderRadius.md,
-    borderWidth: 1,
-    maxHeight: 200,
-    zIndex: 1000,
-    elevation: 4,
-  },
-  dropdownOption: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    padding: Spacing.md,
-    borderBottomWidth: 1,
-  },
-  dropdownOptionText: {
-    fontSize: Typography.fontSize.base,
   },
   amountHeader: {
     flexDirection: 'row',
