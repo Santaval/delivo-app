@@ -25,7 +25,6 @@ export function useAppleAuth() {
       });
       
       if (credential.identityToken) {
-        console.log('Apple Identity Token:', credential.identityToken);
         await appleAuth(credential.identityToken);
       } else {
         throw new Error('No identity token received from Apple');

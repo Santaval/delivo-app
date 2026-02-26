@@ -198,27 +198,6 @@ const RecordPaymentModal: React.FC<RecordPaymentModalProps> = ({
   );
 };
 
-/**
- * Mock function to simulate recording a payment
- * TODO: Replace with actual API service call
- * 
- * @param data Payment data containing orderId, paymentMethodId, and amount
- */
-const mockRecordPayment = async (data: {
-  orderId: string;
-  paymentMethodId: string;
-  amount: number;
-}): Promise<void> => {
-  console.log('Recording payment:', data);
-  
-  // Simulate API delay
-  return new Promise((resolve) => {
-    setTimeout(() => {
-      console.log('Payment recorded successfully');
-      resolve();
-    }, 1000);
-  });
-};
 
 const styles = StyleSheet.create({
   keyboardAvoidingView: {

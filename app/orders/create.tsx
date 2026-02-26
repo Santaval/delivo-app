@@ -28,11 +28,12 @@ export default function create() {
       });
 
       // add items
-      const promises = orderItems.map(item => OrdersService.addItemToOrder(order.id, {
-        productId: item.product.id,
-        quantity: item.quantity,
-      }));
-      await Promise.all(promises);
+      for (const item of orderItems) {
+        await OrdersService.addItemToOrder(order.id, {
+          productId: item.product.id,
+          quantity: item.quantity,
+        });
+      }
 
       router.push(`/orders/view/${order.id}`);
 

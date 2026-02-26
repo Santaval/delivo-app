@@ -125,8 +125,6 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
   const googleAuth = async (token: string) => {
     const { token: jwtToken, user } = await AuthService.googleAuth(token)
-    console.log('Google auth successful, JWT token:', jwtToken);
-    console.log(user)
     await SecureStore.setItemAsync("token", jwtToken);
     setupApiAuth(jwtToken);
     updateAuthState(jwtToken, true);
@@ -135,7 +133,6 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
 
   const appleAuth = async (token: string) => {
-    console.log('authenticating', token);
     const { token: jwtToken, user } = await AuthService.appleAuth(token)
     await SecureStore.setItemAsync("token", jwtToken);
     setupApiAuth(jwtToken);

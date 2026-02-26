@@ -6,14 +6,15 @@ import {
 } from '@/components';
 import ClientCompactCard from '@/components/clients/ClientCompactCard';
 import CurrencyText from '@/components/currency/CurrencyText';
+import AddProductsModal from '@/components/orders/AddProductsModal';
 import RecordPaymentModal from '@/components/orders/RecordPaymentModal';
 import { BorderRadius, Shadows, Spacing, Typography } from '@/constants';
 import { Colors } from '@/constants/Colors';
 import { useThemeColor } from '@/hooks/useColorScheme';
-import OrdersService from '@/services/orders/Orders.service';
+import useOrder from '@/hooks/useOrder';
 import { MaterialIcons } from '@expo/vector-icons';
 import { useLocalSearchParams } from 'expo-router';
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import {
   ActivityIndicator,
   RefreshControl,
@@ -32,7 +33,7 @@ type LineItemRowProps = {
 
 const LineItemRow: React.FC<LineItemRowProps> = ({ item, index, total }) => {
   const colors = useThemeColor();
-  
+
   const itemTotal = item.pricing.totalPrice * item.quantity;
 
   return (
@@ -44,7 +45,7 @@ const LineItemRow: React.FC<LineItemRowProps> = ({ item, index, total }) => {
           </ThemedText>
           <CurrencyText style={[styles.unitPrice, { color: colors.textSecondary }]} amount={item.pricing.totalPrice} />
         </View>
-        
+
         <View style={styles.lineItemRight}>
           <ThemedText style={[styles.quantity, { color: colors.text }]}>
             {item.quantity}
@@ -62,7 +63,7 @@ type StatusBadgeProps = {
 
 const StatusBadge: React.FC<StatusBadgeProps> = ({ status }) => {
   const colors = useThemeColor();
-  
+
   const getStatusConfig = () => {
     switch (status) {
       case 'PAID':
@@ -106,42 +107,17 @@ const StatusBadge: React.FC<StatusBadgeProps> = ({ status }) => {
 export default function OrderDetailsPage() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const colors = useThemeColor();
-  
-  const [order, setOrder] = useState<Order | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [refreshing, setRefreshing] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-  const [isProcessing, setIsProcessing] = useState(false);
+
+  const { order, loading, error, refresh, addItems } = useOrder(id);
   const [showPaymentModal, setShowPaymentModal] = useState(false);
+  const [showAddProductsModal, setShowAddProductsModal] = useState(false);
 
-  const fetchOrder = async () => {
-    try {
-      setError(null);
-      const orderData = await OrdersService.getOrderById(id);
-      setOrder(orderData);
-      
-      if (!orderData) {
-        setError('Order not found');
-      }
-    } catch (err) {
-      setError('Failed to load order details');
-      console.error('Error fetching order:', err);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const handleRefresh = async () => {
-    setRefreshing(true);
-    await fetchOrder();
-    setRefreshing(false);
-  };
 
   const formatDate = (dateString: string) => {
     const date = new Date(dateString);
     return date.toLocaleDateString('en-US', {
       year: 'numeric',
-      month: 'short', 
+      month: 'short',
       day: 'numeric',
       hour: '2-digit',
       minute: '2-digit'
@@ -154,23 +130,11 @@ export default function OrderDetailsPage() {
   };
 
 
-
-  
-
-  const handlePaymentRecorded = async () => {
-    // Refresh order data after payment is recorded
-    await fetchOrder();
-  };
-
-  useEffect(() => {
-    fetchOrder();
-  }, [id]);
-
   if (loading) {
     return (
       <ThemedView style={styles.container}>
-        <TopBar 
-          title="Invoice Details" 
+        <TopBar
+          title="Invoice Details"
         />
         <View style={styles.centerContent}>
           <ActivityIndicator size="large" color={colors.primary} />
@@ -185,8 +149,8 @@ export default function OrderDetailsPage() {
   if (error || !order) {
     return (
       <ThemedView style={styles.container}>
-        <TopBar 
-          title="Invoice Details" 
+        <TopBar
+          title="Invoice Details"
         />
         <View style={styles.centerContent}>
           <MaterialIcons name="error-outline" size={48} color={colors.danger} />
@@ -195,7 +159,7 @@ export default function OrderDetailsPage() {
           </ThemedText>
           <PrimaryButton
             title="Try Again"
-            onPress={fetchOrder}
+            onPress={refresh}
             style={styles.retryButton}
           />
         </View>
@@ -205,18 +169,18 @@ export default function OrderDetailsPage() {
 
   return (
     <SafeAreaView
-     style={styles.container}>
-      <TopBar 
-        title="Invoice Details" 
+      style={styles.container}>
+      <TopBar
+        title="Invoice Details"
       />
-      
-      <ScrollView 
+
+      <ScrollView
         style={styles.scrollView}
         contentContainerStyle={styles.content}
         refreshControl={
           <RefreshControl
-            refreshing={refreshing}
-            onRefresh={handleRefresh}
+            refreshing={loading}
+            onRefresh={refresh}
             colors={[colors.primary]}
             tintColor={colors.primary}
           />
@@ -238,16 +202,19 @@ export default function OrderDetailsPage() {
           </View>
         </ThemedView>
 
-        <ClientCompactCard 
+        <ClientCompactCard
           client={order.client}
         />
 
         {/* Line Items */}
         <ThemedView style={[styles.lineItemsCard, { backgroundColor: colors.surface }]}>
-          <ThemedText style={[styles.sectionTitle, { color: colors.text }]}>
-            Line Items
-          </ThemedText>
-          
+          <View style={styles.lineItemContent}>
+            <ThemedText style={[styles.sectionTitle, { color: colors.text }]}>
+              Line Items
+            </ThemedText>
+
+          </View>
+
           {/* Header */}
           <View style={[styles.lineItemHeader, { borderBottomColor: colors.border }]}>
             <View style={styles.headerLeft}>
@@ -277,6 +244,14 @@ export default function OrderDetailsPage() {
               total={item.pricing.totalPrice * item.quantity}
             />
           ))}
+
+          <PrimaryButton
+            onPress={() => setShowAddProductsModal(true)}
+            title='+ Add products'
+            variant='outline'
+            style={{marginTop: Spacing.md}}
+          />
+          
         </ThemedView>
 
         {/* Financial Summary */}
@@ -284,21 +259,21 @@ export default function OrderDetailsPage() {
           <ThemedText style={[styles.sectionTitle, { color: colors.text }]}>
             Financial Summary
           </ThemedText>
-          
+
           <View style={styles.summaryRow}>
             <ThemedText style={[styles.summaryLabel, { color: colors.textSecondary }]}>
               Subtotal
             </ThemedText>
             <CurrencyText style={[styles.summaryValue, { color: colors.text }]} amount={order.pricing.subtotal} />
           </View>
-          
+
           <View style={styles.summaryRow}>
             <ThemedText style={[styles.summaryLabel, { color: colors.textSecondary }]}>
               IVA Amount ({((order.pricing.ivaTotal / order.pricing.subtotal) * 100).toFixed(0)}%)
             </ThemedText>
             <CurrencyText style={[styles.summaryValue, { color: colors.text }]} amount={order.pricing.ivaTotal} />
           </View>
-          
+
           <View style={[styles.summaryRow, styles.totalRow, { borderTopColor: colors.border }]}>
             <ThemedText style={[styles.totalLabel, { color: colors.text }]}>
               Grand Total
@@ -314,8 +289,8 @@ export default function OrderDetailsPage() {
         </ThemedView>
 
         {/* Action Buttons */}
-        <View style={styles.actionButtons}>          
-          
+        <View style={styles.actionButtons}>
+
           {order.status !== 'PAID' && (
             <PrimaryButton
               title="Add Payment"
@@ -327,6 +302,16 @@ export default function OrderDetailsPage() {
         </View>
       </ScrollView>
 
+      <AddProductsModal
+        onClose={() => setShowAddProductsModal(false)}
+        onAdd={addItems}
+        visible={showAddProductsModal}
+      //onProductsChange={() => {}}
+      // products={order.items.map(item => item.product)}
+      // onProductSelected={handleProductSelected}
+      />
+
+
       {/* Payment Modal */}
       {order && (
         <RecordPaymentModal
@@ -334,7 +319,6 @@ export default function OrderDetailsPage() {
           onClose={() => setShowPaymentModal(false)}
           orderId={order.id}
           remainingBalance={order.pricing.total - order.paid}
-          onPaymentRecorded={handlePaymentRecorded}
         />
       )}
     </SafeAreaView>
@@ -344,7 +328,7 @@ export default function OrderDetailsPage() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: Colors.light.background,
+    backgroundColor: Colors.light.backgroundSecondary,
   },
   scrollView: {
     flex: 1,
@@ -404,7 +388,7 @@ const styles = StyleSheet.create({
     textTransform: 'uppercase',
     letterSpacing: 0.5,
   },
-  
+
   lineItemsCard: {
     borderRadius: BorderRadius.lg,
     padding: Spacing.lg,
@@ -422,6 +406,11 @@ const styles = StyleSheet.create({
     paddingVertical: Spacing.sm,
     borderBottomWidth: 1,
     marginBottom: Spacing.sm,
+  },
+  addButtonText: {
+    fontSize: Typography.fontSize.sm,
+    fontWeight: Typography.fontWeight.medium,
+    color: Colors.light.primary,
   },
   headerLeft: {
     flex: 1,

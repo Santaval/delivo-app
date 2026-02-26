@@ -25,6 +25,7 @@ export type OrderItem = {
 
 export type ProductSelectProps = {
   label?: string;
+  disableTotal?: boolean;
   placeholder?: string;
   onProductsChange: (orderItems: OrderItem[]) => void;
   error?: string;
@@ -38,7 +39,7 @@ type ProductListItemProps = {
   selectedQuantity?: number;
 };
 
-const ProductListItem: React.FC<ProductListItemProps> = ({ item, onPress, selectedQuantity }) => {
+const ProductListItem: React.FC<ProductListItemProps> = ({ item, onPress, selectedQuantity, }) => {
   const colors = useThemeColor();
   
   const formatPrice = (price: number) => {
@@ -175,6 +176,7 @@ export function ProductSelect({
   label = "PRODUCTS",
   placeholder = "Add products to your order...",
   onProductsChange,
+  disableTotal,
   error,
   style,
   maxItems = 50,
@@ -320,14 +322,16 @@ export function ProductSelect({
           ))}
           
           {/* Total */}
-          <View style={[styles.totalContainer, { borderTopColor: colors.border }]}>
-            <ThemedText style={[styles.totalLabel, { color: colors.text }]}>
-              Total Order Value:
-            </ThemedText>
-            <ThemedText style={[styles.totalValue, { color: colors.primary }]}>
-              ₡{totalValue.toFixed(2)}
-            </ThemedText>
-          </View>
+          {!disableTotal && (
+            <View style={[styles.totalContainer, { borderTopColor: colors.border }]}>
+              <ThemedText style={[styles.totalLabel, { color: colors.text }]}>
+                Total Order Value:
+              </ThemedText>
+              <ThemedText style={[styles.totalValue, { color: colors.primary }]}>
+                ₡{totalValue.toFixed(2)}
+              </ThemedText>
+            </View>
+          )}
         </View>
       ) : (
         <TouchableOpacity

@@ -37,29 +37,24 @@ export const CompaniesProvider = ({ children }: { children: React.ReactNode }) =
 
   useEffect(() => {
     const loadActiveCompany = async () => {
-      console.log(user)
       // Don't proceed if still loading or no user
       if (authState.isLoading || !user) return;
       
       // If user has no companies, redirect to add company page
       if (!user.companies || user.companies.length === 0) {
-        console.log("No companies found for user - redirecting to add company");
         router.push("/companies/add");
         return;
       }
 
       // Ensure companies state is synced with user data
       if (companies.length === 0) {
-        console.log("Companies not yet loaded in state");
         return;
       }
 
       const storedCompanyId = await SecureStore.getItemAsync("activeCompany");
-      console.log(storedCompanyId)
 
       // If no stored company ID, redirect to company selection
       if (!storedCompanyId) {
-        console.log("No active company stored - redirecting to company selection");
         router.push("/companies/select");
         return;
       }
@@ -67,7 +62,6 @@ export const CompaniesProvider = ({ children }: { children: React.ReactNode }) =
       // Verify the stored company ID belongs to the current user
       const isValidCompany = companies.some(c => c.id === storedCompanyId);
       if (!isValidCompany) {
-        console.log("Stored company ID does not belong to user - redirecting to company selection");
         await SecureStore.deleteItemAsync("activeCompany"); // Clean up invalid stored ID
         router.push("/companies/select");
         return;
@@ -76,11 +70,9 @@ export const CompaniesProvider = ({ children }: { children: React.ReactNode }) =
       // Set the active company and configure API headers
       const company = companies.find(c => c.id === storedCompanyId);
       if (company) {
-        console.log("Setting active company:", company.name);
         api.defaults.headers.common["x-company-id"] = storedCompanyId;
         setActiveCompany(company);
       } else {
-        console.log("Company not found in companies array - redirecting to company selection");
         router.push("/companies/select");
       }
     };

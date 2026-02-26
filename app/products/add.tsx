@@ -98,7 +98,6 @@ export default function AddProduct() {
         ivaAmount
       };
 
-      console.log('Creating product:', productData);
       
       await ProductsService.create(productData);
 

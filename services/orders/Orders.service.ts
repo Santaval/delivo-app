@@ -18,6 +18,7 @@ export default class OrdersService extends BaseApiService {
   }
 
   static async addItemToOrder(orderId: string, item: any): Promise<void> {
+    console.log(`Adding item to order ${orderId}:`, item);
     await this.post(`/orders/${orderId}/items`, item);
   }
 
