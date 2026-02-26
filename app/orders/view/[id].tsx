@@ -245,12 +245,14 @@ export default function OrderDetailsPage() {
             />
           ))}
 
-          <PrimaryButton
-            onPress={() => setShowAddProductsModal(true)}
-            title='+ Add products'
-            variant='outline'
-            style={{marginTop: Spacing.md}}
-          />
+         {order.deliveryStatus !== "DELIVERED" && (
+           <PrimaryButton
+             onPress={() => setShowAddProductsModal(true)}
+             title='+ Add products'
+             variant='outline'
+             style={{marginTop: Spacing.md}}
+           />
+         )}
           
         </ThemedView>
 
