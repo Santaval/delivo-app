@@ -9,6 +9,7 @@ import useProducts from '@/hooks/useProducts';
 import { MaterialIcons } from '@expo/vector-icons';
 import { router } from 'expo-router';
 import React, { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { RefreshControl, ScrollView, StatusBar, StyleSheet, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
@@ -16,6 +17,7 @@ export default function Products() {
   const colors = useThemeColor();
   const { products, loading, error, refresh } = useProducts();
   const [searchQuery, setSearchQuery] = useState('');
+  const { t } = useTranslation();
 
   // Filter products based on search query
   const filteredProducts = products.filter(product =>
@@ -36,7 +38,7 @@ export default function Products() {
         {/* Search Section */}
         <View style={styles.searchContainer}>
           <SearchBar
-            placeholder="Search products..."
+            placeholder={t("searchProducts")}
             onSearch={setSearchQuery}
             initialValue={searchQuery}
           />
@@ -51,7 +53,7 @@ export default function Products() {
         >
           {/* Section Header */}
           <View style={styles.sectionHeader}>
-            <ThemedText style={styles.sectionTitle}>STOCK ITEMS</ThemedText>
+            <ThemedText style={styles.sectionTitle}>{t("stockItems")}</ThemedText>
             <View style={styles.totalContainer}>
               <ThemedText style={styles.totalText}>{filteredProducts.length} Total</ThemedText>
             </View>

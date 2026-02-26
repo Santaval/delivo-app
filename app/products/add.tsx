@@ -7,6 +7,7 @@ import ProductsService from '@/services/products/Products.service';
 import { MaterialIcons } from '@expo/vector-icons';
 import { router } from 'expo-router';
 import React, { useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import {
   Alert,
   KeyboardAvoidingView,
@@ -33,7 +34,8 @@ export default function AddProduct() {
   const colors = useThemeColor();
   const [isLoading, setIsLoading] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
-  
+  const { t } = useTranslation();
+
   // Form state
   const [name, setName] = useState('');
   const [grossPriceText, setGrossPriceText] = useState('0.00');
@@ -126,7 +128,7 @@ export default function AddProduct() {
         >
           <MaterialIcons name="arrow-back" size={24} color={colors.text} />
         </TouchableOpacity>
-        <ThemedText style={styles.headerTitle}>Product Details</ThemedText>
+        <ThemedText style={styles.headerTitle}>{t("productDetails")}</ThemedText>
         <View style={styles.placeholder} />
       </View>
       
@@ -141,24 +143,23 @@ export default function AddProduct() {
         >
           {/* Product Name Section */}
           <View style={styles.section}>
-            <ThemedText style={styles.sectionTitle}>Product Name</ThemedText>
             <FormField
               value={name}
               onChangeText={setName}
-              placeholder="e.g. Organic Coffee Beans"
+              placeholder={t("e.g.Organic Coffee Beans")}
               error={errors.name}
               autoCapitalize="words"
-              label='Product Name'
+              label={t("productName")}
             />
           </View>
 
           {/* Pricing & Tax Section */}
           <View style={styles.section}>
-            <ThemedText style={styles.sectionTitle}>Pricing & Tax</ThemedText>
-            
+            <ThemedText style={styles.sectionTitle}>{t("pricingAndTax")}</ThemedText>
+
               {/* Gross Price */}
               <View style={styles.priceField}>
-                <ThemedText style={styles.fieldLabel}>Gross Price (price with IVA)</ThemedText>
+                <ThemedText style={styles.fieldLabel}>{t("grossPrice")} ({t("priceWithIva")})</ThemedText>
                 <View style={styles.currencyInput}>
                   <ThemedText style={styles.currencySymbol}>₡</ThemedText>
                   <TextInput
@@ -178,7 +179,7 @@ export default function AddProduct() {
 
               {/* IVA Rate */}
               <View style={styles.ivaField}>
-                <ThemedText style={styles.fieldLabel}>IVA Rate (%)</ThemedText>
+                <ThemedText style={styles.fieldLabel}>{t("ivaRate")} (%)</ThemedText>
                 <View style={styles.ivaSelector}>
                   {ivaOptions.map((rate) => (
                     <TouchableOpacity
@@ -204,7 +205,7 @@ export default function AddProduct() {
 
             {/* IVA Amount */}
             <View style={styles.calculatedField}>
-              <ThemedText style={styles.fieldLabel}>IVA Amount</ThemedText>
+              <ThemedText style={styles.fieldLabel}>{t("ivaAmount")}</ThemedText>
               <View style={styles.currencyInput}>
                 <ThemedText style={styles.currencySymbol}>₡</ThemedText>
                 <ThemedText style={styles.calculatedValue}>
@@ -217,13 +218,13 @@ export default function AddProduct() {
           {/* Total Price Section */}
           <View style={styles.totalSection}>
             <View style={styles.totalRow}>
-              <ThemedText style={styles.totalLabel}>Total Price</ThemedText>
+              <ThemedText style={styles.totalLabel}>{t("totalPrice")}</ThemedText>
               <ThemedText style={styles.totalValue}>
                 ₡{formatCurrency(grossPrice)}
               </ThemedText>
             </View>
             <ThemedText style={styles.totalSubtext}>
-              Calculated automatically from net price and tax rate
+              {t("calculatedAutomaticallyFromNetPriceAndTaxRate")}
             </ThemedText>
           </View>
         </ScrollView>
@@ -231,7 +232,7 @@ export default function AddProduct() {
         {/* Save Button */}
         <View style={styles.buttonContainer}>
           <PrimaryButton
-            title={isLoading ? "Saving Product..." : "Save Product"}
+            title={isLoading ? t("savingProduct") : t("saveProduct")}
             onPress={handleSubmit}
             disabled={isLoading || !name.trim() || grossPrice <= 0}
             size="large"

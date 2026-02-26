@@ -37,6 +37,16 @@
   "grandTotal": "Total General",
   "addProductsToOrder": "Agregar productos a la orden",
   "addProduct": "Agregar producto",
-  "searchProducts": "Buscar productos"
-
+  "searchProducts": "Buscar productos",
+  "stockItems": "Artículos en stock",
+  "e.g.Organic Coffee Beans": "e.j. Granos de Café Orgánico",
+  "pricingAndTax": "Precios e IVA",
+  "grossPrice": "Precio bruto",
+  "priceWithIva": "Precio con IVA",
+  "ivaRate": "Tasa de IVA",
+  "totalPrice": "Precio total",
+  "calculatedAutomaticallyFromNetPriceAndTaxRate": "Calculado automáticamente a partir del precio neto y la tasa de impuestos",
+  "saveProduct": "Guardar producto",
+  "savingProduct": "Guardando el producto...",
+  "productDetails": "Detalles del producto"
 }
