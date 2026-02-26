@@ -1,4 +1,4 @@
-import { FloatingActionButton, TopBar } from '@/components';
+import { FloatingActionButton, SearchBar, TopBar } from '@/components';
 import { OrdersList } from '@/components/OrdersList';
 import { Spacing } from '@/constants';
 import useOrders from '@/hooks/useOrders';
@@ -8,7 +8,7 @@ import { StyleSheet } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 export default function Clients() {
-  const { orders, loading, error, refresh } = useOrders();
+  const { orders, loading, error, refresh, search } = useOrders();
 
   const handleAddOrder = () => {
     router.push('/orders/create');
@@ -20,10 +20,10 @@ export default function Clients() {
         title='Orders'
       />
 
-      {/* <SearchBar
-        onSearch={searchClients}
+      <SearchBar
+        onSearch={search}
         showClearButton
-      /> */}
+      />
 
       <OrdersList 
         onOrderPress={(orderId) => router.push(`/orders/view/${orderId}`)}

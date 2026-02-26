@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 
 const useOrders = () => {
   const [orders, setOrders] = useState<Order[]>([]);
+  const [originalOrders, setOriginalOrders] = useState<Order[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -11,6 +12,7 @@ const useOrders = () => {
       setLoading(true);
       const response = await OrdersService.all();
       setOrders(response);
+      setOriginalOrders(response);
     } catch (err) {
       setError('Failed to load orders');
       console.error('Error fetching orders:', err);
@@ -19,11 +21,24 @@ const useOrders = () => {
     }
   };
 
+  const search = (query: string) => {
+    if (!query) {
+      setOrders(originalOrders);
+      return;
+    }
+
+    const filtered = originalOrders.filter(order =>
+      order.client.name.toLowerCase().includes(query.toLowerCase()) ||
+      order.number.toString().includes(query)
+    );
+    setOrders(filtered);
+  };
+
   useEffect(() => {
     fetchOrders();
   }, []);
 
-  return { orders, loading, error, refresh: fetchOrders };
+  return { orders, loading, error, refresh: fetchOrders, search };
 };
 
 export default useOrders;
