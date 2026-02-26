@@ -4,11 +4,13 @@ import { Spacing } from '@/constants';
 import useOrders from '@/hooks/useOrders';
 import { router } from 'expo-router';
 import React from 'react';
+import { useTranslation } from 'react-i18next';
 import { StyleSheet } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 export default function Clients() {
-  const { orders, loading, error, refresh, search } = useOrders();
+  const { orders, loading, refresh, search } = useOrders();
+  const { t } = useTranslation();
 
   const handleAddOrder = () => {
     router.push('/orders/create');
@@ -17,10 +19,11 @@ export default function Clients() {
   return (
     <SafeAreaView style={styles.container}>
       <TopBar
-        title='Orders'
+        title={t('orders')}
       />
 
       <SearchBar
+        placeholder={t('searchByNameOrNumber')}
         onSearch={search}
         showClearButton
       />

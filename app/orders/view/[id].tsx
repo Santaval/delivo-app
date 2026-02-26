@@ -15,6 +15,7 @@ import useOrder from '@/hooks/useOrder';
 import { MaterialIcons } from '@expo/vector-icons';
 import { useLocalSearchParams } from 'expo-router';
 import React, { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import {
   ActivityIndicator,
   RefreshControl,
@@ -63,6 +64,7 @@ type StatusBadgeProps = {
 
 const StatusBadge: React.FC<StatusBadgeProps> = ({ status }) => {
   const colors = useThemeColor();
+  const { t } = useTranslation();
 
   const getStatusConfig = () => {
     switch (status) {
@@ -70,19 +72,19 @@ const StatusBadge: React.FC<StatusBadgeProps> = ({ status }) => {
         return {
           backgroundColor: '#10B981',
           color: '#FFFFFF',
-          text: 'PAID'
+          text: t("paid")
         };
       case 'PENDING':
         return {
           backgroundColor: '#F59E0B',
           color: '#FFFFFF',
-          text: 'PENDING'
+          text: t("pending")
         };
       case 'CANCELLED':
         return {
           backgroundColor: '#EF4444',
           color: '#FFFFFF',
-          text: 'CANCELLED'
+          text: t("cancelled")
         };
       default:
         return {
@@ -107,7 +109,7 @@ const StatusBadge: React.FC<StatusBadgeProps> = ({ status }) => {
 export default function OrderDetailsPage() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const colors = useThemeColor();
-
+  const { t } = useTranslation();
   const { order, loading, error, refresh, addItems } = useOrder(id);
   const [showPaymentModal, setShowPaymentModal] = useState(false);
   const [showAddProductsModal, setShowAddProductsModal] = useState(false);
@@ -134,12 +136,12 @@ export default function OrderDetailsPage() {
     return (
       <ThemedView style={styles.container}>
         <TopBar
-          title="Invoice Details"
+          title={t('invoiceDetails')}
         />
         <View style={styles.centerContent}>
           <ActivityIndicator size="large" color={colors.primary} />
           <ThemedText style={[styles.loadingText, { color: colors.textSecondary }]}>
-            Loading invoice details...
+            {t('loadingInvoiceDetails')}
           </ThemedText>
         </View>
       </ThemedView>
@@ -150,7 +152,7 @@ export default function OrderDetailsPage() {
     return (
       <ThemedView style={styles.container}>
         <TopBar
-          title="Invoice Details"
+          title={t('invoiceDetails')}
         />
         <View style={styles.centerContent}>
           <MaterialIcons name="error-outline" size={48} color={colors.danger} />
@@ -171,7 +173,7 @@ export default function OrderDetailsPage() {
     <SafeAreaView
       style={styles.container}>
       <TopBar
-        title="Invoice Details"
+        title={t('invoiceDetails')}
       />
 
       <ScrollView
@@ -195,7 +197,7 @@ export default function OrderDetailsPage() {
                 {generateInvoiceNumber(order.number)}
               </ThemedText>
               <ThemedText style={[styles.invoiceDate, { color: colors.textSecondary }]}>
-                Issued on {formatDate(order.createdAt || '')}
+                {t('issuedOn')} {formatDate(order.createdAt || '')}
               </ThemedText>
             </View>
             <StatusBadge status={order.status} />
@@ -210,7 +212,7 @@ export default function OrderDetailsPage() {
         <ThemedView style={[styles.lineItemsCard, { backgroundColor: colors.surface }]}>
           <View style={styles.lineItemContent}>
             <ThemedText style={[styles.sectionTitle, { color: colors.text }]}>
-              Line Items
+             { t("lineItems")}
             </ThemedText>
 
           </View>
@@ -219,18 +221,18 @@ export default function OrderDetailsPage() {
           <View style={[styles.lineItemHeader, { borderBottomColor: colors.border }]}>
             <View style={styles.headerLeft}>
               <ThemedText style={[styles.headerText, { color: colors.textSecondary }]}>
-                Product Name
+                {t("productName")}
               </ThemedText>
               <ThemedText style={[styles.headerText, { color: colors.textSecondary }]}>
-                Unit Price
+                {t("unitPrice")}
               </ThemedText>
             </View>
             <View style={styles.headerRight}>
               <ThemedText style={[styles.headerText, { color: colors.textSecondary }]}>
-                Quantity
+                {t("quantity")}
               </ThemedText>
               <ThemedText style={[styles.headerText, { color: colors.textSecondary }]}>
-                Total
+                {t("total")}
               </ThemedText>
             </View>
           </View>
@@ -248,7 +250,7 @@ export default function OrderDetailsPage() {
          {order.deliveryStatus !== "DELIVERED" && (
            <PrimaryButton
              onPress={() => setShowAddProductsModal(true)}
-             title='+ Add products'
+             title={'+ ' + t("addProducts")}
              variant='outline'
              style={{marginTop: Spacing.md}}
            />
@@ -259,32 +261,32 @@ export default function OrderDetailsPage() {
         {/* Financial Summary */}
         <ThemedView style={[styles.summaryCard, { backgroundColor: colors.surface }]}>
           <ThemedText style={[styles.sectionTitle, { color: colors.text }]}>
-            Financial Summary
+            {t("financialSummary")}
           </ThemedText>
 
           <View style={styles.summaryRow}>
             <ThemedText style={[styles.summaryLabel, { color: colors.textSecondary }]}>
-              Subtotal
+              {t("subtotal")}
             </ThemedText>
             <CurrencyText style={[styles.summaryValue, { color: colors.text }]} amount={order.pricing.subtotal} />
           </View>
 
           <View style={styles.summaryRow}>
             <ThemedText style={[styles.summaryLabel, { color: colors.textSecondary }]}>
-              IVA Amount ({((order.pricing.ivaTotal / order.pricing.subtotal) * 100).toFixed(0)}%)
+              {t("ivaAmount")} ({((order.pricing.ivaTotal / order.pricing.subtotal) * 100).toFixed(0)}%)
             </ThemedText>
             <CurrencyText style={[styles.summaryValue, { color: colors.text }]} amount={order.pricing.ivaTotal} />
           </View>
 
           <View style={[styles.summaryRow, styles.totalRow, { borderTopColor: colors.border }]}>
             <ThemedText style={[styles.totalLabel, { color: colors.text }]}>
-              Grand Total
+              {t("grandTotal")}
             </ThemedText>
             <CurrencyText style={[styles.totalValue, { color: colors.primary }]} amount={order.pricing.total} />
           </View>
           <View style={[styles.summaryRow, styles.totalRow, { borderTopColor: colors.border }]}>
             <ThemedText style={[styles.totalLabel, { color: colors.text }]}>
-              Pending Payment
+              {t("pending")}
             </ThemedText>
             <CurrencyText style={[styles.totalValue, { color: colors.danger }]} amount={order.pricing.total - order.paid} />
           </View>

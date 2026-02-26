@@ -3,6 +3,7 @@ import { useThemeColor } from '@/hooks/useColorScheme';
 import useProducts from '@/hooks/useProducts';
 import { MaterialIcons } from '@expo/vector-icons';
 import React, { useCallback, useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import {
   Alert,
   FlatList,
@@ -182,8 +183,9 @@ export function ProductSelect({
   maxItems = 50,
 }: ProductSelectProps) {
   const colors = useThemeColor();
-  const { products, loading, searchProducts } = useProducts();
-  
+  const { products, loading } = useProducts();
+  const { t } = useTranslation();
+
   const [selectedProducts, setSelectedProducts] = useState<OrderItem[]>([]);
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
@@ -302,7 +304,7 @@ export function ProductSelect({
             <TouchableOpacity onPress={openModal} style={styles.addButton}>
               <MaterialIcons name="add" size={16} color={colors.primary} />
               <ThemedText style={[styles.addButtonText, { color: colors.primary }]}>
-                Add Product
+                {t("addProduct")}
               </ThemedText>
             </TouchableOpacity>
           </View>
@@ -373,7 +375,7 @@ export function ProductSelect({
               <MaterialIcons name="close" size={24} color={colors.text} />
             </TouchableOpacity>
             <ThemedText style={[styles.modalTitle, { color: colors.text }]}>
-              Add Products
+              {t("addProduct")}
             </ThemedText>
             <View style={styles.placeholder} />
           </View>
@@ -396,7 +398,7 @@ export function ProductSelect({
               ]}
               value={searchQuery}
               onChangeText={setSearchQuery}
-              placeholder="Search products..."
+              placeholder={t("searchProducts")}
               placeholderTextColor={colors.textSecondary}
               autoCapitalize="none"
               autoCorrect={false}

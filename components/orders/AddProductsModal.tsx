@@ -2,6 +2,7 @@ import { OrderItem, PrimaryButton, ProductSelect, ThemedView } from '@/component
 import { BorderRadius, Shadows, Spacing } from '@/constants';
 import { useThemeColor } from '@/hooks/useColorScheme';
 import React from 'react';
+import { useTranslation } from 'react-i18next';
 import {
   KeyboardAvoidingView,
   Modal,
@@ -24,7 +25,7 @@ const AddProductsModal: React.FC<RecordPaymentModalProps> = ({
   const colors = useThemeColor();
 
   const [orderItems, setOrderItems] = React.useState<OrderItem[]>([]);
-
+  const { t } = useTranslation();
 
   const handleCancel = () => {
     onClose();
@@ -58,12 +59,14 @@ const AddProductsModal: React.FC<RecordPaymentModalProps> = ({
           <TouchableOpacity activeOpacity={1} onPress={(e) => e.stopPropagation()}>
             <ThemedView style={[styles.modalContainer, { backgroundColor: colors.surface }]}>
               <ProductSelect 
+                label={t("products")}
                 onProductsChange={(setOrderItems)}
+                placeholder={t("addProductsToOrder")}
                 disableTotal
               />
 
               <PrimaryButton
-                title="Add Products"
+                title={t("addProducts")}
                 onPress={handleAddProducts}
               />
             </ThemedView>

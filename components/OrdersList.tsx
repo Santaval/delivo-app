@@ -1,6 +1,7 @@
 import { BorderRadius, Colors, Spacing, Typography } from '@/constants';
 import { useThemeColor } from '@/hooks/useColorScheme';
 import React, { useMemo, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { RefreshControl, ScrollView, StyleSheet, TouchableOpacity, View } from 'react-native';
 import { OrderCard } from './OrderCard';
 import { ThemedText } from './ThemedText';
@@ -17,12 +18,13 @@ export type OrdersListProps = {
 
 export function OrdersList({ orders, onOrderPress, onRefresh, isRefreshing }: OrdersListProps) {
   const colors = useThemeColor();
+  const { t } = useTranslation();
   const [activeTab, setActiveTab] = useState<TabType>('all');
 
   const tabs: { key: TabType; label: string }[] = [
-    { key: 'all', label: 'All' },
-    { key: 'paid', label: 'Paid' },
-    { key: 'pending', label: 'Pending' },
+    { key: 'all', label: t('all') },
+    { key: 'paid', label: t('paid') },
+    { key: 'pending', label: t('pending') },
   ];
 
   // Filter orders based on active tab
@@ -112,12 +114,12 @@ export function OrdersList({ orders, onOrderPress, onRefresh, isRefreshing }: Or
     const getEmptySubtitle = () => {
       switch (activeTab) {
         case 'paid':
-          return 'Completed orders will appear here';
+          return t('paidOrdersWillAppearHere');
         case 'pending':
-          return 'Pending and overdue orders will appear here';
+          return t('pendingAndOverdueOrdersWillAppearHere');
         case 'all':
         default:
-          return 'Create your first order to get started';
+          return t('createYourFirstOrderToGetStarted');
       }
     };
 
