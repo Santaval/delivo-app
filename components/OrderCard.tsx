@@ -83,6 +83,8 @@ export function OrderCard({
               </ThemedText>
             </View>
 
+            
+
             {/* Order Info */}
             <View style={styles.orderInfo}>
               <ThemedText style={styles.invoiceNumber}>
