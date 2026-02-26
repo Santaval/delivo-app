@@ -1,0 +1,17 @@
+{
+  "home": "Inicio",
+  "monthlyIncome": "Ingresos Mensuales",
+  "sinceLastMonth": "Desde el último mes",
+  "incomeTrends": "Tendencias de Ingresos",
+  "last30Days": "Últimos 30 Días",
+  "quickLinks": "Enlaces Rápidos",
+  "clients": "Clientes",
+  "viewDetailedClientInformation": "Ver información de los clientes",
+  "orders": "Pedidos",
+  "viewDetailedOrderInformation": "Ver información de las órdenes",
+  "products": "Productos",
+  "viewDetailedProductInformation": "Ver información de los productos",
+  "routes": "Rutas",
+  "viewDetailedRouteInformation": "Ver información de las rutas"
+
+}

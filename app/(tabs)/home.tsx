@@ -5,11 +5,13 @@ import useFinancialSummary from '@/hooks/useFinanancialSummary';
 import { MaterialCommunityIcons, MaterialIcons } from '@expo/vector-icons';
 import { router } from 'expo-router';
 import React from 'react';
+import { useTranslation } from 'react-i18next';
 import { StyleSheet, Text } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 export default function Home() {
   const { data, loading } = useFinancialSummary();
+  const { t } = useTranslation();
 
   const colors = useThemeColor();
 
@@ -25,52 +27,53 @@ export default function Home() {
   return (
     <SafeAreaView style={styles.container}>
       <TopBar
-        title='Home'
+        title={t('home')}
       />
       <IncomeCard
         amount={data.incomes.total}
-        title='Monthly Income'
+        title={t('monthlyIncome')}
         percentage={data.incomes.increasePercentage || 0}
-        timeStamp='Since last month'
+        timeStamp={t('sinceLastMonth')}
       />
       <IncomeTrendsChart
         data={Object.entries(data.incomes.byDay).map(([label, value]) => ({ label, value })) as any}
-        title='Income Trends'
+        title={t('incomeTrends')}
         averageValue={data.incomes.averagePerDay}
       />
 
       <QuickLinks
+        title={t('quickLinks')}
         links={[
 
           {
             icon: <MaterialIcons name="people" size={24} color={colors.textInverse} />,
             id: 'clients',
-            title: 'Clients',
-            subtitle: 'View detailed client information',
+            title: t('clients'),
+            subtitle: t('viewDetailedClientInformation'),
             onPress: () => router.push('/(tabs)/clients'),
           },
 
           {
             icon:  <MaterialIcons name="shopping-cart" size={28} color={colors.textInverse} />,
             id: 'orders',
-            title: 'Orders',
-            subtitle: 'View detailed order information',
+            title: t('orders'),
+            subtitle: t('viewDetailedOrderInformation'),
             onPress: () => router.push('/(tabs)/orders'),
           },
 
           {
             icon: <MaterialCommunityIcons name="package" size={24} color={colors.textInverse} />,
             id: 'products',
-            title: 'Products',
-            subtitle: 'View detailed product information',
+            title: t('products'),
+            subtitle: t('viewDetailedProductInformation'),
             onPress: () => router.push('/(tabs)/products'),
           },
 
           {
             icon: <MaterialIcons name="map" size={28} color={colors.textInverse} />,
             id: 'routes',
-            title: 'Routes',
-            subtitle: 'View detailed route information',
+            title: t('routes'),
+            subtitle: t('viewDetailedRouteInformation'),
             onPress: () => router.push('/(tabs)/routes'),
           },
 

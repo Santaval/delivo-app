@@ -5,8 +5,10 @@ import { Platform } from 'react-native';
 
 import { HapticTab } from '@/components/HapticTab';
 import { Colors } from '@/constants';
+import { useTranslation } from 'react-i18next';
 
 export default function TabLayout() {
+  const { t } = useTranslation();
   return (
     <Tabs
       screenOptions={{
@@ -27,7 +29,7 @@ export default function TabLayout() {
       <Tabs.Screen
         name='home'
         options={{
-          title: 'Home',
+          title: t('home'),
           tabBarIcon: ({ color }) => (
             <MaterialIcons name="home" size={28} color={color} />
           ),
@@ -36,7 +38,7 @@ export default function TabLayout() {
       <Tabs.Screen
         name='orders'
         options={{
-          title: 'Orders',
+          title: t('orders'),
           tabBarIcon: ({ color }) => (
             <MaterialIcons name="shopping-cart" size={28} color={color} />
           ),
@@ -45,7 +47,7 @@ export default function TabLayout() {
       <Tabs.Screen
         name='products'
         options={{
-          title: 'Products',
+          title: t('products'),
           tabBarIcon: ({ color }) => (
             <MaterialCommunityIcons name="package" size={28} color={color} />
           ),
@@ -54,7 +56,7 @@ export default function TabLayout() {
       <Tabs.Screen
         name='clients'
         options={{
-          title: 'Clients',
+          title: t('clients'),
           tabBarIcon: ({ color }) => (
             <MaterialIcons name="people" size={28} color={color} />
           ),
@@ -63,7 +65,7 @@ export default function TabLayout() {
       <Tabs.Screen
         name='routes'
         options={{
-          title: 'Routes',
+          title: t('routes'),
           tabBarIcon: ({ color }) => (
             <MaterialIcons name="map" size={28} color={color} />
           ),
