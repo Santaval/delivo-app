@@ -1,13 +1,12 @@
 import { TopBar } from '@/components';
+import { OrderCard } from '@/components/OrderCard';
 import CompleteDeliveryButton from '@/components/routes/CompleteDeliveryButton';
 import CurrentStopHeader from '@/components/routes/CurrentStopHeader';
 import DeliveryActionButtons from '@/components/routes/DeliveryActionButtons';
 import DeliveryMap from '@/components/routes/DeliveryMap';
-import { OrderCard } from '@/components/OrderCard';
 import { BorderRadius, Colors, Spacing, Typography } from '@/constants';
 import { useRoute } from '@/context/RouteContext';
 import useUserLocation from '@/hooks/useUserLocation';
-import { Ionicons } from '@expo/vector-icons';
 import { router } from 'expo-router';
 import React from 'react';
 import { useTranslation } from 'react-i18next';

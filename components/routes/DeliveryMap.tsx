@@ -1,7 +1,7 @@
-import React from 'react';
-import { StyleSheet, View } from 'react-native';
 import Map from '@/components/maps/Map';
 import { BorderRadius, Colors, Spacing } from '@/constants';
+import React from 'react';
+import { StyleSheet, View } from 'react-native';
 
 type DeliveryMapProps = {
   clientLocation: {
