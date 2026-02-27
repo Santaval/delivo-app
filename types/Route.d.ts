@@ -11,7 +11,7 @@ interface Route {
 
 interface RoutePoint {
     id: string;
-    status: string;
+    status: "CREATED" | "VISITED" | "SKIPPED";
     index: number;
     order: Order;
     routeId: string;

@@ -1,14 +1,16 @@
 import { TopBar } from '@/components';
 import { OrderCard } from '@/components/OrderCard';
+import AllStopsList from '@/components/routes/AllStopsList';
 import CompleteDeliveryButton from '@/components/routes/CompleteDeliveryButton';
 import CurrentStopHeader from '@/components/routes/CurrentStopHeader';
 import DeliveryActionButtons from '@/components/routes/DeliveryActionButtons';
 import DeliveryMap from '@/components/routes/DeliveryMap';
+import DeliveryTabs, { Tab } from '@/components/routes/DeliveryTabs';
 import { BorderRadius, Colors, Spacing, Typography } from '@/constants';
 import { useRoute } from '@/context/RouteContext';
 import useUserLocation from '@/hooks/useUserLocation';
 import { router } from 'expo-router';
-import React from 'react';
+import React, { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { ActivityIndicator, Alert, Linking, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -19,6 +21,7 @@ export default function RouteDeliveryScreen() {
   const { t } = useTranslation();
   
   const [isCompletingDelivery, setIsCompletingDelivery] = React.useState(false);
+  const [activeTab, setActiveTab] = useState<Tab>('current');
 
   const currentPoint = getCurrentPoint();
 
@@ -93,26 +96,42 @@ export default function RouteDeliveryScreen() {
 
         {/* Client Info Section */}
         <View style={styles.clientInfoContainer}>
-          {/* Current Stop Header */}
-          <CurrentStopHeader clientName={currentClient.name} />
+          {/* Tabs */}
+          <DeliveryTabs activeTab={activeTab} onTabChange={setActiveTab} />
 
-          {/* Action Buttons */}
-          <DeliveryActionButtons
-            onCall={handleCallClient}
-            onOpenGPS={handleOpenGPS}
-          />
+          {/* Current Location Tab */}
+          {activeTab === 'current' && (
+            <>
+              {/* Current Stop Header */}
+              <CurrentStopHeader clientName={currentClient.name} />
 
-          {/* Delivery Notes */}
-          <OrderCard
-            order={currentPoint.order}
-            onPress={() => {router.push(`/orders/view/${currentPoint.order.id}`)}}
-          />
+              {/* Action Buttons */}
+              <DeliveryActionButtons
+                onCall={handleCallClient}
+                onOpenGPS={handleOpenGPS}
+              />
 
-          {/* Complete Delivery Button */}
-          <CompleteDeliveryButton
-            onSwipeComplete={handleCompleteDelivery}
-            isLoading={isCompletingDelivery}
-          />
+              {/* Delivery Notes */}
+              <OrderCard
+                order={currentPoint.order}
+                onPress={() => {router.push(`/orders/view/${currentPoint.order.id}`)}}
+              />
+
+              {/* Complete Delivery Button */}
+              <CompleteDeliveryButton
+                onSwipeComplete={handleCompleteDelivery}
+                isLoading={isCompletingDelivery}
+              />
+            </>
+          )}
+
+          {/* All Stops Tab */}
+          {activeTab === 'all' && (
+            <AllStopsList
+              stops={route.points}
+              currentStopId={currentPoint.id}
+            />
+          )}
         </View>
       </View>
     </SafeAreaView>
