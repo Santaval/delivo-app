@@ -46,6 +46,6 @@ export default function Clients() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    padding: Spacing.md,
+    padding: Spacing.lg,
   },
 });

@@ -34,7 +34,7 @@ export default function Products() {
       <TopBar title='Products' />
       <StatusBar barStyle="dark-content" backgroundColor={colors.background} />
       
-      <ThemedView style={styles.container}>
+      <ThemedView style={{ flex: 1 }}>
         {/* Search Section */}
         <View style={styles.searchContainer}>
           <SearchBar
@@ -104,12 +104,12 @@ export default function Products() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    padding: Spacing.lg,
     backgroundColor: Colors.light.backgroundSecondary,
   },
   searchContainer: {
     paddingHorizontal: Spacing.lg,
     paddingVertical: Spacing.md,
-    backgroundColor: Colors.light.background,
     borderBottomWidth: 1,
     borderBottomColor: Colors.light.border,
   },
