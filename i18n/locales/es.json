@@ -69,5 +69,8 @@
   "plannedStops": "Puntos de entrega",
   "stopsTotal": "paradas en total",
   "slideToStartNavigation": "Desliza para empezar",
-  "optimizingRoute": "Optimizando ruta..."
+  "optimizingRoute": "Optimizando ruta...",
+  "createOrder": "Crear Orden",
+  "assignedClient": "Cliente Asignado",
+  "chooseClient": "Elegir Cliente"
 }

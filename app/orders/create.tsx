@@ -4,6 +4,7 @@ import OrdersService from '@/services/orders/Orders.service';
 import { useRoute } from '@react-navigation/native';
 import { router } from 'expo-router';
 import React, { useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import { StyleSheet } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
@@ -11,6 +12,7 @@ export default function create() {
   const [orderItems, setOrderItems] = React.useState<OrderItem[]>([]);
   const [clientId, setClientId] = React.useState<string | undefined>(undefined);
   const [isSaving, setIsSaving] = React.useState<boolean>(false);
+  const { t } = useTranslation();
   // load client id param from route params
   const route = useRoute();
   const { clientId: defaultClientId } = route.params as { clientId?: string };
@@ -48,16 +50,18 @@ export default function create() {
     <SafeAreaView style={styles.container}>
       <TopBar
         title='Create Order'
+        goBackTo='/orders'
       />
       <ClientSelect
-        label="ASSIGNED CLIENT"
+        label={t("assignedClient").toUpperCase()}
+        placeholder={t("chooseClient")}
         defaultClientId={defaultClientId}
         onClientSelect={client => setClientId(client.id)}
         onClientClear={() => setClientId(undefined)}
       />
 
       <ProductSelect
-        label="Products"
+        label={t("products")}
         maxItems={100}
         // error={orderItems.length === 0 ? "Please add products" : undefined}
         onProductsChange={setOrderItems}

@@ -2,6 +2,7 @@ import { Spacing, Typography } from '@/constants';
 import { useAuth } from '@/context/AuthContext';
 import { useThemeColor } from '@/hooks/useColorScheme';
 import { MaterialCommunityIcons, MaterialIcons } from '@expo/vector-icons';
+import { Link, RelativePathString } from 'expo-router';
 import React from 'react';
 import { Image, StyleSheet, TouchableOpacity, View } from 'react-native';
 import { ThemedText } from './ThemedText';
@@ -15,6 +16,7 @@ export type TopBarProps = {
   notificationCount?: number;
   onNotificationPress?: () => void;
   onUserPress?: () => void;
+  goBackTo?: string
 };
 
 export function TopBar({
@@ -25,6 +27,7 @@ export function TopBar({
   notificationCount,
   onNotificationPress = () => console.log('Notification pressed'),
   onUserPress = () => console.log('User profile pressed'),
+  goBackTo
 }: TopBarProps) {
   const colors = useThemeColor();
   const { logout } = useAuth();
@@ -37,11 +40,15 @@ export function TopBar({
         onPress={onUserPress}
         activeOpacity={0.7}
       >
-        <Image 
+        {!goBackTo ? <Image 
           source={userImage || require('@/assets/images/user-placeholder.png')}
           style={styles.userImage}
           resizeMode="cover"
-        />
+        /> : 
+        <Link href={goBackTo as RelativePathString}>
+          <MaterialIcons name="arrow-back-ios" size={28} color={colors.primary}  />
+        </Link>
+        }
         <View style={styles.userInfo}>
           <ThemedText style={styles.title}>
             {title}
