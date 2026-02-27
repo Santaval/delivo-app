@@ -72,5 +72,16 @@
   "optimizingRoute": "Optimizando ruta...",
   "createOrder": "Crear Orden",
   "assignedClient": "Cliente Asignado",
-  "chooseClient": "Elegir Cliente"
+  "chooseClient": "Elegir Cliente",
+  "inProgress": "En Progreso",
+  "today": "Hoy",
+  "loadingDelivery": "Cargando Entrega...",
+  "currentDeliveryLocation": "Ubicación de Entrega Actual",
+  "currentPosition": "Ubicación Actual",
+  "yourLocation": "Tu Ubicación",
+  "currentStop": "Parada Actual",
+  "call": "Llamar",
+  "openGPS": "Abrir GPS",
+  "slideToCompleteDelivery": "Desliza para completar",
+  "completingDelivery": "Completando Entrega..."
 }

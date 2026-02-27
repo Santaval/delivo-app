@@ -2,41 +2,20 @@ import { FloatingActionButton, SwipeButton, TopBar } from '@/components';
 import Map from '@/components/maps/Map';
 import { BorderRadius, Colors, Spacing, Typography } from '@/constants';
 import { useRoute } from '@/context/RouteContext';
-import useUserLocation from '@/hooks/useUserLocation';
-import RoutesService from '@/services/routes/Routes.service';
 import { router } from 'expo-router';
 import React from 'react';
 import { useTranslation } from 'react-i18next';
-import { ActivityIndicator, Alert, FlatList, StyleSheet, Text, View } from 'react-native';
+import { ActivityIndicator, FlatList, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 export default function RoutePlanningScreen() {
 
-  const { route, isLoading, error } = useRoute();
-  const { location } = useUserLocation();
+  const { route, isLoading, error, startNavigation } = useRoute();
   const { t } = useTranslation();
   
 
-  const [isStartingNavigation, setIsStartingNavigation] = React.useState(false);
 
-  const handleStartNavigation = async () => {
-    if (!location) {
-      Alert.alert('Location Error', 'Unable to access your location. Please enable location services and try again.');
-      return;
-    }
-    if (!route) return;
-    setIsStartingNavigation(true);
-    try {
-      await RoutesService.startNavigation(route?.id, {
-        lat: location.coords.latitude,
-        lng: location.coords.longitude,
-      });
-    } catch (error) {
-      console.error('Failed to start navigation:', error);
-    } finally {
-      setIsStartingNavigation(false);
-    }
-  };
+  
 
   const renderStopItem = ({ item, index }: { item: RoutePoint; index: number }) => (
     <View style={styles.stopItem}>
@@ -121,9 +100,9 @@ export default function RoutePlanningScreen() {
           
           <View style={styles.navigationButtonContainer}>
             <SwipeButton
-              onSwipeComplete={handleStartNavigation}
-              text={isStartingNavigation ? t("optimizingRoute") : t("slideToStartNavigation")}
-              isLoading={isStartingNavigation}
+              onSwipeComplete={startNavigation}
+              text={isLoading ? t("optimizingRoute") : t("slideToStartNavigation")}
+              isLoading={isLoading}
               iconName="navigate"
               backgroundColor={Colors.light.success}
               style={styles.navigationButton}

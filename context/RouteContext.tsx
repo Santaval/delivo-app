@@ -1,5 +1,7 @@
+import useUserLocation from "@/hooks/useUserLocation";
 import RoutesService from "@/services/routes/Routes.service";
 import { createContext, ReactNode, useContext, useEffect, useState } from "react";
+import { Alert } from "react-native";
 
 /**
  * Represents the route state of the application
@@ -33,6 +35,7 @@ interface RouteContextType extends RouteState {
   getNextPoint: () => RoutePoint | null;
   /** Function to complete the current delivery */
   completeCurrentDelivery: () => Promise<void>;
+  startNavigation: () => Promise<void>;
 }
 
 /**
@@ -58,6 +61,8 @@ export const RouteProvider = ({ children, routeId }: RouteProviderProps) => {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [currentPointIndex, setCurrentPointIndex] = useState<number | null>(null);
+  const { location } = useUserLocation();
+
 
   /**
    * Fetches a route by ID
@@ -151,6 +156,26 @@ export const RouteProvider = ({ children, routeId }: RouteProviderProps) => {
     }
   };
 
+  const startNavigation = async () => {
+    if (!location) {
+          Alert.alert('Location Error', 'Unable to access your location. Please enable location services and try again.');
+          return;
+        }
+        if (!route) return;
+        setIsLoading(true);
+        try {
+            await RoutesService.startNavigation(route?.id, {
+            lat: location.coords.latitude,
+            lng: location.coords.longitude,
+          });
+          await fetchRoute(route.id); // Refresh route data after starting navigation
+        } catch (error) {
+          console.error('Failed to start navigation:', error);
+        } finally {
+          setIsLoading(false);
+        }
+  };
+
   const value: RouteContextType = {
     route,
     isLoading,
@@ -161,7 +186,8 @@ export const RouteProvider = ({ children, routeId }: RouteProviderProps) => {
     clearError,
     getCurrentPoint,
     getNextPoint,
-    completeCurrentDelivery
+    completeCurrentDelivery,
+    startNavigation,
   };
 
   return (

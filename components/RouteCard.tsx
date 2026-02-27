@@ -2,6 +2,7 @@ import { BorderRadius, Colors, Shadows, Spacing, Typography } from '@/constants'
 import { useThemeColor } from '@/hooks/useColorScheme';
 import { MaterialIcons } from '@expo/vector-icons';
 import React from 'react';
+import { useTranslation } from 'react-i18next';
 import { StyleSheet, TouchableOpacity, View } from 'react-native';
 import { ThemedText } from './ThemedText';
 import { ThemedView } from './ThemedView';
@@ -16,6 +17,7 @@ export type RouteCardProps = {
 
 export function RouteCard({ route, onPress, onDetailsPress }: RouteCardProps) {
   const colors = useThemeColor();
+  const { t } = useTranslation(); 
 
   const formatDate = (dateString: string) => {
     const date = new Date(dateString);
@@ -23,7 +25,7 @@ export function RouteCard({ route, onPress, onDetailsPress }: RouteCardProps) {
     const isToday = date.toDateString() === today.toDateString();
     
     if (isToday) {
-      return 'TODAY';
+      return t("today");
     }
     
     return date.toLocaleDateString('en-US', { 
@@ -46,19 +48,19 @@ export function RouteCard({ route, onPress, onDetailsPress }: RouteCardProps) {
     switch (status) {
       case 'CREATED':
         return {
-          label: 'CREATED',
+          label: t("created"),
           backgroundColor: Colors.light.textTertiary + '20',
           textColor: Colors.light.textTertiary,
         };
       case 'STARTED':
         return {
-          label: 'IN PROGRESS',
+          label: t("inProgress"),
           backgroundColor: Colors.light.primary + '20',
           textColor: Colors.light.primary,
         };
       case 'COMPLETED':
         return {
-          label: 'COMPLETED',
+          label: t("completed"),
           backgroundColor: Colors.light.success + '20',
           textColor: Colors.light.success,
         };
@@ -72,7 +74,7 @@ export function RouteCard({ route, onPress, onDetailsPress }: RouteCardProps) {
   };
 
   const getCompletedStops = () => {
-    const completedCount = route.points.filter(point => point.status === 'COMPLETED').length;
+    const completedCount = route.points.filter(point => point.status === 'VISITED').length;
     return completedCount;
   };
 

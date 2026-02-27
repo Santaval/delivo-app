@@ -7,12 +7,14 @@ import useUserLocation from '@/hooks/useUserLocation';
 import { Ionicons } from '@expo/vector-icons';
 import { router } from 'expo-router';
 import React from 'react';
+import { useTranslation } from 'react-i18next';
 import { ActivityIndicator, Alert, Linking, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 export default function RouteDeliveryScreen() {
   const { route, isLoading, error, getCurrentPoint, completeCurrentDelivery } = useRoute();
   const { location } = useUserLocation();
+  const { t } = useTranslation();
   
   const [isCompletingDelivery, setIsCompletingDelivery] = React.useState(false);
 
@@ -55,7 +57,7 @@ export default function RouteDeliveryScreen() {
         <TopBar title="Delivery" />
         <View style={styles.centerContent}>
           <ActivityIndicator size="large" color={Colors.light.primary} />
-          <Text style={styles.loadingText}>Loading delivery...</Text>
+          <Text style={styles.loadingText}>{t("loadingDelivery")}</Text>
         </View>
       </SafeAreaView>
     );
@@ -89,15 +91,15 @@ export default function RouteDeliveryScreen() {
                   longitude: currentClient.location.lng || -122.4194,
                 },
                 title: currentClient.name,
-                description: 'Current delivery location',
+                description: t("currentDeliveryLocation"),
               },
               ...(location ? [{
                 coordinate: {
                   latitude: location.coords.latitude,
                   longitude: location.coords.longitude,
                 },
-                title: 'Your Location',
-                description: 'Current position',
+                title: t("yourLocation"),
+                description: t("currentPosition"),
               }] : [])
             ]}
 
@@ -117,7 +119,7 @@ export default function RouteDeliveryScreen() {
             <View style={styles.stopIndicator}>
               <Ionicons name="location" size={16} color={Colors.light.primary} />
             </View>
-            <Text style={styles.currentStopLabel}>CURRENT STOP</Text>
+            <Text style={styles.currentStopLabel}>{t("currentStop").toUpperCase()}</Text>
           </View>
 
           {/* Client Details */}
@@ -135,7 +137,7 @@ export default function RouteDeliveryScreen() {
               onPress={handleCallClient}
             >
               <Ionicons name="call" size={20} color={Colors.light.primary} />
-              <Text style={styles.actionButtonText}>Call Client</Text>
+              <Text style={styles.actionButtonText}>{t("call")}</Text>
             </TouchableOpacity>
 
             <TouchableOpacity 
@@ -143,7 +145,7 @@ export default function RouteDeliveryScreen() {
               onPress={handleOpenGPS}
             >
               <Ionicons name="navigate" size={20} color={Colors.light.textInverse} />
-              <Text style={[styles.actionButtonText, styles.primaryActionButtonText]}>Open GPS</Text>
+              <Text style={[styles.actionButtonText, styles.primaryActionButtonText]}>{t("openGPS")}</Text>
             </TouchableOpacity>
           </View>
 
@@ -160,7 +162,7 @@ export default function RouteDeliveryScreen() {
           <View style={styles.completeDeliveryContainer}>
             <SwipeButton
               onSwipeComplete={handleCompleteDelivery}
-              text={isCompletingDelivery ? 'Completing Delivery...' : 'Slide to Complete Delivery'}
+              text={isCompletingDelivery ? t("completingDelivery") : t("slideToCompleteDelivery")}
               isLoading={isCompletingDelivery}
               iconName="checkmark"
               backgroundColor={Colors.light.success}
