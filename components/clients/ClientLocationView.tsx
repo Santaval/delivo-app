@@ -3,6 +3,7 @@ import { PrimaryButton } from '@/components/PrimaryButton';
 import { BorderRadius, Colors, Spacing, Typography } from '@/constants';
 import useUserLocation from '@/hooks/useUserLocation';
 import React, { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Alert, StyleSheet, Text, View } from 'react-native';
 
 interface ClientLocationViewProps {
@@ -11,8 +12,9 @@ interface ClientLocationViewProps {
 }
 
 export default function ClientLocationView({ client, onUpdateLocation }: ClientLocationViewProps) {
-  const { location, errorMsg } = useUserLocation();
+  const { location } = useUserLocation();
   const [isUpdating, setIsUpdating] = useState(false);
+  const { t } = useTranslation();
 
   const clientLocation = {
     lat: client.location.lat || 37.7749,
@@ -50,7 +52,6 @@ export default function ClientLocationView({ client, onUpdateLocation }: ClientL
     <View style={styles.container}>
       {/* Registered Address Section */}
       <View style={styles.section}>
-        <Text style={styles.sectionLabel}>REGISTERED ADDRESS</Text>
         
         {/* <View style={styles.addressCard}>
           <View style={styles.addressIconContainer}>
@@ -69,8 +70,8 @@ export default function ClientLocationView({ client, onUpdateLocation }: ClientL
 
       {/* Set Location Section */}
       <View style={styles.section}>
-        <Text style={styles.sectionLabel}>SET LOCATION</Text>
-        
+        <Text style={styles.sectionLabel}>{t('setLocation')}</Text>
+
         {/* Map Container */}
         <View style={styles.mapContainer}>
           <Map
@@ -89,12 +90,12 @@ export default function ClientLocationView({ client, onUpdateLocation }: ClientL
 
         {/* Helper Text */}
         <Text style={styles.helperText}>
-          If the delivery coordinate is incorrect, use your current GPS position to calibrate the client's destination.
+          {t('useCurrentToSetClientLocation')}
         </Text>
 
         {/* Update Button */}
         <PrimaryButton
-          title={isUpdating ? 'Updating...' : 'Update to Current Location'}
+          title={isUpdating ? 'Updating...' : t('updateToCurrentLocation')}
           onPress={handleUpdateToCurrentLocation}
           disabled={!location || isUpdating}
           style={styles.updateButton}

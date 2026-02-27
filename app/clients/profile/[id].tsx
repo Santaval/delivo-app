@@ -14,9 +14,10 @@ import { Colors } from '@/constants/Colors';
 import useClient from '@/hooks/useClient';
 import { useThemeColor } from '@/hooks/useColorScheme';
 import useCustomerOrders from '@/hooks/useCustomerOrders';
-import { Ionicons, MaterialIcons } from '@expo/vector-icons';
+import { MaterialIcons } from '@expo/vector-icons';
 import { router, useLocalSearchParams } from 'expo-router';
 import React, { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import {
   Alert,
   Linking,
@@ -40,6 +41,7 @@ export default function ClientProfile() {
   const {client, loading, error, refreshClient, updateLocation} = useClient(id);
   const [activeTab, setActiveTab] = useState<TabType>('bills');
   const { orders, loading: ordersLoading, refreshOrders  } = useCustomerOrders(id);
+  const { t } = useTranslation();
 
   
 
@@ -107,7 +109,7 @@ export default function ClientProfile() {
   return (
     <SafeAreaView style={styles.container}>
       <TopBar
-        title="Client Profile"
+        title={t('clientProfile')}
       />
 
       <ScrollView
@@ -130,7 +132,7 @@ export default function ClientProfile() {
 
         {/* Balance Card */}
         <View style={styles.balanceCard}>
-          <Text style={styles.balanceLabel}>PENDING BALANCE</Text>
+          <Text style={styles.balanceLabel}>{t('pendingBalance').toUpperCase()}</Text>
           <CurrencyText style={styles.balanceAmount} amount={calculatePendingBalance()} />
         </View>
 
@@ -141,7 +143,7 @@ export default function ClientProfile() {
             onPress={() => setActiveTab('bills')}
           >
             <Text style={[styles.tabText, activeTab === 'bills' && styles.activeTabText]}>
-              Bills
+              {t('bills')}
             </Text>
           </TouchableOpacity>
           
@@ -150,7 +152,7 @@ export default function ClientProfile() {
             onPress={() => setActiveTab('location')}
           >
             <Text style={[styles.tabText, activeTab === 'location' && styles.activeTabText]}>
-              Location
+              {t('location')}
             </Text>
           </TouchableOpacity>
         </View>
@@ -172,22 +174,7 @@ export default function ClientProfile() {
           </View>
         )}
       </ScrollView>
-
-      {/* Contact Buttons - Fixed at bottom */}
-      <View style={styles.contactButtonsContainer}>
-        <TouchableOpacity style={styles.contactButton} onPress={handleCall}>
-          <Ionicons name="call" size={20} color={Colors.light.primary} />
-        </TouchableOpacity>
-        
-        <TouchableOpacity style={styles.contactButton} onPress={handleWhatsApp}>
-          <Ionicons name="logo-whatsapp" size={20} color="#25D366" />
-        </TouchableOpacity>
-        
-        <TouchableOpacity style={styles.contactButton} onPress={handleEmail}>
-          <Ionicons name="mail" size={20} color={Colors.light.primary} />
-        </TouchableOpacity>
-      </View>
-
+      
       <FloatingActionButton
         icon="add-shopping-cart"
         onPress={() => {

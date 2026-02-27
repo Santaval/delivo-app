@@ -48,5 +48,13 @@
   "calculatedAutomaticallyFromNetPriceAndTaxRate": "Calculado automáticamente a partir del precio neto y la tasa de impuestos",
   "saveProduct": "Guardar producto",
   "savingProduct": "Guardando el producto...",
-  "productDetails": "Detalles del producto"
+  "productDetails": "Detalles del producto",
+  "searchClients": "Buscar clientes",
+  "clientProfile": "Perfil del cliente",
+  "pendingBalance": "Saldo Pendiente",
+  "bills": "Facturas",
+  "location": "Ubicación",
+  "setLocation": "Establecer Ubicación",
+  "useCurrentToSetClientLocation": "Si la coordenada de entrega es incorrecta, utiliza tu posición GPS actual para calibrar el destino del cliente.",
+  "updateToCurrentLocation": "Actualizar a la ubicación actual"
 }

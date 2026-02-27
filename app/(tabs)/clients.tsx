@@ -3,11 +3,13 @@ import { Spacing } from '@/constants';
 import useClients from '@/hooks/useClients';
 import { router } from 'expo-router';
 import React from 'react';
+import { useTranslation } from 'react-i18next';
 import { RefreshControl, ScrollView, StyleSheet, Text } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 export default function Clients() {
   const { clients, loading, error, searchClients, refresh } = useClients();
+  const { t } = useTranslation();
 
   const handleAddClient = () => {
     router.push('/clients/add');
@@ -25,10 +27,11 @@ export default function Clients() {
   return (
     <SafeAreaView style={styles.container}>
       <TopBar
-        title='Clients'
+        title={t('clients')}
       />
 
       <SearchBar
+        placeholder={t('searchClients')}
         onSearch={searchClients}
         showClearButton
       />
