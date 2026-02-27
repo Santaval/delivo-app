@@ -1,5 +1,8 @@
-import { SwipeButton, TopBar } from '@/components';
-import Map from '@/components/maps/Map';
+import { TopBar } from '@/components';
+import CompleteDeliveryButton from '@/components/routes/CompleteDeliveryButton';
+import CurrentStopHeader from '@/components/routes/CurrentStopHeader';
+import DeliveryActionButtons from '@/components/routes/DeliveryActionButtons';
+import DeliveryMap from '@/components/routes/DeliveryMap';
 import { OrderCard } from '@/components/OrderCard';
 import { BorderRadius, Colors, Spacing, Typography } from '@/constants';
 import { useRoute } from '@/context/RouteContext';
@@ -8,7 +11,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { router } from 'expo-router';
 import React from 'react';
 import { useTranslation } from 'react-i18next';
-import { ActivityIndicator, Alert, Linking, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { ActivityIndicator, Alert, Linking, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 export default function RouteDeliveryScreen() {
@@ -82,93 +85,35 @@ export default function RouteDeliveryScreen() {
       
       <View style={styles.content}>
         {/* Map Section */}
-        <View style={styles.mapContainer}>
-          <Map 
-            markers={[
-              {
-                coordinate: {
-                  latitude: currentClient.location.lat || 37.7749,
-                  longitude: currentClient.location.lng || -122.4194,
-                },
-                title: currentClient.name,
-                description: t("currentDeliveryLocation"),
-              },
-              ...(location ? [{
-                coordinate: {
-                  latitude: location.coords.latitude,
-                  longitude: location.coords.longitude,
-                },
-                title: t("yourLocation"),
-                description: t("currentPosition"),
-              }] : [])
-            ]}
-
-            polylines={route.polyline}
-          />
-          
-          {/* Distance indicator overlay */}
-          <View style={styles.distanceOverlay}>
-            {/* <Text style={styles.distanceText}>2.4 mi away</Text> */}
-          </View>
-        </View>
+        <DeliveryMap
+          clientLocation={currentClient.location}
+          clientName={currentClient.name}
+          userLocation={location?.coords}
+          polylines={route.polyline}
+        />
 
         {/* Client Info Section */}
         <View style={styles.clientInfoContainer}>
           {/* Current Stop Header */}
-          <View style={styles.currentStopHeader}>
-            <View style={styles.stopIndicator}>
-              <Ionicons name="location" size={16} color={Colors.light.primary} />
-            </View>
-            <Text style={styles.currentStopLabel}>{t("currentStop").toUpperCase()}</Text>
-          </View>
-
-          {/* Client Details */}
-          <View style={styles.clientDetails}>
-            <Text style={styles.clientName}>{currentClient.name}</Text>
-            {/* <Text style={styles.clientAddress}>
-              {"123 Business Way, Suite 400"}
-            </Text> */}
-          </View>
+          <CurrentStopHeader clientName={currentClient.name} />
 
           {/* Action Buttons */}
-          <View style={styles.actionButtons}>
-            <TouchableOpacity 
-              style={styles.actionButton}
-              onPress={handleCallClient}
-            >
-              <Ionicons name="call" size={20} color={Colors.light.primary} />
-              <Text style={styles.actionButtonText}>{t("call")}</Text>
-            </TouchableOpacity>
-
-            <TouchableOpacity 
-              style={[styles.actionButton, styles.primaryActionButton]}
-              onPress={handleOpenGPS}
-            >
-              <Ionicons name="navigate" size={20} color={Colors.light.textInverse} />
-              <Text style={[styles.actionButtonText, styles.primaryActionButtonText]}>{t("openGPS")}</Text>
-            </TouchableOpacity>
-          </View>
+          <DeliveryActionButtons
+            onCall={handleCallClient}
+            onOpenGPS={handleOpenGPS}
+          />
 
           {/* Delivery Notes */}
-          {/* <View style={styles.deliveryNotes}> */}
-            <OrderCard
-              order={currentPoint.order}
-              onPress={() => {router.push(`/orders/view/${currentPoint.order.id}`)}}
-            />
-          {/* </View> */}
-
+          <OrderCard
+            order={currentPoint.order}
+            onPress={() => {router.push(`/orders/view/${currentPoint.order.id}`)}}
+          />
 
           {/* Complete Delivery Button */}
-          <View style={styles.completeDeliveryContainer}>
-            <SwipeButton
-              onSwipeComplete={handleCompleteDelivery}
-              text={isCompletingDelivery ? t("completingDelivery") : t("slideToCompleteDelivery")}
-              isLoading={isCompletingDelivery}
-              iconName="checkmark"
-              backgroundColor={Colors.light.success}
-              style={styles.completeDeliveryButton}
-            />
-          </View>
+          <CompleteDeliveryButton
+            onSwipeComplete={handleCompleteDelivery}
+            isLoading={isCompletingDelivery}
+          />
         </View>
       </View>
     </SafeAreaView>
@@ -182,33 +127,6 @@ const styles = StyleSheet.create({
   },
   content: {
     flex: 1,
-  },
-  mapContainer: {
-    height: 300,
-    backgroundColor: Colors.light.backgroundSecondary,
-    position: 'relative',
-  },
-  distanceOverlay: {
-    position: 'absolute',
-    top: Spacing.md,
-    right: Spacing.md,
-    backgroundColor: Colors.light.background,
-    paddingHorizontal: Spacing.sm,
-    paddingVertical: Spacing.xs,
-    borderRadius: BorderRadius.md,
-    shadowColor: '#000',
-    shadowOffset: {
-      width: 0,
-      height: 2,
-    },
-    shadowOpacity: 0.25,
-    shadowRadius: 3.84,
-    elevation: 5,
-  },
-  distanceText: {
-    fontSize: Typography.fontSize.sm,
-    fontWeight: Typography.fontWeight.semibold,
-    color: Colors.light.primary,
   },
   centerContent: {
     flex: 1,
@@ -235,147 +153,5 @@ const styles = StyleSheet.create({
     marginTop: -BorderRadius.xl,
     paddingTop: Spacing.lg,
     paddingHorizontal: Spacing.lg,
-  },
-  currentStopHeader: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginBottom: Spacing.md,
-  },
-  stopIndicator: {
-    width: 24,
-    height: 24,
-    borderRadius: 12,
-    backgroundColor: Colors.light.primary + '20',
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginRight: Spacing.sm,
-  },
-  currentStopLabel: {
-    fontSize: Typography.fontSize.xs,
-    fontWeight: Typography.fontWeight.bold,
-    color: Colors.light.primary,
-    letterSpacing: 1,
-  },
-  clientDetails: {
-    marginBottom: Spacing.md,
-  },
-  clientName: {
-    fontSize: Typography.fontSize['3xl'],
-    fontWeight: Typography.fontWeight.bold,
-    color: Colors.light.text,
-    marginBottom: Spacing.xs,
-  },
-  clientAddress: {
-    fontSize: Typography.fontSize.base,
-    color: Colors.light.textSecondary,
-    lineHeight: 22,
-  },
-  actionButtons: {
-    flexDirection: 'row',
-    gap: Spacing.md,
-    marginBottom: Spacing.md,
-  },
-  actionButton: {
-    flex: 1,
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    paddingVertical: Spacing.md,
-    borderRadius: BorderRadius.md,
-    borderWidth: 1,
-    borderColor: Colors.light.border,
-    backgroundColor: Colors.light.background,
-  },
-  primaryActionButton: {
-    backgroundColor: Colors.light.primary,
-    borderColor: Colors.light.primary,
-  },
-  actionButtonText: {
-    fontSize: Typography.fontSize.base,
-    fontWeight: Typography.fontWeight.semibold,
-    color: Colors.light.primary,
-    marginLeft: Spacing.xs,
-  },
-  primaryActionButtonText: {
-    color: Colors.light.textInverse,
-  },
-  deliveryNotes: {
-    backgroundColor: Colors.light.backgroundSecondary,
-    padding: Spacing.md,
-    borderRadius: BorderRadius.md,
-    marginBottom: Spacing.xl,
-  },
-  notesHeader: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginBottom: Spacing.sm,
-  },
-  notesLabel: {
-    fontSize: Typography.fontSize.sm,
-    fontWeight: Typography.fontWeight.semibold,
-    color: Colors.light.textSecondary,
-    marginLeft: Spacing.xs,
-  },
-  notesText: {
-    fontSize: Typography.fontSize.base,
-    color: Colors.light.text,
-    lineHeight: 20,
-    fontStyle: 'italic',
-  },
-  nextStopPreview: {
-    backgroundColor: Colors.light.backgroundSecondary,
-    borderRadius: BorderRadius.md,
-    padding: Spacing.md,
-    marginBottom: Spacing.xl,
-  },
-  nextStopHeader: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginBottom: Spacing.md,
-  },
-  nextStopLabel: {
-    fontSize: Typography.fontSize.sm,
-    fontWeight: Typography.fontWeight.semibold,
-    color: Colors.light.text,
-  },
-  nextStopDistance: {
-    fontSize: Typography.fontSize.xs,
-    color: Colors.light.textSecondary,
-  },
-  nextStopInfo: {
-    flexDirection: 'row',
-    alignItems: 'center',
-  },
-  nextStopAvatar: {
-    width: 32,
-    height: 32,
-    borderRadius: 16,
-    backgroundColor: Colors.light.border,
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginRight: Spacing.sm,
-  },
-  nextStopDetails: {
-    flex: 1,
-  },
-  nextStopName: {
-    fontSize: Typography.fontSize.base,
-    fontWeight: Typography.fontWeight.semibold,
-    color: Colors.light.text,
-    marginBottom: 2,
-  },
-  nextStopAddress: {
-    fontSize: Typography.fontSize.sm,
-    color: Colors.light.textSecondary,
-  },
-  completeDeliveryContainer: {
-    paddingTop: Spacing.md,
-    borderTopWidth: 1,
-    borderTopColor: Colors.light.border,
-    backgroundColor: Colors.light.background,
-  },
-  completeDeliveryButton: {
-    marginBottom: 0,
   },
 });
