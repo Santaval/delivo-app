@@ -6,7 +6,8 @@ export default class RoutesService extends BaseApiService {
   }
 
   static async create(data: any) {
-    return this.post<Route>('/routes', data);
+    const { data: route } = await this.post<Route>('/routes', data);
+    return route;
   }
 
   static async find(id: string) {

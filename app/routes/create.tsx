@@ -8,6 +8,7 @@ import { MaterialIcons } from '@expo/vector-icons';
 import { router } from 'expo-router';
 import moment from 'moment';
 import React, { useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import {
   Alert,
   KeyboardAvoidingView,
@@ -31,13 +32,14 @@ export default function CreateRoute() {
   const colors = useThemeColor();
   const [isLoading, setIsLoading] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
-  
+  const { t } = useTranslation();
+
   // Form state
   const [name, setName] = useState('');
 
   // Set default route name on component mount
   useEffect(() => {
-    const defaultName = `Route ${moment().format('MM/DD')}`;
+    const defaultName = `${t('route')} ${moment().format('MM/DD')}`;
     setName(defaultName);
   }, []);
 
@@ -75,13 +77,9 @@ export default function CreateRoute() {
       };
 
       
-      await RoutesService.create(routeData);
-      
-      Alert.alert(
-        'Success',
-        'Route has been created successfully',
-        [{ text: 'OK', onPress: () => router.back() }]
-      );
+      const route = await RoutesService.create(routeData);
+
+      router.replace(`/routes/view/${route.id}`);
     } catch (error) {
       Alert.alert('Error', 'Failed to create route. Please try again.');
     } finally {
@@ -91,10 +89,10 @@ export default function CreateRoute() {
 
   const generateSuggestedName = () => {
     const suggestions = [
-      `Route ${moment().format('MM/DD')}`,
-      `${moment().format('dddd')} Route`,
-      `Route ${moment().format('MMM DD')}`,
-      `Delivery ${moment().format('MM/DD')}`,
+      `${t('route')} ${moment().format('MM/DD')}`,
+      `${t('route')} ${moment().format('dddd')} `,
+      `${t('route')} ${moment().format('MMM DD')}`,
+      `${t('delivery')} ${moment().format('MM/DD')}`,
     ];
     
     const currentIndex = suggestions.findIndex(s => s === name);
@@ -167,22 +165,22 @@ export default function CreateRoute() {
                 style={styles.infoIcon}
               />
               <ThemedText style={styles.infoText}>
-                You can add delivery stops and optimize the route after creation.
+                {t('routeCreationTip')}
               </ThemedText>
             </View>
           </View>
 
           {/* Route Preview */}
           <View style={styles.section}>
-            <ThemedText style={styles.sectionTitle}>Route Preview</ThemedText>
-            
+            <ThemedText style={styles.sectionTitle}>{t('routePreview')}</ThemedText>
+
             <View style={styles.previewCard}>
               <View style={styles.previewHeader}>
                 <ThemedText style={[styles.previewRouteName, { color: colors.primary }]}>
                   #{name}
                 </ThemedText>
                 <View style={styles.statusBadge}>
-                  <ThemedText style={styles.statusText}>CREATED</ThemedText>
+                  <ThemedText style={styles.statusText}>{t('created')}</ThemedText>
                 </View>
               </View>
               
@@ -207,7 +205,7 @@ export default function CreateRoute() {
         {/* Create Button */}
         <View style={styles.buttonContainer}>
           <PrimaryButton
-            title={isLoading ? "Creating Route..." : "Create Route"}
+            title={isLoading ? t('creatingRoute') : t('createRoute')}
             onPress={handleSubmit}
             disabled={isLoading || !name.trim()}
             size="large"

@@ -15,6 +15,9 @@
   "viewDetailedRouteInformation": "Ver información de las rutas",
   "searchByNameOrNumber": "Buscar por nombre o número",
   "all": "Todo",
+  "created": "Creado",
+  "started": "En Progreso",
+  "completed": "Completado",
   "paid": "Pagado",
   "pending": "Pendiente",
   "cancelled": "Cancelado",
@@ -56,5 +59,15 @@
   "location": "Ubicación",
   "setLocation": "Establecer Ubicación",
   "useCurrentToSetClientLocation": "Si la coordenada de entrega es incorrecta, utiliza tu posición GPS actual para calibrar el destino del cliente.",
-  "updateToCurrentLocation": "Actualizar a la ubicación actual"
+  "updateToCurrentLocation": "Actualizar a la ubicación actual",
+  "route": "Ruta",
+  "delivery": "Entrega",
+  "routeCreationTip": "Puedes agregar paradas de entrega y optimizar la ruta después de la creación.",
+  "routePreview": "Vista previa de la ruta",
+  "createRoute": "Crear Ruta",
+  "creatingRoute": "Creando Ruta...",
+  "plannedStops": "Puntos de entrega",
+  "stopsTotal": "paradas en total",
+  "slideToStartNavigation": "Desliza para empezar",
+  "optimizingRoute": "Optimizando ruta..."
 }

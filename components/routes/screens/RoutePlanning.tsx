@@ -4,16 +4,17 @@ import { BorderRadius, Colors, Spacing, Typography } from '@/constants';
 import { useRoute } from '@/context/RouteContext';
 import useUserLocation from '@/hooks/useUserLocation';
 import RoutesService from '@/services/routes/Routes.service';
-import { router, useLocalSearchParams } from 'expo-router';
+import { router } from 'expo-router';
 import React from 'react';
+import { useTranslation } from 'react-i18next';
 import { ActivityIndicator, Alert, FlatList, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 export default function RoutePlanningScreen() {
-  const { id } = useLocalSearchParams<{ id: string }>();
 
   const { route, isLoading, error } = useRoute();
   const { location } = useUserLocation();
+  const { t } = useTranslation();
   
 
   const [isStartingNavigation, setIsStartingNavigation] = React.useState(false);
@@ -104,9 +105,9 @@ export default function RoutePlanningScreen() {
         {/* Planned Stops Section */}
         <View style={styles.stopsContainer}>
           <View style={styles.stopsHeader}>
-            <Text style={styles.stopsTitle}>Planned Stops</Text>
+            <Text style={styles.stopsTitle}>{t("plannedStops")}</Text>
             <View style={styles.stopsCount}>
-              <Text style={styles.stopsCountText}>{route.points.length} Stops Total</Text>
+              <Text style={styles.stopsCountText}>{route.points.length} {t("stopsTotal")}</Text>
             </View>
           </View>
           
@@ -121,7 +122,7 @@ export default function RoutePlanningScreen() {
           <View style={styles.navigationButtonContainer}>
             <SwipeButton
               onSwipeComplete={handleStartNavigation}
-              text={isStartingNavigation ? 'Starting Navigation...' : 'Slide to Start Navigation'}
+              text={isStartingNavigation ? t("optimizingRoute") : t("slideToStartNavigation")}
               isLoading={isStartingNavigation}
               iconName="navigate"
               backgroundColor={Colors.light.success}

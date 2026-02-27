@@ -1,6 +1,7 @@
 import { BorderRadius, Colors, Spacing, Typography } from '@/constants';
 import { useThemeColor } from '@/hooks/useColorScheme';
 import React, { useMemo, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { RefreshControl, ScrollView, StyleSheet, TouchableOpacity, View } from 'react-native';
 import { RouteCard } from './RouteCard';
 import { ThemedText } from './ThemedText';
@@ -19,12 +20,13 @@ export type RoutesListProps = {
 export function RoutesList({ routes, onRoutePress, onRouteDetailsPress, isRefreshing, onRefresh }: RoutesListProps) {
   const colors = useThemeColor();
   const [activeTab, setActiveTab] = useState<TabType>('all');
+  const { t } = useTranslation();
 
   const tabs: { key: TabType; label: string }[] = [
-    { key: 'all', label: 'All' },
-    { key: 'created', label: 'Created' },
-    { key: 'started', label: 'Started' },
-    { key: 'completed', label: 'Completed' },
+    { key: 'all', label: t('all') },
+    { key: 'created', label: t('created') },
+    { key: 'started', label: t('started') },
+    { key: 'completed', label: t('completed') },
   ];
 
   // Filter routes based on active tab
