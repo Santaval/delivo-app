@@ -25,6 +25,7 @@ export function OrdersList({ orders, onOrderPress, onRefresh, isRefreshing }: Or
     { key: 'ALL', label: t('all') },
     // { key: 'DELIVERED', label: t('delivered') },
     { key: 'PENDING', label: t('pending') },
+    { key: 'ON_ROUTE', label: t('onRoute') },
     { key: 'IN_TRANSIT', label: t('inTransit') },
     { key: 'RETURNED', label: t('returned') },
   ];
