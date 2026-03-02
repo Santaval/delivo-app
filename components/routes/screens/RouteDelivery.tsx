@@ -10,15 +10,15 @@ import { BorderRadius, Colors, Spacing, Typography } from '@/constants';
 import { useRoute } from '@/context/RouteContext';
 import useUserLocation from '@/hooks/useUserLocation';
 import { router } from 'expo-router';
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { ActivityIndicator, Alert, Linking, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 export default function RouteDeliveryScreen() {
   const { route, isLoading, error, getCurrentPoint, completeCurrentDelivery } = useRoute();
-  const { location } = useUserLocation();
-  const { t } = useTranslation();
+  const { location, refreshLocation } = useUserLocation();
+  const { t } = useTranslation(); 
   
   const [isCompletingDelivery, setIsCompletingDelivery] = React.useState(false);
   const [activeTab, setActiveTab] = useState<Tab>('current');
@@ -56,6 +56,14 @@ export default function RouteDeliveryScreen() {
     }
   };
 
+  useEffect(() => {
+    const interval = setInterval(() => {
+      refreshLocation();
+    }, 5000); // each 5 seconds
+
+    return () => clearInterval(interval);
+  }, []);
+
   if (isLoading) {
     return (
       <SafeAreaView style={styles.container}>
@@ -88,8 +96,9 @@ export default function RouteDeliveryScreen() {
       <View style={styles.content}>
         {/* Map Section */}
         <DeliveryMap
-          clientLocation={currentClient.location}
-          clientName={currentClient.name}
+          completedDeliveries={route.points.filter(point => point.status === 'VISITED')}
+          pendingDeliveries={route.points.filter(point => point.status === 'CREATED')}
+          skippedDeliveries={route.points.filter(point => point.status === 'SKIPPED')}
           userLocation={location?.coords}
           polylines={route.polyline}
         />

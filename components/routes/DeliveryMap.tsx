@@ -4,36 +4,64 @@ import React from 'react';
 import { StyleSheet, View } from 'react-native';
 
 type DeliveryMapProps = {
-  clientLocation: {
-    lat: number | null;
-    lng: number | null;
-  };
-  clientName: string;
+  completedDeliveries: RoutePoint[];
+  pendingDeliveries: RoutePoint[];
+  skippedDeliveries: RoutePoint[];
   userLocation?: {
     latitude: number;
     longitude: number;
   };
+  
   polylines?: string;
 };
 
+
+
+
 const DeliveryMap: React.FC<DeliveryMapProps> = ({
-  clientLocation,
-  clientName,
   userLocation,
   polylines,
+  completedDeliveries,
+  pendingDeliveries,
+  skippedDeliveries
 }) => {
+  const completedMarkers = completedDeliveries.map(delivery => ({
+  coordinate: {
+    latitude: delivery.order.client.location.lat || 37.7749,
+    longitude: delivery.order.client.location.lng || -122.4194,
+  },
+  title: delivery.order.client.name,
+  description: 'Completed delivery',
+  backgroundColor: '#00ff08ff',
+}));
+
+const pendingMarkers = pendingDeliveries.map(delivery => ({
+  coordinate: {
+    latitude: delivery.order.client.location.lat || 37.7749,
+    longitude: delivery.order.client.location.lng || -122.4194,
+  },
+  title: delivery.order.client.name,
+  description: 'Pending delivery',
+  backgroundColor: '#ffcc00ff',
+}));
+
+const skippedMarkers = skippedDeliveries.map(delivery => ({
+  coordinate: {
+    latitude: delivery.order.client.location.lat || 37.7749,
+    longitude: delivery.order.client.location.lng || -122.4194,
+  },
+  title: delivery.order.client.name,
+  description: 'Skipped delivery',
+  backgroundColor: '#ff0000ff',
+}));
+
   return (
     <View style={styles.mapContainer}>
       <Map 
         markers={[
-          {
-            coordinate: {
-              latitude: clientLocation.lat || 37.7749,
-              longitude: clientLocation.lng || -122.4194,
-            },
-            title: clientName,
-            description: 'Current delivery location',
-          },
+          ...completedMarkers,
+          ...pendingMarkers,
+          ...skippedMarkers,
           ...(userLocation ? [{
             coordinate: {
               latitude: userLocation.latitude,
@@ -41,6 +69,7 @@ const DeliveryMap: React.FC<DeliveryMapProps> = ({
             },
             title: 'Your Location',
             description: 'Current position',
+            backgroundColor: '#0000ff88',
           }] : [])
         ]}
         polylines={polylines}

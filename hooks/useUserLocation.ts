@@ -26,7 +26,17 @@ const useUserLocation = () => {
     })();
   }, []);
 
-  return { location, errorMsg };
+  const refreshLocation = async () => {
+    setLocation(null);
+    setErrorMsg(null);
+    await Location.requestForegroundPermissionsAsync();
+    let userLocation = await Location.getCurrentPositionAsync({
+      accuracy: Location.Accuracy.Balanced,
+    });
+    setLocation(userLocation);
+  };
+
+  return { location, errorMsg, refreshLocation };
 }
 
 export default useUserLocation;

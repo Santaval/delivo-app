@@ -1,7 +1,8 @@
 import useUserLocation from "@/hooks/useUserLocation";
 import polyline from "@mapbox/polyline";
 import { StyleSheet } from "react-native";
-import MapView, { Marker, Polyline } from "react-native-maps";
+import MapView, { Polyline } from "react-native-maps";
+import { CustomMarker } from "./CustomMarker";
 
 type MarkerProps = {
   coordinate: {
@@ -10,6 +11,7 @@ type MarkerProps = {
   };
   title: string;
   description: string;
+  backgroundColor: string;
 };
 
 type Props = {
@@ -35,12 +37,12 @@ export default function Map({ markers, polylines }: Props) {
   >
 
     {markers?.map((marker, index) => (
-      <Marker
-      icon={1}
+      <CustomMarker
         key={index}
         coordinate={marker.coordinate}
         title={marker.title}
-        description={marker.description}
+        backgroundColor={marker.backgroundColor}
+
       />
     ))}
 

@@ -74,8 +74,9 @@ export default function RoutePlanningScreen() {
                 latitude: point.order.client.location.lat || 37.7749,
                 longitude: point.order.client.location.lng || -122.4194,
               },
-              title: `${index + 1}. ${point.order.client.name}`,
+              title: point.order.client.name,
               description: 'Delivery stop',
+              backgroundColor: Colors.light.primary,
             }))}
             polylines={route.polyline}
           />
