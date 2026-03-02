@@ -1,6 +1,7 @@
 import { BorderRadius, Shadows, Spacing } from '@/constants';
 import { useThemeColor } from '@/hooks/useColorScheme';
 import React from 'react';
+import { useTranslation } from 'react-i18next';
 import { StyleSheet, TouchableOpacity, View } from 'react-native';
 import { AppleIcon, GoogleIcon } from './icons';
 import { ThemedText } from './ThemedText';
@@ -19,6 +20,7 @@ export function SocialButton({
   isLoading
 }: SocialButtonProps) {
   const colors = useThemeColor();
+  const { t } = useTranslation()
 
   const getButtonStyles = () => {
     switch (provider) {
@@ -53,9 +55,9 @@ export function SocialButton({
   const getButtonText = () => {
     switch (provider) {
       case 'google':
-        return 'Continue with Google';
+        return t("continueWithGoogle");
       case 'apple':
-        return 'Continue with Apple';
+        return t("continueWithApple");
       default:
         return 'Continue';
     }
