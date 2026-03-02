@@ -1,7 +1,7 @@
 {
   "expo": {
-    "name": "tributcr-app",
-    "slug": "tributcr-app",
+    "name": "Delivo",
+    "slug": "delivo",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/images/logo.png",
