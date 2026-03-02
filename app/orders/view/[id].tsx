@@ -6,6 +6,7 @@ import {
 } from '@/components';
 import ClientCompactCard from '@/components/clients/ClientCompactCard';
 import CurrencyText from '@/components/currency/CurrencyText';
+import AddProductsModal from '@/components/orders/AddProductsModal';
 import OrderStatusBadge from '@/components/orders/OrderStatusBadge';
 import { BorderRadius, Shadows, Spacing, Typography } from '@/constants';
 import { Colors } from '@/constants/Colors';
@@ -248,6 +249,12 @@ export default function OrderDetailsPage() {
             style={{ marginTop: Spacing.md }}
           />
         </View>
+
+        <AddProductsModal 
+          onAdd={addItems}
+          onClose={() => setShowAddProductsModal(false)}
+          visible={showAddProductsModal}
+        />
       </ScrollView>
     </SafeAreaView>
   );
