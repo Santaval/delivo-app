@@ -1,9 +1,9 @@
 import { BorderRadius, Shadows, Spacing, Typography } from '@/constants';
 import { useThemeColor } from '@/hooks/useColorScheme';
+import { router } from 'expo-router';
 import React from 'react';
-import { StyleSheet, View } from 'react-native';
+import { Pressable, StyleSheet, View } from 'react-native';
 import { ThemedText } from '../ThemedText';
-import { ThemedView } from '../ThemedView';
 
 
 type Props = {
@@ -14,7 +14,9 @@ export default function ClientCompactCard({ client }: Props) {
   const colors = useThemeColor();
 
   return (
-    <ThemedView style={[styles.clientCard, { backgroundColor: colors.surface }]}>
+    <Pressable style={[styles.clientCard, { backgroundColor: colors.surface }]}
+    onPress={() => router.push(`/clients/profile/${client.id}`)}
+    >
       <View style={styles.clientHeader}>
         <View style={[styles.clientAvatar, { backgroundColor: colors.primary }]}>
           <ThemedText style={[styles.clientAvatarText, { color: colors.textInverse }]}>
@@ -30,7 +32,7 @@ export default function ClientCompactCard({ client }: Props) {
           </ThemedText>
         </View>
       </View>
-    </ThemedView>
+    </Pressable>
   )
 }
 
