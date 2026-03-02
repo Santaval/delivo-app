@@ -83,5 +83,10 @@
   "call": "Llamar",
   "openGPS": "Abrir GPS",
   "slideToCompleteDelivery": "Desliza para completar",
-  "completingDelivery": "Completando Entrega..."
+  "completingDelivery": "Completando Entrega...",
+  "deliveryPending": "Entrega Pendiente",
+  "delivered": "Entregado",
+  "inTransit": "En Tránsito",
+  "onRoute": "En Ruta",
+  "returned": "Devuelto"
 }

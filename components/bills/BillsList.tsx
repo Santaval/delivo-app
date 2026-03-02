@@ -3,44 +3,42 @@ import { useThemeColor } from '@/hooks/useColorScheme';
 import React, { useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { RefreshControl, ScrollView, StyleSheet, TouchableOpacity, View } from 'react-native';
-import { OrderCard } from './OrderCard';
-import { ThemedText } from './ThemedText';
-import { ThemedView } from './ThemedView';
+import { ThemedText } from '../ThemedText';
+import { ThemedView } from '../ThemedView';
+import { BillCard } from './BillCard';
 
-type TabType = OrderDeliveryStatus | 'ALL';
+type TabType = OrderStatus | 'ALL';
 
-export type OrdersListProps = {
+export type BillListProps = {
   orders: Order[];
   onOrderPress?: (orderId: string) => void;
   onRefresh: () => void;
   isRefreshing: boolean;
 };
 
-export function OrdersList({ orders, onOrderPress, onRefresh, isRefreshing }: OrdersListProps) {
+export function BillsList({ orders, onOrderPress, onRefresh, isRefreshing }: BillListProps) {
   const colors = useThemeColor();
   const { t } = useTranslation();
   const [activeTab, setActiveTab] = useState<TabType>('ALL');
 
   const tabs: { key: TabType; label: string }[] = [
     { key: 'ALL', label: t('all') },
-    // { key: 'DELIVERED', label: t('delivered') },
+    { key: 'PAID', label: t('paid') },
     { key: 'PENDING', label: t('pending') },
-    { key: 'IN_TRANSIT', label: t('inTransit') },
-    { key: 'RETURNED', label: t('returned') },
   ];
 
   // Filter orders based on active tab
   const filteredOrders = useMemo(() => {
     return orders.filter(order => {
       if (activeTab === 'ALL') return true;
-      return order.deliveryStatus === activeTab;
+      return order.status === activeTab;
     });
   }, [orders, activeTab]);
 
   const getTabCount = (tab: TabType) => {
     return orders.filter(order => {
       if (tab === 'ALL') return true;
-      return order.deliveryStatus === tab;
+      return order.status === tab;
     }).length;
   };
 
@@ -94,10 +92,8 @@ export function OrdersList({ orders, onOrderPress, onRefresh, isRefreshing }: Or
       <View style={styles.emptyState}>
         <ThemedText style={styles.emptyTitle}>
           {activeTab === 'ALL' && 'No orders yet'}
-          {activeTab === 'DELIVERED' && 'No delivered orders yet'}
+          {activeTab === 'PAID' && 'No paid orders yet'}
           {activeTab === 'PENDING' && 'No pending orders yet'}
-          {activeTab === 'IN_TRANSIT' && 'No in-transit orders yet'}
-          {activeTab === 'RETURNED' && 'No returned orders yet'}
         </ThemedText>
       </View>
     );
@@ -127,7 +123,7 @@ export function OrdersList({ orders, onOrderPress, onRefresh, isRefreshing }: Or
       >
         {filteredOrders.length > 0 ? (
           filteredOrders.map((order) => (
-            <OrderCard
+            <BillCard
               key={order.id}
               order={order}
               onPress={onOrderPress}

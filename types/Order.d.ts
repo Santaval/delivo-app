@@ -10,7 +10,7 @@ interface Order {
   items: OrderItem[];
   status: OrderStatus;
   paid: number;
-  deliveryStatus: string;
+  deliveryStatus: OrderDeliveryStatus;
   route?: Route;
   createdAt: string;
   updatedAt: string;

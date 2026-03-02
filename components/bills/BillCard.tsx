@@ -5,55 +5,39 @@ import moment from 'moment';
 import React from 'react';
 import { useTranslation } from 'react-i18next';
 import { StyleSheet, TouchableOpacity, View } from 'react-native';
-import { ThemedText } from './ThemedText';
-import { ThemedView } from './ThemedView';
-import CurrencyText from './currency/CurrencyText';
+import { ThemedText } from '../ThemedText';
+import { ThemedView } from '../ThemedView';
+import CurrencyText from '../currency/CurrencyText';
 
 
-export type OrderCardProps = {
+export type BillCardProps = {
   order: Order;
   onPress?: (orderId: string) => void;
 };
 
-export function OrderCard({
+export function BillCard({
   order,
   onPress,
-}: OrderCardProps) {
+}: BillCardProps) {
   const colors = useThemeColor();
   const { t } = useTranslation();
 
-  const getStatusConfig = (status: OrderDeliveryStatus) => {
+  const getStatusConfig = (status: OrderStatus) => {
     switch (status) {
-      case 'DELIVERED':
-        return {
-          label: t('delivered'),
-          backgroundColor: Colors.light.success + '20',
-          textColor: Colors.light.success,
-        };
+      
       case 'PENDING':
         return {
-          label: t('deliveryPending'),
-          backgroundColor: Colors.light.warning + '20',
-          textColor: Colors.light.warning,
-        };
-      case 'IN_TRANSIT':
-        return {
-          label: t('inTransit'),
-          backgroundColor: Colors.light.info + '20',
-          textColor: Colors.light.info,
-        };
-      case "ON_ROUTE":
-        return {
-          label: t('onRoute'),
-          backgroundColor: Colors.light.info + '20',
-          textColor: Colors.light.info,
-        };
-
-      case "RETURNED":
-        return {
-          label: t('returned'),
+          label: t('pending'),
           backgroundColor: Colors.light.danger + '20',
           textColor: Colors.light.danger,
+        };
+     
+
+      case "PAID":
+        return {
+          label: t('paid'),
+          backgroundColor: Colors.light.success + '20',
+          textColor: Colors.light.success,
         };
       default:
         return {
@@ -64,7 +48,7 @@ export function OrderCard({
     }
   };
 
-  const statusConfig = getStatusConfig(order.deliveryStatus);
+  const statusConfig = getStatusConfig(order.status);
 
   return (
     <TouchableOpacity

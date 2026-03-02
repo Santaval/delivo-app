@@ -1,5 +1,5 @@
 import { SearchBar, TopBar } from '@/components';
-import { OrdersList } from '@/components/OrdersList';
+import { BillsList } from '@/components/bills/BillsList';
 import { Spacing } from '@/constants';
 import useBills from '@/hooks/useBills';
 import { router } from 'expo-router';
@@ -25,7 +25,7 @@ export default function Clients() {
         showClearButton
       />
 
-      <OrdersList 
+      <BillsList 
         onOrderPress={(orderId) => router.push(`/orders/view/${orderId}`)}
         orders={bills}
         isRefreshing={loading}
