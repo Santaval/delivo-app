@@ -26,6 +26,10 @@ export default class OrdersService extends BaseApiService {
     await this.delete(`/orders/${orderId}/items/${itemId}`);
   }
 
+  static async markAsDelivered(orderId: string): Promise<void> {
+    await this.patch(`/orders/${orderId}/delivered`, {});
+  }
+
   static async byCustomerId(customerId: string): Promise<Order[]> {
     const { data: orders } = await this.get<Order[]>(`/orders/client/${customerId}`);
     return orders;

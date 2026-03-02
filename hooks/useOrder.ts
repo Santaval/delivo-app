@@ -52,11 +52,25 @@ const useOrder = (orderId: string) => {
     }
   };
 
+  const markAsDelivered = async () => {
+    try {
+      if (!order) return;
+      setLoading(true);
+      await OrdersService.markAsDelivered(order.id);
+      await fetchOrder();
+    } catch (err) {
+      console.error('Failed to mark as delivered', err);
+      setError('Failed to mark as delivered');
+    } finally {
+      setLoading(false);
+    }
+  };
+
   useEffect(() => {
     fetchOrder();
   }, [orderId]);
 
-  return { order, loading, error, refresh: fetchOrder, addItems, removeItem };
+  return { order, loading, error, refresh: fetchOrder, addItems, removeItem, markAsDelivered };
 }
 
 export default useOrder;

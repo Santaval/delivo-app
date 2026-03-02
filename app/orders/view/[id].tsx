@@ -6,14 +6,13 @@ import {
 } from '@/components';
 import ClientCompactCard from '@/components/clients/ClientCompactCard';
 import CurrencyText from '@/components/currency/CurrencyText';
-import AddProductsModal from '@/components/orders/AddProductsModal';
 import OrderStatusBadge from '@/components/orders/OrderStatusBadge';
 import { BorderRadius, Shadows, Spacing, Typography } from '@/constants';
 import { Colors } from '@/constants/Colors';
 import { useThemeColor } from '@/hooks/useColorScheme';
 import useOrder from '@/hooks/useOrder';
 import { MaterialIcons } from '@expo/vector-icons';
-import { useLocalSearchParams } from 'expo-router';
+import { router, useLocalSearchParams } from 'expo-router';
 import moment from 'moment';
 import React, { useState } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -44,8 +43,8 @@ const LineItemRow: React.FC<LineItemRowProps> = ({ item, onRemove }) => {
       <View style={styles.lineItemContent}>
         <View style={styles.lineItemLeft}>
           <ThemedText style={[styles.productName, { color: colors.text }]}>
-          <MaterialIcons name="delete" size={24} color={colors.danger} onPress={() => onRemove(item.id)} />
-    
+            <MaterialIcons name="delete" size={24} color={colors.danger} onPress={() => onRemove(item.id)} />
+
             {item.name}
           </ThemedText>
           <CurrencyText style={[styles.unitPrice, { color: colors.textSecondary }]} amount={item.pricing.totalPrice} />
@@ -68,10 +67,17 @@ export default function OrderDetailsPage() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const colors = useThemeColor();
   const { t } = useTranslation();
-  const { order, loading, error, refresh, addItems, removeItem } = useOrder(id);
+  const { order, loading, error, refresh, addItems, removeItem, markAsDelivered } = useOrder(id);
   const [showAddProductsModal, setShowAddProductsModal] = useState(false);
 
-
+  const onMarkAsDelivered = async () => {
+    try {
+      await markAsDelivered();
+      router.replace(`/bills/view/${id}`);
+    } catch (error) {
+      console.error('Failed to mark as delivered', error);
+    }
+  };
 
   const generateOrderNumber = (orderNumber: number) => {
     return `ORD-${orderNumber.toString().padStart(3, '0')}`;
@@ -158,7 +164,7 @@ export default function OrderDetailsPage() {
         <ThemedView style={[styles.lineItemsCard, { backgroundColor: colors.surface }]}>
           <View style={styles.lineItemContent}>
             <ThemedText style={[styles.sectionTitle, { color: colors.text }]}>
-             { t("products")}
+              {t("products")}
             </ThemedText>
 
           </View>
@@ -194,15 +200,15 @@ export default function OrderDetailsPage() {
             />
           ))}
 
-         {order.deliveryStatus !== "DELIVERED" && (
-           <PrimaryButton
-             onPress={() => setShowAddProductsModal(true)}
-             title={'+ ' + t("addProducts")}
-             variant='outline'
-             style={{marginTop: Spacing.md}}
-           />
-         )}
-          
+          {order.deliveryStatus !== "DELIVERED" && (
+            <PrimaryButton
+              onPress={() => setShowAddProductsModal(true)}
+              title={'+ ' + t("addProducts")}
+              variant='outline'
+              style={{ marginTop: Spacing.md }}
+            />
+          )}
+
         </ThemedView>
 
         {/* Financial Summary */}
@@ -236,19 +242,13 @@ export default function OrderDetailsPage() {
         {/* Action Buttons */}
         <View style={styles.actionButtons}>
 
-            <PrimaryButton
+          <PrimaryButton
             title={t("generateBill")}
-            onPress={() => {}}
+            onPress={onMarkAsDelivered}
             style={{ marginTop: Spacing.md }}
           />
         </View>
       </ScrollView>
-
-      <AddProductsModal
-        onClose={() => setShowAddProductsModal(false)}
-        onAdd={addItems}
-        visible={showAddProductsModal}
-      />
     </SafeAreaView>
   );
 }
