@@ -54,11 +54,19 @@ export default function Home() {
           },
 
           {
-            icon:  <MaterialIcons name="shopping-cart" size={28} color={colors.textInverse} />,
+            icon: <MaterialIcons name="shopping-cart" size={28} color={colors.textInverse} />,
             id: 'orders',
             title: t('orders'),
             subtitle: t('viewDetailedOrderInformation'),
             onPress: () => router.push('/(tabs)/orders'),
+          },
+
+          {
+            icon: <MaterialIcons name="receipt" size={28} color={colors.textInverse} />,
+            id: 'invoices',
+            title: t('bills'),
+            subtitle: t('viewDetailedBillInformation'),
+            onPress: () => router.push('/(tabs)/bills'),
           },
 
           {

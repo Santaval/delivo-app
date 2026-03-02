@@ -91,5 +91,6 @@
   "returned": "Devuelto",
   "generateBill": "Generar Factura",
   "pendingPayment": "Pago Pendiente",
-  "remove": "Eliminar"
+  "remove": "Eliminar",
+  "viewDetailedBillInformation": "Ver información de las facturas"
 }
