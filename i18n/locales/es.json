@@ -28,7 +28,7 @@
   "issuedOn": "Emitido el",
   "invoiceDetails": "Detalles de la factura",
   "loadingInvoiceDetails": "Cargando detalles de la factura...",
-  "lineItems": "Artículos en la factura",
+  "lineItems": "Artículos",
   "productName": "Nombre del producto",
   "unitPrice": "Precio unitario",
   "quantity": "Cantidad",
@@ -88,5 +88,8 @@
   "delivered": "Entregado",
   "inTransit": "En Tránsito",
   "onRoute": "En Ruta",
-  "returned": "Devuelto"
+  "returned": "Devuelto",
+  "generateBill": "Generar Factura",
+  "pendingPayment": "Pago Pendiente",
+  "remove": "Eliminar"
 }

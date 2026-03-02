@@ -8,6 +8,7 @@ import { StyleSheet, TouchableOpacity, View } from 'react-native';
 import { ThemedText } from './ThemedText';
 import { ThemedView } from './ThemedView';
 import CurrencyText from './currency/CurrencyText';
+import OrderStatusBadge from './orders/OrderStatusBadge';
 
 
 export type OrderCardProps = {
@@ -22,49 +23,8 @@ export function OrderCard({
   const colors = useThemeColor();
   const { t } = useTranslation();
 
-  const getStatusConfig = (status: OrderDeliveryStatus) => {
-    switch (status) {
-      case 'DELIVERED':
-        return {
-          label: t('delivered'),
-          backgroundColor: Colors.light.success + '20',
-          textColor: Colors.light.success,
-        };
-      case 'PENDING':
-        return {
-          label: t('deliveryPending'),
-          backgroundColor: Colors.light.warning + '20',
-          textColor: Colors.light.warning,
-        };
-      case 'IN_TRANSIT':
-        return {
-          label: t('inTransit'),
-          backgroundColor: Colors.light.info + '20',
-          textColor: Colors.light.info,
-        };
-      case "ON_ROUTE":
-        return {
-          label: t('onRoute'),
-          backgroundColor: Colors.light.info + '20',
-          textColor: Colors.light.info,
-        };
 
-      case "RETURNED":
-        return {
-          label: t('returned'),
-          backgroundColor: Colors.light.danger + '20',
-          textColor: Colors.light.danger,
-        };
-      default:
-        return {
-          label: t('unknown'),
-          backgroundColor: Colors.light.textTertiary + '20',
-          textColor: Colors.light.textTertiary,
-        };
-    }
-  };
 
-  const statusConfig = getStatusConfig(order.deliveryStatus);
 
   return (
     <TouchableOpacity
@@ -77,19 +37,9 @@ export function OrderCard({
           {/* Left Section */}
           <View style={styles.leftSection}>
             {/* Status Badge */}
-            <View style={[
-              styles.statusBadge,
-              { backgroundColor: statusConfig.backgroundColor }
-            ]}>
-              <ThemedText style={[
-                styles.statusText,
-                { color: statusConfig.textColor }
-              ]}>
-                {statusConfig.label}
-              </ThemedText>
-            </View>
+            <OrderStatusBadge status={order.deliveryStatus} />
 
-            
+
 
             {/* Order Info */}
             <View style={styles.orderInfo}>
@@ -140,19 +90,7 @@ const styles = StyleSheet.create({
   leftSection: {
     flex: 1,
   },
-  statusBadge: {
-    alignSelf: 'flex-start',
-    paddingHorizontal: Spacing.sm,
-    paddingVertical: Spacing.xs / 2,
-    borderRadius: BorderRadius.sm,
-    marginBottom: Spacing.xs,
-  },
-  statusText: {
-    fontSize: Typography.fontSize.xs,
-    fontWeight: Typography.fontWeight.semibold,
-    textTransform: 'uppercase',
-    letterSpacing: 0.5,
-  },
+
   orderInfo: {
     gap: 2,
   },

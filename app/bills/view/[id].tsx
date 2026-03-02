@@ -7,14 +7,13 @@ import {
 import ClientCompactCard from '@/components/clients/ClientCompactCard';
 import CurrencyText from '@/components/currency/CurrencyText';
 import AddProductsModal from '@/components/orders/AddProductsModal';
-import OrderStatusBadge from '@/components/orders/OrderStatusBadge';
+import RecordPaymentModal from '@/components/orders/RecordPaymentModal';
 import { BorderRadius, Shadows, Spacing, Typography } from '@/constants';
 import { Colors } from '@/constants/Colors';
 import { useThemeColor } from '@/hooks/useColorScheme';
 import useOrder from '@/hooks/useOrder';
 import { MaterialIcons } from '@expo/vector-icons';
 import { useLocalSearchParams } from 'expo-router';
-import moment from 'moment';
 import React, { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
@@ -29,12 +28,11 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 
 type LineItemRowProps = {
   item: OrderItem;
-  onRemove: (itemId: string) => void;
   index: number;
   total: number;
 };
 
-const LineItemRow: React.FC<LineItemRowProps> = ({ item, onRemove }) => {
+const LineItemRow: React.FC<LineItemRowProps> = ({ item, index, total }) => {
   const colors = useThemeColor();
 
   const itemTotal = item.pricing.totalPrice * item.quantity;
@@ -44,8 +42,6 @@ const LineItemRow: React.FC<LineItemRowProps> = ({ item, onRemove }) => {
       <View style={styles.lineItemContent}>
         <View style={styles.lineItemLeft}>
           <ThemedText style={[styles.productName, { color: colors.text }]}>
-          <MaterialIcons name="delete" size={24} color={colors.danger} onPress={() => onRemove(item.id)} />
-    
             {item.name}
           </ThemedText>
           <CurrencyText style={[styles.unitPrice, { color: colors.textSecondary }]} amount={item.pricing.totalPrice} />
@@ -62,19 +58,77 @@ const LineItemRow: React.FC<LineItemRowProps> = ({ item, onRemove }) => {
   );
 };
 
+type StatusBadgeProps = {
+  status: Order['status'];
+};
 
+const StatusBadge: React.FC<StatusBadgeProps> = ({ status }) => {
+  const colors = useThemeColor();
+  const { t } = useTranslation();
+
+  const getStatusConfig = () => {
+    switch (status) {
+      case 'PAID':
+        return {
+          backgroundColor: '#10B981',
+          color: '#FFFFFF',
+          text: t("paid")
+        };
+      case 'PENDING':
+        return {
+          backgroundColor: '#F59E0B',
+          color: '#FFFFFF',
+          text: t("pending")
+        };
+      case 'CANCELLED':
+        return {
+          backgroundColor: '#EF4444',
+          color: '#FFFFFF',
+          text: t("cancelled")
+        };
+      default:
+        return {
+          backgroundColor: colors.textSecondary,
+          color: colors.textInverse,
+          text: status
+        };
+    }
+  };
+
+  const config = getStatusConfig();
+
+  return (
+    <View style={[styles.statusBadge, { backgroundColor: config.backgroundColor }]}>
+      <ThemedText style={[styles.statusText, { color: config.color }]}>
+        {config.text}
+      </ThemedText>
+    </View>
+  );
+};
 
 export default function OrderDetailsPage() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const colors = useThemeColor();
   const { t } = useTranslation();
-  const { order, loading, error, refresh, addItems, removeItem } = useOrder(id);
+  const { order, loading, error, refresh, addItems } = useOrder(id);
+  const [showPaymentModal, setShowPaymentModal] = useState(false);
   const [showAddProductsModal, setShowAddProductsModal] = useState(false);
 
 
+  const formatDate = (dateString: string) => {
+    const date = new Date(dateString);
+    return date.toLocaleDateString('en-US', {
+      year: 'numeric',
+      month: 'short',
+      day: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit'
+    });
+  };
 
-  const generateOrderNumber = (orderNumber: number) => {
-    return `ORD-${orderNumber.toString().padStart(3, '0')}`;
+
+  const generateInvoiceNumber = (orderNumber: number) => {
+    return `INV-${orderNumber.toString().padStart(3, '0')}`;
   };
 
 
@@ -140,13 +194,13 @@ export default function OrderDetailsPage() {
           <View style={styles.headerContent}>
             <View>
               <ThemedText style={[styles.invoiceNumber, { color: colors.text }]}>
-                {generateOrderNumber(order.number)}
+                {generateInvoiceNumber(order.number)}
               </ThemedText>
               <ThemedText style={[styles.invoiceDate, { color: colors.textSecondary }]}>
-                {t('issuedOn')} {moment(order.createdAt).format('MMMM D, YYYY')}
+                {t('issuedOn')} {formatDate(order.createdAt || '')}
               </ThemedText>
             </View>
-            <OrderStatusBadge status={order.deliveryStatus} />
+            <StatusBadge status={order.status} />
           </View>
         </ThemedView>
 
@@ -158,7 +212,7 @@ export default function OrderDetailsPage() {
         <ThemedView style={[styles.lineItemsCard, { backgroundColor: colors.surface }]}>
           <View style={styles.lineItemContent}>
             <ThemedText style={[styles.sectionTitle, { color: colors.text }]}>
-             { t("products")}
+             { t("lineItems")}
             </ThemedText>
 
           </View>
@@ -186,7 +240,6 @@ export default function OrderDetailsPage() {
           {/* Items */}
           {order.items.map((item, index) => (
             <LineItemRow
-              onRemove={removeItem}
               key={`${item.productId}-${index}`}
               item={item}
               index={index}
@@ -231,16 +284,25 @@ export default function OrderDetailsPage() {
             </ThemedText>
             <CurrencyText style={[styles.totalValue, { color: colors.primary }]} amount={order.pricing.total} />
           </View>
+          <View style={[styles.summaryRow, styles.totalRow, { borderTopColor: colors.border }]}>
+            <ThemedText style={[styles.totalLabel, { color: colors.text }]}>
+              {t("pending")}
+            </ThemedText>
+            <CurrencyText style={[styles.totalValue, { color: colors.danger }]} amount={order.pricing.total - order.paid} />
+          </View>
         </ThemedView>
 
         {/* Action Buttons */}
         <View style={styles.actionButtons}>
 
+          {order.status !== 'PAID' && (
             <PrimaryButton
-            title={t("generateBill")}
-            onPress={() => {}}
-            style={{ marginTop: Spacing.md }}
-          />
+              title="Add Payment"
+              onPress={() => setShowPaymentModal(true)}
+              style={styles.actionButton}
+              variant="primary"
+            />
+          )}
         </View>
       </ScrollView>
 
@@ -248,7 +310,21 @@ export default function OrderDetailsPage() {
         onClose={() => setShowAddProductsModal(false)}
         onAdd={addItems}
         visible={showAddProductsModal}
+      //onProductsChange={() => {}}
+      // products={order.items.map(item => item.product)}
+      // onProductSelected={handleProductSelected}
       />
+
+
+      {/* Payment Modal */}
+      {order && (
+        <RecordPaymentModal
+          visible={showPaymentModal}
+          onClose={() => setShowPaymentModal(false)}
+          orderId={order.id}
+          remainingBalance={order.pricing.total - order.paid}
+        />
+      )}
     </SafeAreaView>
   );
 }

@@ -26,7 +26,7 @@ export default function Clients() {
       />
 
       <BillsList 
-        onOrderPress={(orderId) => router.push(`/orders/view/${orderId}`)}
+        onOrderPress={(orderId) => router.push(`/bills/view/${orderId}`)}
         orders={bills}
         isRefreshing={loading}
         onRefresh={refresh}

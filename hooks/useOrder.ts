@@ -38,11 +38,25 @@ const useOrder = (orderId: string) => {
     }
   };
 
+  const removeItem = async (itemId: string) => {
+    try {
+      if (!order) return;
+      setLoading(true);
+      await OrdersService.removeItemFromOrder(order.id, itemId);
+      await fetchOrder();
+    } catch (err) {
+      console.error('Failed to remove product', err);
+      setError('Failed to remove product');
+    } finally {
+      setLoading(false);
+    }
+  };
+
   useEffect(() => {
     fetchOrder();
   }, [orderId]);
 
-  return { order, loading, error, refresh: fetchOrder, addItems };
+  return { order, loading, error, refresh: fetchOrder, addItems, removeItem };
 }
 
 export default useOrder;
