@@ -40,7 +40,16 @@ export default function TabLayout() {
         options={{
           title: t('orders'),
           tabBarIcon: ({ color }) => (
-            <MaterialIcons name="shopping-cart" size={28} color={color} />
+            <MaterialIcons name="shopping-basket" size={28} color={color} />
+          ),
+        }}
+      />
+      <Tabs.Screen
+        name='bills'
+        options={{
+          title: t('bills'),
+          tabBarIcon: ({ color }) => (
+            <MaterialIcons name="receipt" size={28} color={color} />
           ),
         }}
       />
