@@ -2,6 +2,7 @@ import { BorderRadius, Colors, Shadows, Spacing, Typography } from '@/constants'
 import { useThemeColor } from '@/hooks/useColorScheme';
 import { MaterialIcons } from '@expo/vector-icons';
 import React from 'react';
+import { useTranslation } from 'react-i18next';
 import { StyleSheet, TouchableOpacity, View } from 'react-native';
 import { ThemedText } from './ThemedText';
 import { ThemedView } from './ThemedView';
@@ -18,6 +19,7 @@ export function OrderCard({
   onPress,
 }: OrderCardProps) {
   const colors = useThemeColor();
+  const { t } = useTranslation();
 
 
   const formatDate = (dateString: string) => {
@@ -33,25 +35,25 @@ export function OrderCard({
     switch (status) {
       case 'PAID':
         return {
-          label: 'Paid',
+          label: t('paid'),
           backgroundColor: Colors.light.success + '20',
           textColor: Colors.light.success,
         };
       case 'PENDING':
         return {
-          label: 'Pending',
+          label: t('pending'),
           backgroundColor: Colors.light.warning + '20',
           textColor: Colors.light.warning,
         };
       case 'CANCELLED':
         return {
-          label: 'Cancelled',
+          label: t('cancelled'),
           backgroundColor: Colors.light.textTertiary + '20',
           textColor: Colors.light.textTertiary,
         };
       default:
         return {
-          label: 'Unknown',
+          label: t('unknown'),
           backgroundColor: Colors.light.textTertiary + '20',
           textColor: Colors.light.textTertiary,
         };
