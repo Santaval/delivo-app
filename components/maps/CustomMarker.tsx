@@ -42,7 +42,7 @@ const styles = StyleSheet.create({
     height: 40,
   },
   markerText: {
-    fontSize: 10,
+    fontSize: 8,
     textAlign: 'center',
   },
 });

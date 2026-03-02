@@ -83,6 +83,7 @@ export default function ClientLocationView({ client, onUpdateLocation }: ClientL
                 },
                 title: client.name,
                 description: 'Client location',
+                backgroundColor: Colors.light.primary,
               },
             ]}
           />
