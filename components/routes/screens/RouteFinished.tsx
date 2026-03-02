@@ -4,6 +4,7 @@ import { BorderRadius, Colors, Spacing, Typography } from '@/constants';
 import { useRoute } from '@/context/RouteContext';
 import { Ionicons } from '@expo/vector-icons';
 import { router } from 'expo-router';
+import moment from 'moment';
 import React from 'react';
 import { ActivityIndicator, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -20,50 +21,24 @@ export default function RouteFinishedScreen() {
 
   const totalTime = React.useMemo(() => {
     if (!route) return '0h 0m';
-    // Mock calculation - replace with actual time calculation from route timestamps
-    return '3h 45m';
+    const firstPoint = route.points[0];
+    const lastPoint = route.points[route.points.length - 1];
+    const minutes = moment(lastPoint.updatedAt).diff(moment(firstPoint.updatedAt), 'minutes');
+    return Math.floor(minutes / 60) + 'h ' + (minutes % 60) + 'm';
   }, [route]);
 
   const completedDeliveries = React.useMemo(() => {
     if (!route) return { completed: 0, total: 0 };
-    const completed = route.points.filter(point => point.status === 'COMPLETED').length;
+    const completed = route.points.filter(point => point.status === 'VISITED').length;
     return { completed, total: route.points.length };
   }, [route]);
 
-  const formatTime = (timestamp: string) => {
-    const date = new Date(timestamp);
-    return date.toLocaleTimeString('en-US', { 
-      hour: '2-digit', 
-      minute: '2-digit',
-      hour12: false 
-    });
-  };
 
   const handleFinishRoute = () => {
     // Navigate back to routes list
     router.push('/(tabs)/routes');
   };
 
-  const renderCompletedStop = ({ item, index }: { item: RoutePoint; index: number }) => {
-    if (item.status !== 'COMPLETED') return null;
-    
-    return (
-      <View style={styles.completedStopItem}>
-        <View style={styles.completedStopCheck}>
-          <Ionicons name="checkmark" size={16} color={Colors.light.success} />
-        </View>
-        
-        <View style={styles.completedStopContent}>
-          <Text style={styles.completedStopName}>{item.order.client.name}</Text>
-          <Text style={styles.completedStopAddress}>
-            {item.order.client.location.lat || "123 Business Way, Suite 400"}
-          </Text>
-        </View>
-        
-        <Text style={styles.completedStopTime}>{formatTime(item.updatedAt)}</Text>
-      </View>
-    );
-  };
 
   if (isLoading) {
     return (
@@ -132,8 +107,9 @@ export default function RouteFinishedScreen() {
                 latitude: point.order.client.location.lat || 37.7749,
                 longitude: point.order.client.location.lng || -122.4194,
               },
-              title: `${index + 1}. ${point.order.client.name}`,
-              description: point.status === 'COMPLETED' ? 'Completed' : 'Pending',
+              title: point.order.client.name,
+              description: point.status === 'VISITED' ? 'Completed' : 'Pending',
+              backgroundColor: point.status === 'VISITED' ? Colors.light.success : Colors.light.primary,
             }))}
             polylines={route.polyline}
           />
@@ -150,7 +126,7 @@ export default function RouteFinishedScreen() {
           
           <View style={styles.completedStopsList}>
             {route.points
-              .filter(point => point.status === 'COMPLETED')
+              .filter(point => point.status === 'VISITED')
               .map((point, index) => (
                 <View key={point.id} style={styles.completedStopItem}>
                   <View style={styles.completedStopCheck}>
@@ -163,8 +139,8 @@ export default function RouteFinishedScreen() {
                       {point.order.client.location.lat || "123 Business Way, Suite 400"}
                     </Text>
                   </View>
-                  
-                  <Text style={styles.completedStopTime}>{formatTime(point.updatedAt)}</Text>
+
+                  <Text style={styles.completedStopTime}>{moment(point.updatedAt).format('h:mm A')}</Text>
                 </View>
               ))}
           </View>
