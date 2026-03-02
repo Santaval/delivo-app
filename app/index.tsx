@@ -9,8 +9,9 @@ import { useCompanies } from "@/context/CompaniesContext";
 import { useAppleAuth } from "@/hooks/useAppleAuth";
 import { useThemeColor } from "@/hooks/useColorScheme";
 import { useGoogleAuth } from "@/hooks/useGoogleAuh";
-import { Link, router } from "expo-router";
+import { router } from "expo-router";
 import { useEffect } from "react";
+import { useTranslation } from "react-i18next";
 import { StatusBar, StyleSheet, View } from "react-native";
 
 export default function Index() {
@@ -19,6 +20,7 @@ export default function Index() {
   const { activeCompany } = useCompanies();
   const { onGoogleSignIn, isLoading  } = useGoogleAuth();
   const { onAppleSignIn } = useAppleAuth();
+  const { t } = useTranslation();
 
   const handleGoogleSignIn = async () => {
     await onGoogleSignIn();
@@ -44,7 +46,7 @@ export default function Index() {
       {/* App Title & Subtitle */}
       <View style={styles.titleSection}>
         <ThemedText variant="caption" style={styles.appSubtitle}>
-          Manage your business with ease
+          {t("manageYourBusinessWithEase")}
         </ThemedText>
       </View>
 
@@ -75,7 +77,7 @@ export default function Index() {
             style={styles.footerLink}
             onPress={() => console.log('Terms pressed')}
           >
-            Terms of Service
+            {t("termsOfService")}
           </ThemedText>
           <ThemedText variant="caption" style={styles.footerSeparator}>
             •
@@ -85,16 +87,8 @@ export default function Index() {
             style={styles.footerLink}
             onPress={() => console.log('Privacy pressed')}
           >
-            Privacy Policy
+            {t("privacyPolicy")}
           </ThemedText>
-          <ThemedText
-            variant="link"
-            style={styles.footerLink}
-            onPress={() => console.log('Privacy pressed')}
-          >
-            Privacy Policy
-          </ThemedText>
-          <Link href={"/(tabs)/home"} >Home</Link>
         </View>
       </View>
     </ThemedView>
@@ -134,6 +128,7 @@ const styles = StyleSheet.create({
   },
   buttonSection: {
     flex: 0.4,
+    gap: Spacing.md,
     justifyContent: 'center',
     paddingVertical: Spacing.lg,
   },

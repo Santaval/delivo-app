@@ -92,5 +92,10 @@
   "generateBill": "Generar Factura",
   "pendingPayment": "Pago Pendiente",
   "remove": "Eliminar",
-  "viewDetailedBillInformation": "Ver información de las facturas"
+  "viewDetailedBillInformation": "Ver información de las facturas",
+  "termsOfService": "Términos de Servicio",
+  "privacyPolicy": "Política de Privacidad",
+  "manageYourBusinessWithEase": "Gestiona tu negocio con facilidad",
+  "continueWithGoogle": "Continuar con Google",
+  "continueWithApple": "Continuar con Apple"
 }
