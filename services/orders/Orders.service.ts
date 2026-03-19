@@ -1,14 +1,13 @@
 import BaseApiService from "../config/BaseApiService";
 
 export default class OrdersService extends BaseApiService {
-
   static async all(): Promise<Order[]> {
-    const { data: orders } = await this.get<Order[]>('/orders');
+    const { data: orders } = await this.get<Order[]>("/orders");
     return orders;
   }
 
   static async create(data: any): Promise<Order> {
-    const { data: order } = await this.post<Order>('/orders', data);
+    const { data: order } = await this.post<Order>("/orders", data);
     return order;
   }
 
@@ -22,7 +21,10 @@ export default class OrdersService extends BaseApiService {
     await this.post(`/orders/${orderId}/items`, item);
   }
 
-  static async removeItemFromOrder(orderId: string, itemId: string): Promise<void> {
+  static async removeItemFromOrder(
+    orderId: string,
+    itemId: string,
+  ): Promise<void> {
     await this.delete(`/orders/${orderId}/items/${itemId}`);
   }
 
@@ -31,12 +33,24 @@ export default class OrdersService extends BaseApiService {
   }
 
   static async byCustomerId(customerId: string): Promise<Order[]> {
-    const { data: orders } = await this.get<Order[]>(`/orders/client/${customerId}`);
+    const { data: orders } = await this.get<Order[]>(
+      `/orders/client/${customerId}`,
+    );
     return orders;
   }
 
-  static async addPayment(orderId: string, amount: number, methodId: string): Promise<void> {
-    await this.post(`/orders/${orderId}/payments`, { amount, methodId });
+  static async byCustomerIdBilled(customerId: string): Promise<Order[]> {
+    const { data: orders } = await this.get<Order[]>(
+      `/orders/client/${customerId}/billed`,
+    );
+    return orders;
   }
 
+  static async addPayment(
+    orderId: string,
+    amount: number,
+    methodId: string,
+  ): Promise<void> {
+    await this.post(`/orders/${orderId}/payments`, { amount, methodId });
+  }
 }
