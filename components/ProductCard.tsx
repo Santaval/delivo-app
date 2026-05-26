@@ -1,11 +1,16 @@
-import { BorderRadius, Colors, Shadows, Spacing, Typography } from '@/constants';
-import { useThemeColor } from '@/hooks/useColorScheme';
-import { MaterialIcons } from '@expo/vector-icons';
-import React from 'react';
-import { StyleSheet, TouchableOpacity, View } from 'react-native';
-import { ThemedText } from './ThemedText';
-import { ThemedView } from './ThemedView';
-import CurrencyText from './currency/CurrencyText';
+import {
+  BorderRadius,
+  Colors,
+  Shadows,
+  Spacing,
+  Typography,
+} from "@/constants";
+import { useThemeColor } from "@/hooks/useColorScheme";
+import React from "react";
+import { StyleSheet, View } from "react-native";
+import { ThemedText } from "./ThemedText";
+import { ThemedView } from "./ThemedView";
+import CurrencyText from "./currency/CurrencyText";
 
 type Props = {
   item: Product;
@@ -14,8 +19,7 @@ type Props = {
 
 export default function ProductCard({ item, onEdit }: Props) {
   const colors = useThemeColor();
-  
-  
+
   return (
     <ThemedView style={[styles.card, { backgroundColor: colors.surface }]}>
       <View style={styles.row}>
@@ -23,25 +27,38 @@ export default function ProductCard({ item, onEdit }: Props) {
           <ThemedText style={styles.title}>{item.name}</ThemedText>
           <View style={styles.metaRow}>
             <View style={styles.metaItem}>
-              <ThemedText variant="caption" style={styles.metaLabel}>NET</ThemedText>
-              <CurrencyText style={styles.metaValue} amount={item.pricing.netPrice} />
+              <ThemedText variant="caption" style={styles.metaLabel}>
+                NET
+              </ThemedText>
+              <CurrencyText
+                style={styles.metaValue}
+                amount={item.pricing.netPrice}
+              />
             </View>
 
             <View style={styles.metaItem}>
-              <ThemedText variant="caption" style={styles.metaLabel}>IVA</ThemedText>
-              <ThemedText style={styles.metaValue}>{item.pricing.ivaRate}%</ThemedText>
+              <ThemedText variant="caption" style={styles.metaLabel}>
+                IVA
+              </ThemedText>
+              <ThemedText style={styles.metaValue}>
+                {item.pricing.ivaRate}%
+              </ThemedText>
             </View>
 
             <View style={styles.metaItemRight}>
-              <ThemedText variant="caption" style={[styles.metaLabel, { textAlign: 'right' }]}>TOTAL</ThemedText>
-              <CurrencyText style={styles.totalValue} amount={item.pricing.totalPrice} />
+              <ThemedText
+                variant="caption"
+                style={[styles.metaLabel, { textAlign: "right" }]}
+              >
+                TOTAL
+              </ThemedText>
+              <CurrencyText
+                style={styles.totalValue}
+                amount={item.pricing.totalPrice}
+              />
             </View>
           </View>
         </View>
-
-        <TouchableOpacity style={styles.editButton} onPress={() => onEdit && onEdit(item.id)} activeOpacity={0.7}>
-          <MaterialIcons name="edit" size={18} color={colors.textTertiary || Colors.light.textTertiary} />
-        </TouchableOpacity>
       </View>
     </ThemedView>
   );
@@ -55,8 +72,8 @@ const styles = StyleSheet.create({
     ...Shadows.small,
   },
   row: {
-    flexDirection: 'row',
-    alignItems: 'center',
+    flexDirection: "row",
+    alignItems: "center",
   },
   info: {
     flex: 1,
@@ -67,17 +84,17 @@ const styles = StyleSheet.create({
     marginBottom: Spacing.xs,
   },
   metaRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
   },
   metaItem: {
-    flexDirection: 'column',
+    flexDirection: "column",
     minWidth: 80,
   },
   metaItemRight: {
-    flexDirection: 'column',
-    alignItems: 'flex-end',
+    flexDirection: "column",
+    alignItems: "flex-end",
     minWidth: 100,
   },
   metaLabel: {
