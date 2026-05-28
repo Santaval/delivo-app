@@ -6,23 +6,30 @@ import {
   Typography,
 } from "@/constants";
 import { useThemeColor } from "@/hooks/useColorScheme";
+import { useRouter } from "expo-router";
 import React from "react";
-import { StyleSheet, View } from "react-native";
+import { Pressable, StyleSheet, View } from "react-native";
 import { ThemedText } from "./ThemedText";
 import { ThemedView } from "./ThemedView";
 import CurrencyText from "./currency/CurrencyText";
 
 type Props = {
   item: Product;
-  onEdit?: (id: string) => void;
+  onPress?: () => void;
 };
 
-export default function ProductCard({ item, onEdit }: Props) {
+export default function ProductCard({ item, onPress }: Props) {
   const colors = useThemeColor();
+
+  const router = useRouter();
+
+  const handlePress = () => {
+    if (onPress) onPress()
+  };
 
   return (
     <ThemedView style={[styles.card, { backgroundColor: colors.surface }]}>
-      <View style={styles.row}>
+      <Pressable style={styles.row} onPress={handlePress}>
         <View style={styles.info}>
           <ThemedText style={styles.title}>{item.name}</ThemedText>
           <View style={styles.metaRow}>
@@ -59,7 +66,7 @@ export default function ProductCard({ item, onEdit }: Props) {
             </View>
           </View>
         </View>
-      </View>
+      </Pressable>
     </ThemedView>
   );
 }

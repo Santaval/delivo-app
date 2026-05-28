@@ -42,7 +42,7 @@
   "addProduct": "Agregar producto",
   "searchProducts": "Buscar productos",
   "stockItems": "Artículos en stock",
-  "e.g.Organic Coffee Beans": "e.j. Granos de Café Orgánico",
+  "e.g.OrganicCoffeeBeans": "e.j. Granos de Café Orgánico",
   "pricingAndTax": "Precios e IVA",
   "grossPrice": "Precio bruto",
   "priceWithIva": "Precio con IVA",
@@ -97,5 +97,7 @@
   "privacyPolicy": "Política de Privacidad",
   "manageYourBusinessWithEase": "Gestiona tu negocio con facilidad",
   "continueWithGoogle": "Continuar con Google",
-  "continueWithApple": "Continuar con Apple"
+  "continueWithApple": "Continuar con Apple",
+  "productDetail": "Detalle del Producto",
+  "loading": "Cargando"
 }
