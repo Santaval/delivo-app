@@ -99,5 +99,10 @@
   "continueWithGoogle": "Continuar con Google",
   "continueWithApple": "Continuar con Apple",
   "productDetail": "Detalle del Producto",
-  "loading": "Cargando"
+  "loading": "Cargando",
+  "deleted": "Eliminado",
+  "deletedProductsWarning": "Advertencia de Productos Eliminados",
+  "deletedProductsWarningMessage": "Esta orden contiene productos que han sido eliminados. Generar la factura con productos eliminados puede resultar en precios incorrectos o información faltante del producto.",
+  "cancel": "Cancelar",
+  "generateAnyway": "Generar de Todos Modos"
 }

@@ -9,4 +9,5 @@ interface Product {
   };
   createdAt: string;
   updatedAt: string;
+  deletedAt: string | null;
 }

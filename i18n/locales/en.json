@@ -1,8 +1,8 @@
 {
-
   "home": "Home",
-  "incomeCard": {
-    "monthlyIncome": "Monthly Income",
-    "sinceLastMonth": "Since Last Month"
-  }
+  "deleted": "Deleted",
+  "deletedProductsWarning": "Deleted Products Warning",
+  "deletedProductsWarningMessage": "This order contains products that have been deleted. Generating the bill with deleted products may result in incorrect pricing or missing product information.",
+  "cancel": "Cancel",
+  "generateAnyway": "Generate Anyway"
 }
