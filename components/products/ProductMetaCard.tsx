@@ -1,9 +1,10 @@
 import { BorderRadius, Shadows, Spacing, Typography } from "@/constants";
+import { Colors } from "@/constants/Colors";
 import { useThemeColor } from "@/hooks/useColorScheme";
-import moment from "@/moment/moment";
+import { MaterialIcons } from "@expo/vector-icons";
+import moment from "moment";
 import React from "react";
 import { StyleSheet, View } from "react-native";
-import { MaterialIcons } from "@expo/vector-icons";
 import { ThemedText } from "../ThemedText";
 import { ThemedView } from "../ThemedView";
 
@@ -15,7 +16,8 @@ type Props = {
 export default function ProductMetaCard({ createdAt, updatedAt }: Props) {
   const colors = useThemeColor();
 
-  const formatDate = (date: string) => moment(date).format("DD MMM YYYY, HH:mm");
+  const formatDate = (date: string) =>
+    moment(date).format("DD MMM YYYY, HH:mm");
 
   return (
     <ThemedView style={[styles.card, { backgroundColor: colors.surface }]}>

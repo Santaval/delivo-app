@@ -1,4 +1,5 @@
 import { BorderRadius, Shadows, Spacing, Typography } from "@/constants";
+import { Colors } from "@/constants/Colors";
 import { useThemeColor } from "@/hooks/useColorScheme";
 import React from "react";
 import { StyleSheet, View } from "react-native";

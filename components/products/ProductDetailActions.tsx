@@ -1,10 +1,11 @@
 import { BorderRadius, Spacing, Typography } from "@/constants";
+import { Colors } from "@/constants/Colors";
 import { useThemeColor } from "@/hooks/useColorScheme";
 import React from "react";
 import { Alert, StyleSheet, View } from "react-native";
+import { PrimaryButton } from "../PrimaryButton";
 import { ThemedText } from "../ThemedText";
 import { ThemedView } from "../ThemedView";
-import { PrimaryButton } from "../PrimaryButton";
 
 type Props = {
   onEdit: () => void;
@@ -26,7 +27,7 @@ export default function ProductDetailActions({
       [
         { text: "Cancelar", style: "cancel" },
         { text: "Eliminar", style: "destructive", onPress: onDelete },
-      ]
+      ],
     );
   };
 
