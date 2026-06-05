@@ -28,10 +28,11 @@ export default function Clients() {
         showClearButton
       />
 
-      <OrdersList 
+      <OrdersList
         onOrderPress={(orderId) => router.push(`/orders/view/${orderId}`)}
         orders={orders}
-        isRefreshing={loading}
+        isRefreshing={loading && orders.length > 0}
+        loading={loading && orders.length === 0}
         onRefresh={refresh}
       />
       
