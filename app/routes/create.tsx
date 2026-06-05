@@ -41,7 +41,7 @@ export default function CreateRoute() {
   useEffect(() => {
     const defaultName = `${t('route')} ${moment().format('MM/DD')}`;
     setName(defaultName);
-  }, []);
+  }, [t]);
 
   const validateForm = (): boolean => {
     try {
@@ -66,7 +66,7 @@ export default function CreateRoute() {
 
   const handleSubmit = async () => {
     if (!validateForm()) {
-      Alert.alert('Validation Error', 'Please check the form and try again.');
+      Alert.alert(t('validationError'), t('pleaseCheckTheFormAndTryAgain'));
       return;
     }
 
@@ -81,7 +81,7 @@ export default function CreateRoute() {
 
       router.replace(`/routes/view/${route.id}`);
     } catch (error) {
-      Alert.alert('Error', 'Failed to create route. Please try again.');
+      Alert.alert(t('error'), t('failedToCreateRoute'));
     } finally {
       setIsLoading(false);
     }
@@ -113,7 +113,7 @@ export default function CreateRoute() {
         >
           <MaterialIcons name="arrow-back" size={24} color={colors.text} />
         </TouchableOpacity>
-        <ThemedText style={styles.headerTitle}>Create Route</ThemedText>
+        <ThemedText style={styles.headerTitle}>{t('createRoute')}</ThemedText>
         <View style={styles.placeholder} />
       </View>
       
@@ -128,14 +128,14 @@ export default function CreateRoute() {
         >
           {/* Route Name Section */}
           <View style={styles.section}>
-            <ThemedText style={styles.sectionTitle}>Route Details</ThemedText>
+            <ThemedText style={styles.sectionTitle}>{t('routeDetails')}</ThemedText>
             
             <View style={styles.nameFieldContainer}>
               <FormField
-                label="Route Name"
+                label={t('routeName')}
                 value={name}
                 onChangeText={setName}
-                placeholder="Enter route name"
+                placeholder={t('enterRouteName')}
                 error={errors.name}
                 autoCapitalize="words"
                 required
@@ -152,7 +152,7 @@ export default function CreateRoute() {
                   color={colors.primary} 
                 />
                 <ThemedText style={[styles.suggestText, { color: colors.primary }]}>
-                  Suggest
+                  {t('suggest')}
                 </ThemedText>
               </TouchableOpacity>
             </View>
@@ -191,11 +191,11 @@ export default function CreateRoute() {
               <View style={styles.previewStats}>
                 <View style={styles.statItem}>
                   <ThemedText style={styles.statValue}>0</ThemedText>
-                  <ThemedText style={styles.statLabel}>Stops</ThemedText>
+                  <ThemedText style={styles.statLabel}>{t('stops')}</ThemedText>
                 </View>
                 <View style={styles.statItem}>
                   <ThemedText style={styles.statValue}>-</ThemedText>
-                  <ThemedText style={styles.statLabel}>ETA</ThemedText>
+                  <ThemedText style={styles.statLabel}>{t('eta')}</ThemedText>
                 </View>
               </View>
             </View>

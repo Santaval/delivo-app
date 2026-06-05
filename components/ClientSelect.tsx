@@ -3,6 +3,7 @@ import useClients from '@/hooks/useClients';
 import { useThemeColor } from '@/hooks/useColorScheme';
 import { MaterialIcons } from '@expo/vector-icons';
 import React, { useCallback, useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import {
   FlatList,
   Modal,
@@ -46,15 +47,15 @@ const ClientListItem: React.FC<ClientListItemProps> = ({ item, onPress, isSelect
 };
 
 export function ClientSelect({
-  label = "SELECT CLIENT",
-  placeholder = "Choose a client...",
+  label,
+  placeholder = 'Select a client',
   onClientSelect,
   onClientClear,
   defaultClientId,
   error,
-  required = false,
-  style,
+  required,
 }: ClientSelectProps) {
+  const { t } = useTranslation();
   const colors = useThemeColor();
   const { clients, loading } = useClients();
   
@@ -237,7 +238,7 @@ export function ClientSelect({
               ]}
               value={searchQuery}
               onChangeText={setSearchQuery}
-              placeholder="Search clients..."
+              placeholder={t('searchClients')}
               placeholderTextColor={colors.textSecondary}
               autoCapitalize="none"
               autoCorrect={false}

@@ -236,7 +236,7 @@ export function ProductSelect({
     } else {
       // New product selection
       if (selectedProducts.length >= maxItems) {
-        Alert.alert('Maximum Items', `You can only add up to ${maxItems} different products.`);
+        Alert.alert(t('maximumItems'), t('maxItemsMessage', { maxItems }));
         return;
       }
       

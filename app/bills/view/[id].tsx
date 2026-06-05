@@ -157,10 +157,10 @@ export default function OrderDetailsPage() {
         <View style={styles.centerContent}>
           <MaterialIcons name="error-outline" size={48} color={colors.danger} />
           <ThemedText style={[styles.errorText, { color: colors.danger }]}>
-            {error || 'Order not found'}
+            {error || t('orderNotFound')}
           </ThemedText>
           <PrimaryButton
-            title="Try Again"
+            title={t('tryAgain')}
             onPress={refresh}
             style={styles.retryButton}
           />
@@ -297,7 +297,7 @@ export default function OrderDetailsPage() {
 
           {order.status !== 'PAID' && (
             <PrimaryButton
-              title="Add Payment"
+              title={t('addPayment')}
               onPress={() => setShowPaymentModal(true)}
               style={styles.actionButton}
               variant="primary"

@@ -8,7 +8,7 @@ import { useTranslation } from 'react-i18next';
 import { StyleSheet } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
-export default function create() {
+export default function CreateOrder() {
   const [orderItems, setOrderItems] = React.useState<OrderItem[]>([]);
   const [clientId, setClientId] = React.useState<string | undefined>(undefined);
   const [isSaving, setIsSaving] = React.useState<boolean>(false);
@@ -49,7 +49,7 @@ export default function create() {
   return (
     <SafeAreaView style={styles.container}>
       <TopBar
-        title='Create Order'
+        title={t('createOrder')}
         goBackTo='/orders'
       />
       <ClientSelect
@@ -68,7 +68,7 @@ export default function create() {
       />
 
       <PrimaryButton
-        title="Save Order"
+        title={t('saveOrder')}
         onPress={handleSaveOrder}
         disabled={!clientId || orderItems.length === 0 || isSaving}
       />

@@ -2,6 +2,7 @@ import { BorderRadius, Spacing, Typography } from "@/constants";
 import { Colors } from "@/constants/Colors";
 import { useThemeColor } from "@/hooks/useColorScheme";
 import React from "react";
+import { useTranslation } from "react-i18next";
 import { Alert, StyleSheet, View } from "react-native";
 import { PrimaryButton } from "../PrimaryButton";
 import { ThemedText } from "../ThemedText";
@@ -19,33 +20,34 @@ export default function ProductDetailActions({
   loading,
 }: Props) {
   const colors = useThemeColor();
+  const { t } = useTranslation();
 
   const handleDelete = () => {
     Alert.alert(
-      "Eliminar producto",
-      "¿Estás seguro de que deseas eliminar este producto?",
+      t("deleteProduct"),
+      t("deleteProductConfirmation"),
       [
-        { text: "Cancelar", style: "cancel" },
-        { text: "Eliminar", style: "destructive", onPress: onDelete },
+        { text: t("cancel"), style: "cancel" },
+        { text: t("delete"), style: "destructive", onPress: onDelete },
       ],
     );
   };
 
   return (
     <ThemedView style={styles.container}>
-      <ThemedText style={styles.sectionTitle}>Acciones</ThemedText>
+      <ThemedText style={styles.sectionTitle}>{t("actions")}</ThemedText>
 
       <View style={styles.buttonsRow}>
         <View style={styles.buttonFlex}>
           <PrimaryButton
-            title="Editar"
+            title={t("edit")}
             onPress={onEdit}
             style={styles.editButton}
           />
         </View>
         <View style={styles.buttonFlex}>
           <PrimaryButton
-            title="Eliminar"
+            title={t("delete")}
             variant="outline"
             onPress={handleDelete}
             style={styles.deleteButton}

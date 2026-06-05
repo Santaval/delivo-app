@@ -1,6 +1,7 @@
 import { BorderRadius, Colors, Spacing, Typography } from '@/constants';
 import { Ionicons } from '@expo/vector-icons';
 import React from 'react';
+import { useTranslation } from 'react-i18next';
 import { ScrollView, StyleSheet, Text, View } from 'react-native';
 
 type AllStopsListProps = {
@@ -14,6 +15,7 @@ const AllStopsList: React.FC<AllStopsListProps> = ({
   currentStopId,
   onStopPress,
 }) => {
+  const { t } = useTranslation();
   const pendingStops = stops.filter(stop => stop.status === 'CREATED');
   const completedStops = stops.filter(stop => stop.status === 'VISITED');
 
@@ -57,7 +59,7 @@ const AllStopsList: React.FC<AllStopsListProps> = ({
             </Text>
             {isCurrent && (
               <View style={styles.currentBadge}>
-                <Text style={styles.currentBadgeText}>Current</Text>
+                <Text style={styles.currentBadgeText}>{t('currentStop')}</Text>
               </View>
             )}
           </View>
@@ -76,7 +78,7 @@ const AllStopsList: React.FC<AllStopsListProps> = ({
                 color={isCompleted ? Colors.light.textSecondary : Colors.light.primary} 
               />
               <Text style={[styles.orderInfoText, isCompleted && styles.completedText]}>
-                {stop.order.items.length} {stop.order.items.length === 1 ? 'item' : 'items'}
+                {stop.order.items.length} {stop.order.items.length === 1 ? t('item') : t('items')}
               </Text>
             </View>
             <View style={styles.orderInfoItem}>
@@ -105,21 +107,21 @@ const AllStopsList: React.FC<AllStopsListProps> = ({
       <View style={styles.summaryHeader}>
         <View style={styles.summaryItem}>
           <Text style={styles.summaryNumber}>{pendingStops.length}</Text>
-          <Text style={styles.summaryLabel}>Pending</Text>
+          <Text style={styles.summaryLabel}>{t('pending')}</Text>
         </View>
         <View style={styles.summaryDivider} />
         <View style={styles.summaryItem}>
           <Text style={[styles.summaryNumber, styles.completedNumber]}>
             {completedStops.length}
           </Text>
-          <Text style={styles.summaryLabel}>Completed</Text>
+          <Text style={styles.summaryLabel}>{t('completed')}</Text>
         </View>
       </View>
 
       {/* Pending Stops */}
       {pendingStops.length > 0 && (
         <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Pending Stops</Text>
+          <Text style={styles.sectionTitle}>{t('pending')} {t('stops')}</Text>
           {pendingStops.map((stop, index) => renderStop(stop, index))}
         </View>
       )}
@@ -127,7 +129,7 @@ const AllStopsList: React.FC<AllStopsListProps> = ({
       {/* Completed Stops */}
       {completedStops.length > 0 && (
         <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Completed Stops</Text>
+          <Text style={styles.sectionTitle}>{t('completed')} {t('stops')}</Text>
           {completedStops.map((stop, index) => renderStop(stop, index))}
         </View>
       )}

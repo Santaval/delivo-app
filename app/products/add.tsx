@@ -86,7 +86,7 @@ export default function AddProduct() {
 
   const handleSubmit = async () => {
     if (!validateForm()) {
-      Alert.alert('Validation Error', 'Please check the form and try again.');
+      Alert.alert(t('validationError'), t('pleaseCheckTheFormAndTryAgain'));
       return;
     }
 
@@ -104,12 +104,12 @@ export default function AddProduct() {
       await ProductsService.create(productData);
 
       Alert.alert(
-        'Success',
-        'Product has been created successfully',
-        [{ text: 'OK', onPress: () => router.back() }]
+        t('success'),
+        t('productCreatedSuccessfully'),
+        [{ text: t('ok'), onPress: () => router.back() }]
       );
     } catch (error) {
-      Alert.alert('Error', 'Failed to create product. Please try again.');
+      Alert.alert(t('error'), t('failedToCreateProduct'));
     } finally {
       setIsLoading(false);
     }

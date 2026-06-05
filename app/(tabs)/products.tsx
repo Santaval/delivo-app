@@ -35,7 +35,7 @@ export default function Products() {
 
   return (
     <SafeAreaView style={styles.container}>
-      <TopBar title="Products" />
+      <TopBar title={t('products')} />
       <StatusBar barStyle="dark-content" backgroundColor={colors.background} />
 
       <ThemedView style={{ flex: 1 }}>

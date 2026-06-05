@@ -1,3 +1,4 @@
+import { useTranslation } from "react-i18next";
 import { StyleSheet, Text, View } from "react-native";
 
 type MarkerProps = {
@@ -15,10 +16,11 @@ type Props = {
 };
 
 export default function Map({ markers, polylines }: Props) {
+  const { t } = useTranslation();
   return (
     <View style={styles.container}>
-      <Text style={styles.text}>Map view is not available on web</Text>
-      <Text style={styles.subtext}>Please use the mobile app to view maps</Text>
+      <Text style={styles.text}>{t('mapNotAvailableOnWeb')}</Text>
+      <Text style={styles.subtext}>{t('useMobileAppForMaps')}</Text>
     </View>
   );
 }

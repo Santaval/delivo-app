@@ -37,7 +37,7 @@ export default function ProductDetail() {
       await remove();
       router.back();
     } catch (err) {
-      Alert.alert("Error", "No se pudo eliminar el producto");
+      Alert.alert(t("error"), t("failedToDeleteProduct"));
     }
   };
 
@@ -59,10 +59,10 @@ export default function ProductDetail() {
         <View style={styles.centerContent}>
           <MaterialIcons name="error-outline" size={48} color={colors.danger} />
           <ThemedText style={[styles.errorText, { color: colors.danger }]}>
-            {error || "Producto no encontrado"}
+            {error || t("productNotFound")}
           </ThemedText>
           <PrimaryButton
-            title="Reintentar"
+            title={t("retry")}
             onPress={refresh}
             style={styles.retryButton}
           />

@@ -16,7 +16,7 @@ export default function Home() {
   const colors = useThemeColor();
 
   if (loading) {
-    return <Text>Loading...</Text>;
+    return <Text>{t('loading')}...</Text>;
   }
 
   if (!data) {

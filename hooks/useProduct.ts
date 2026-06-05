@@ -1,7 +1,9 @@
 import ProductsService from "@/services/products/Products.service";
 import { useEffect, useState } from "react";
+import { useTranslation } from "react-i18next";
 
 const useProduct = (productId: string) => {
+  const { t } = useTranslation();
   const [product, setProduct] = useState<Product | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -12,7 +14,7 @@ const useProduct = (productId: string) => {
       const productData = await ProductsService.findById(productId);
       setProduct(productData);
     } catch (err) {
-      setError("Failed to load product");
+      setError(t("failedToLoadProduct"));
     } finally {
       setLoading(false);
     }
@@ -24,7 +26,7 @@ const useProduct = (productId: string) => {
       await ProductsService.remove(productId);
       setProduct(null);
     } catch (err) {
-      setError("Failed to remove product");
+      setError(t("failedToRemoveProduct"));
     } finally {
       setLoading(false);
     }
@@ -39,7 +41,7 @@ const useProduct = (productId: string) => {
       );
       setProduct(updatedProduct);
     } catch (err) {
-      setError("Failed to update product");
+      setError(t("failedToUpdateProduct"));
     } finally {
       setLoading(false);
     }

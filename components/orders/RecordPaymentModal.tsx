@@ -6,6 +6,7 @@ import OrdersService from '@/services/orders/Orders.service';
 import { MaterialIcons } from '@expo/vector-icons';
 import { router } from 'expo-router';
 import React, { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import {
   KeyboardAvoidingView,
   Modal,
@@ -31,6 +32,7 @@ const RecordPaymentModal: React.FC<RecordPaymentModalProps> = ({
   remainingBalance,
   onPaymentRecorded,
 }) => {
+  const { t } = useTranslation();
   const colors = useThemeColor();
   
   const [selectedMethodId, setSelectedMethodId] = useState<string>('');
@@ -128,14 +130,14 @@ const RecordPaymentModal: React.FC<RecordPaymentModalProps> = ({
 
           {/* Payment Method Selector */}
           <View style={styles.section}>
-            <ThemedText style={[styles.label, { color: colors.text }]}>
-              Payment Method
-            </ThemedText>
+              <ThemedText style={[styles.label, { color: colors.text }]}>
+                {t('paymentMethod')}
+              </ThemedText>
             
             <PaymentMethodSelect
               value={selectedMethodId}
               onChange={setSelectedMethodId}
-              placeholder="Select Payment Method"
+              placeholder={t('selectPaymentMethod')}
               onAddNew={handleAddNewPaymentMethod}
             />
           </View>
@@ -144,11 +146,11 @@ const RecordPaymentModal: React.FC<RecordPaymentModalProps> = ({
           <View style={styles.section}>
             <View style={styles.amountHeader}>
               <ThemedText style={[styles.label, { color: colors.text }]}>
-                Amount to Pay
+                {t('amountToPay')}
               </ThemedText>
               <TouchableOpacity onPress={handlePayFull}>
                 <ThemedText style={[styles.payFullButton, { color: colors.primary }]}>
-                  Pay Full
+                  {t('payFull')}
                 </ThemedText>
               </TouchableOpacity>
             </View>
@@ -175,7 +177,7 @@ const RecordPaymentModal: React.FC<RecordPaymentModalProps> = ({
           {/* Action Buttons */}
           <View style={styles.actions}>
             <PrimaryButton
-              title="Confirm Payment"
+              title={t('confirmPayment')}
               onPress={handleConfirmPayment}
               disabled={isProcessing || !selectedMethodId || !amount || parseFloat(amount) <= 0}
               style={styles.confirmButton}

@@ -6,10 +6,12 @@ import { Ionicons } from '@expo/vector-icons';
 import { router } from 'expo-router';
 import moment from 'moment';
 import React from 'react';
+import { useTranslation } from 'react-i18next';
 import { ActivityIndicator, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 export default function RouteFinishedScreen() {
+  const { t } = useTranslation();
   const { route, isLoading, error } = useRoute();
 
   // Calculate route statistics
@@ -43,10 +45,10 @@ export default function RouteFinishedScreen() {
   if (isLoading) {
     return (
       <SafeAreaView style={styles.container}>
-        <TopBar title="Route Finished" />
+        <TopBar title={t('routeFinished')} />
         <View style={styles.centerContent}>
           <ActivityIndicator size="large" color={Colors.light.primary} />
-          <Text style={styles.loadingText}>Loading route summary...</Text>
+          <Text style={styles.loadingText}>{t('loadingRouteSummary')}</Text>
         </View>
       </SafeAreaView>
     );
@@ -55,9 +57,9 @@ export default function RouteFinishedScreen() {
   if (error || !route) {
     return (
       <SafeAreaView style={styles.container}>
-        <TopBar title="Route Finished" />
+        <TopBar title={t('routeFinished')} />
         <View style={styles.centerContent}>
-          <Text style={styles.errorText}>{error || 'Route not found'}</Text>
+          <Text style={styles.errorText}>{error || t('routeNotFound')}</Text>
         </View>
       </SafeAreaView>
     );
@@ -65,7 +67,7 @@ export default function RouteFinishedScreen() {
 
   return (
     <SafeAreaView style={styles.container}>
-      <TopBar title="Route Summary" />
+      <TopBar title={t('routeSummary')} />
       
       <ScrollView style={styles.content} showsVerticalScrollIndicator={false}>
         {/* Success Header */}
@@ -75,24 +77,24 @@ export default function RouteFinishedScreen() {
               <Ionicons name="checkmark" size={40} color={Colors.light.success} />
             </View>
           </View>
-          <Text style={styles.successTitle}>Route Finished!</Text>
-          <Text style={styles.successSubtitle}>All deliveries completed successfully</Text>
+          <Text style={styles.successTitle}>{t('routeFinishedExclamation')}</Text>
+          <Text style={styles.successSubtitle}>{t('allDeliveriesCompletedSuccessfully')}</Text>
         </View>
 
         {/* Statistics Cards */}
         <View style={styles.statsContainer}>
           <View style={styles.statCard}>
-            <Text style={styles.statLabel}>DISTANCE</Text>
-            <Text style={styles.statValue}>{totalDistance}<Text style={styles.statUnit}>mi</Text></Text>
+            <Text style={styles.statLabel}>{t('distance')}</Text>
+            <Text style={styles.statValue}>{totalDistance}<Text style={styles.statUnit}>{t('mi')}</Text></Text>
           </View>
           
           <View style={styles.statCard}>
-            <Text style={styles.statLabel}>TOTAL TIME</Text>
+            <Text style={styles.statLabel}>{t('totalTime')}</Text>
             <Text style={styles.statValue}>{totalTime}</Text>
           </View>
           
           <View style={styles.statCard}>
-            <Text style={styles.statLabel}>DELIVERIES</Text>
+            <Text style={styles.statLabel}>{t('deliveries')}</Text>
             <Text style={styles.statValue}>
               {completedDeliveries.completed}<Text style={styles.statUnit}>/{completedDeliveries.total}</Text>
             </Text>
@@ -118,9 +120,9 @@ export default function RouteFinishedScreen() {
         {/* Completed Stops Section */}
         <View style={styles.completedStopsSection}>
           <View style={styles.completedStopsHeader}>
-            <Text style={styles.completedStopsTitle}>COMPLETED STOPS</Text>
+            <Text style={styles.completedStopsTitle}>{t('completedStops')}</Text>
             <Text style={styles.completedStopsCount}>
-              {completedDeliveries.completed} Total
+              {completedDeliveries.completed} {t('total')}
             </Text>
           </View>
           
@@ -149,7 +151,7 @@ export default function RouteFinishedScreen() {
         {/* Finish Button */}
         <View style={styles.finishButtonContainer}>
           <PrimaryButton
-            title="Back to Routes"
+            title={t('backToRoutes')}
             onPress={handleFinishRoute}
           />
         </View>

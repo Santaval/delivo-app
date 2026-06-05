@@ -93,7 +93,7 @@ export default function ProductEditScreen() {
 
   const handleSubmit = async () => {
     if (!validateForm()) {
-      Alert.alert('Validation Error', 'Please check the form and try again.');
+      Alert.alert(t('validationError'), t('pleaseCheckTheFormAndTryAgain'));
       return;
     }
 
@@ -109,12 +109,12 @@ export default function ProductEditScreen() {
       await update(productData);
 
       Alert.alert(
-        'Success',
-        'Product has been updated successfully',
-        [{ text: 'OK', onPress: () => router.back() }]
+        t('success'),
+        t('productUpdatedSuccessfully'),
+        [{ text: t('ok'), onPress: () => router.back() }]
       );
     } catch {
-      Alert.alert('Error', 'Failed to update product. Please try again.');
+      Alert.alert(t('error'), t('failedToUpdateProduct'));
     } finally {
       setIsLoading(false);
     }
@@ -160,7 +160,7 @@ export default function ProductEditScreen() {
         <View style={styles.loadingContainer}>
           <MaterialIcons name="error-outline" size={48} color={colors.danger} />
           <ThemedText style={[styles.errorText, { color: colors.danger }]}>
-            {error || 'Product not found'}
+            {error || t('productNotFound')}
           </ThemedText>
         </View>
       </SafeAreaView>

@@ -35,7 +35,7 @@ type TabType = "bills" | "location" | "orders";
 export default function ClientProfile() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const colors = useThemeColor();
-  const { client, loading, error, refreshClient, updateLocation } =
+  const { client, loading, error, refreshClient, updateLocation, deleteClient } =
     useClient(id);
   const [activeTab, setActiveTab] = useState<TabType>("bills");
   const {
@@ -49,7 +49,7 @@ export default function ClientProfile() {
     if (client?.phoneNumber) {
       Linking.openURL(`tel:${client.phoneNumber}`).catch((err) => {
         console.error("Error making call:", err);
-        Alert.alert("Error", "Could not open phone application");
+        Alert.alert(t("error"), t("couldNotOpenPhoneApplication"));
       });
     }
   };
@@ -60,37 +60,63 @@ export default function ClientProfile() {
       Linking.openURL(`whatsapp://send?phone=${phoneNumber}`).catch((err) => {
         console.error("Error opening WhatsApp:", err);
         Alert.alert(
-          "Error",
-          "Could not open WhatsApp. Make sure it is installed.",
+          t("error"),
+          t("couldNotOpenWhatsApp"),
         );
       });
     }
+  };
+
+  const handleEdit = () => {
+    router.push(`/clients/edit/${id}`);
+  };
+
+  const handleDelete = () => {
+    Alert.alert(
+      t("deleteClient"),
+      t("deleteClientConfirmation"),
+      [
+        { text: t("cancel"), style: "cancel" },
+        {
+          text: t("delete"),
+          style: "destructive",
+          onPress: async () => {
+            try {
+              await deleteClient();
+              router.back();
+            } catch {
+              Alert.alert(t("error"), t("failedToDeleteClient"));
+            }
+          },
+        },
+      ]
+    );
   };
 
   const handleEmail = () => {
     if (client?.email) {
       Linking.openURL(`mailto:${client.email}`).catch((err) => {
         console.error("Error opening email:", err);
-        Alert.alert("Error", "Could not open email application");
+        Alert.alert(t("error"), t("couldNotOpenEmailApplication"));
       });
     }
   };
 
   if (loading) {
-    return <Text>Loading...</Text>;
+    return <Text>{t("loading")}...</Text>;
   }
 
   if (error || !client) {
     return (
       <ThemedView style={styles.container}>
-        <TopBar title="Client Profile" />
+        <TopBar title={t("clientProfile")} />
         <View style={styles.centerContent}>
           <MaterialIcons name="error-outline" size={48} color={colors.danger} />
           <ThemedText style={[styles.errorText, { color: colors.danger }]}>
-            {error || "Client not found"}
+            {error || t("clientNotFound")}
           </ThemedText>
           <PrimaryButton
-            title="Try Again"
+            title={t("tryAgain")}
             onPress={refreshClient}
             style={styles.retryButton}
           />
@@ -118,6 +144,30 @@ export default function ClientProfile() {
       >
         {/* Client Info Card */}
         <ClientCompactCard client={client} />
+
+        {/* Edit / Delete actions */}
+        <View style={styles.actionsRow}>
+          <TouchableOpacity
+            style={[styles.actionButton, { borderColor: colors.border }]}
+            onPress={handleEdit}
+            activeOpacity={0.7}
+          >
+            <MaterialIcons name="edit" size={18} color={colors.primary} />
+            <Text style={[styles.actionButtonText, { color: colors.primary }]}>
+              {t("edit")}
+            </Text>
+          </TouchableOpacity>
+          <TouchableOpacity
+            style={[styles.actionButton, { borderColor: colors.danger + "55" }]}
+            onPress={handleDelete}
+            activeOpacity={0.7}
+          >
+            <MaterialIcons name="delete-outline" size={18} color={colors.danger} />
+            <Text style={[styles.actionButtonText, { color: colors.danger }]}>
+              {t("delete")}
+            </Text>
+          </TouchableOpacity>
+        </View>
 
         {/* Tabs */}
         <View style={styles.tabsContainer}>
@@ -438,5 +488,27 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     alignItems: "center",
     ...Shadows.small,
+  },
+  actionsRow: {
+    flexDirection: "row",
+    paddingHorizontal: Spacing.lg,
+    marginBottom: Spacing.md,
+    gap: Spacing.md,
+  },
+  actionButton: {
+    flex: 1,
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    gap: Spacing.xs,
+    paddingVertical: Spacing.sm,
+    borderRadius: BorderRadius.md,
+    borderWidth: 1,
+    backgroundColor: Colors.light.background,
+    ...Shadows.small,
+  },
+  actionButtonText: {
+    fontSize: Typography.fontSize.sm,
+    fontWeight: Typography.fontWeight.semibold,
   },
 });

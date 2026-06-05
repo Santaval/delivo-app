@@ -1,6 +1,7 @@
 import { BorderRadius, Colors, Shadows, Spacing, Typography } from "@/constants";
 import { useThemeColor } from "@/hooks/useColorScheme";
 import React from "react";
+import { useTranslation } from "react-i18next";
 import { StyleSheet, View } from "react-native";
 import { ThemedText } from "../ThemedText";
 import { ThemedView } from "../ThemedView";
@@ -20,27 +21,28 @@ export default function ProductPricingCard({
   totalPrice,
 }: Props) {
   const colors = useThemeColor();
+  const { t } = useTranslation();
 
   return (
     <ThemedView style={[styles.card, { backgroundColor: colors.surface }]}>
-      <ThemedText style={styles.sectionTitle}>Precios</ThemedText>
+      <ThemedText style={styles.sectionTitle}>{t("prices")}</ThemedText>
 
       <View style={styles.row}>
         <ThemedText variant="caption" style={styles.label}>
-          NETO
+          {t("neto")}
         </ThemedText>
         <CurrencyText style={styles.value} amount={netPrice} />
       </View>
 
       <View style={styles.row}>
         <ThemedText variant="caption" style={styles.label}>
-          IVA ({ivaRate}%)
+          {t("ivaAmount")} ({ivaRate}%)
         </ThemedText>
         <CurrencyText style={styles.value} amount={ivaAmount} />
       </View>
 
       <View style={[styles.row, styles.divider]}>
-        <ThemedText style={styles.totalLabel}>TOTAL</ThemedText>
+        <ThemedText style={styles.totalLabel}>{t("totalUpper")}</ThemedText>
         <CurrencyText style={styles.totalValue} amount={totalPrice} />
       </View>
     </ThemedView>

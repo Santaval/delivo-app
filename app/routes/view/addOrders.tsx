@@ -5,6 +5,7 @@ import RoutesService from '@/services/routes/Routes.service';
 import { Ionicons } from '@expo/vector-icons';
 import { useLocalSearchParams } from 'expo-router';
 import React, { useMemo, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import {
   ActivityIndicator,
   Alert,
@@ -19,6 +20,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 
 
 export default function AddOrders() {
+  const { t } = useTranslation();
   const { orders, loading, error } = useOrders();
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedOrders, setSelectedOrders] = useState<Set<string>>(new Set());
@@ -65,7 +67,7 @@ export default function AddOrders() {
 
   const handleAddToRoute = async () => {
     if (selectedOrders.size === 0) {
-      Alert.alert('No Orders Selected', 'Please select at least one order to add to the route.');
+      Alert.alert(t('noOrdersSelected'), t('selectAtLeastOneOrder'));
       return;
     }
 
@@ -78,7 +80,7 @@ export default function AddOrders() {
       await Promise.all(promises);
 
     } catch (err) {
-      Alert.alert('Error', 'Failed to add orders to route. Please try again.');
+      Alert.alert(t('error'), t('failedToAddOrdersToRoute'));
     } finally {
       setIsAddingToRoute(false);
     }
@@ -137,7 +139,7 @@ export default function AddOrders() {
               <View style={styles.statusContainer}>
                 <View style={styles.statusDot} />
                 <Text style={styles.statusText}>
-                  {item.status === 'PENDING' ? 'Ready for pickup' : item.status}
+                  {item.status === 'PENDING' ? t('readyForPickup') : item.status}
                 </Text>
               </View>
             
@@ -151,9 +153,9 @@ export default function AddOrders() {
   const renderEmptyState = () => (
     <View style={styles.emptyState}>
       <Ionicons name="document-text-outline" size={64} color={Colors.light.textTertiary} />
-      <Text style={styles.emptyTitle}>No Orders Available</Text>
+      <Text style={styles.emptyTitle}>{t('noOrdersAvailable')}</Text>
       <Text style={styles.emptyMessage}>
-        {searchQuery ? 'No orders match your search criteria.' : 'All orders are already assigned to routes.'}
+        {searchQuery ? t('noOrdersMatchSearch') : t('allOrdersAssigned')}
       </Text>
     </View>
   );
@@ -161,10 +163,10 @@ export default function AddOrders() {
   if (loading) {
     return (
       <SafeAreaView style={styles.container}>
-        <TopBar title="Add Orders to Route" />
+        <TopBar title={t('addOrdersToRoute')} />
         <View style={styles.centerContent}>
           <ActivityIndicator size="large" color={Colors.light.primary} />
-          <Text style={styles.loadingText}>Loading orders...</Text>
+          <Text style={styles.loadingText}>{t('loadingOrders')}</Text>
         </View>
       </SafeAreaView>
     );
@@ -173,7 +175,7 @@ export default function AddOrders() {
   if (error) {
     return (
       <SafeAreaView style={styles.container}>
-        <TopBar title="Add Orders to Route" />
+        <TopBar title={t('addOrdersToRoute')} />
         <View style={styles.centerContent}>
           <Text style={styles.errorText}>{error}</Text>
         </View>
@@ -183,7 +185,7 @@ export default function AddOrders() {
 
   return (
     <SafeAreaView style={styles.container}>
-      <TopBar title="Add Orders to Route" />
+      <TopBar title={t('addOrdersToRoute')} />
       
       <View style={styles.content}>
         {/* Search Bar */}
@@ -192,7 +194,7 @@ export default function AddOrders() {
             <Ionicons name="search" size={20} color={Colors.light.textSecondary} />
             <TextInput
               style={styles.searchInput}
-              placeholder="Search by invoice # or client..."
+              placeholder={t('searchByNameOrNumber')}
               value={searchQuery}
               onChangeText={setSearchQuery}
               placeholderTextColor={Colors.light.textSecondary}
@@ -208,11 +210,11 @@ export default function AddOrders() {
         {/* Section Header */}
         <View style={styles.sectionHeader}>
           <Text style={styles.sectionTitle}>
-            PENDING ORDERS ({pendingOrders.length})
+            {t('pendingOrders')} ({pendingOrders.length})
           </Text>
           {selectedOrders.size > 0 && (
             <TouchableOpacity onPress={clearSelection}>
-              <Text style={styles.clearButton}>Clear Selection</Text>
+              <Text style={styles.clearButton}>{t('clearSelection')}</Text>
             </TouchableOpacity>
           )}
         </View>
@@ -233,17 +235,17 @@ export default function AddOrders() {
           <View style={styles.selectionSummary}>
             <View style={styles.summaryInfo}>
               <Text style={styles.selectionCount}>
-                {selectedOrders.size} Order{selectedOrders.size !== 1 ? 's' : ''} Selected
+                {selectedOrders.size} {selectedOrders.size !== 1 ? t('orders') : t('order')} {t('ordersSelected')}
               </Text>
               <Text style={styles.selectionTotal}>
-                Total value: {formatPrice(calculateTotalValue())}
+                {t('totalValue')}: {formatPrice(calculateTotalValue())}
               </Text>
             </View>
             
             {/* Swipe Button */}
             <SwipeButton
               onSwipeComplete={handleAddToRoute}
-              text={isAddingToRoute ? 'Adding to Route...' : 'Slide to Add to Route'}
+              text={isAddingToRoute ? t('addingToRoute') : t('slideToAddToRoute')}
               isLoading={isAddingToRoute}
               iconName="rocket"
               style={styles.swipeButton}
