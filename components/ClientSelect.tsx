@@ -54,6 +54,7 @@ export function ClientSelect({
   defaultClientId,
   error,
   required,
+  style,
 }: ClientSelectProps) {
   const { t } = useTranslation();
   const colors = useThemeColor();
