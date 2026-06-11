@@ -8,6 +8,8 @@ interface Config {
   companyId: string;
   androidAdMobKey: string;
   mapboxAccessToken: string;
+  revenueCatIosKey: string;
+  revenueCatAndroidKey: string;
   isDevelopment: boolean;
   isProduction: boolean;
 }
@@ -19,6 +21,8 @@ const config: Config = {
   androidAdMobKey: process.env.EXPO_PUBLIC_ANDROID_ADMOB_KEY as string,
   companyId: process.env.EXPO_PUBLIC_COMPANY_ID as string,
   mapboxAccessToken: process.env.EXPO_PUBLIC_MAPBOX_ACCESS_TOKEN as string,
+  revenueCatIosKey: process.env.EXPO_PUBLIC_REVENUECAT_IOS_KEY as string,
+  revenueCatAndroidKey: process.env.EXPO_PUBLIC_REVENUECAT_ANDROID_KEY as string,
   env: "development",
   isDevelopment: true,
   isProduction: false,
