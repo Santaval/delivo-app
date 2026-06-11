@@ -248,5 +248,6 @@
   "paymentMethodNameRequired": "Please enter a payment method name",
   "payFull": "Pay Full",
   "paymentMethod": "Payment Method",
-  "amountToPay": "Amount to Pay"
+  "amountToPay": "Amount to Pay",
+  "account": "Account"
 }

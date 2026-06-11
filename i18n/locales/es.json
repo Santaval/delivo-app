@@ -249,5 +249,6 @@
   "paymentMethodNameRequired": "Ingrese un nombre para el método de pago",
   "payFull": "Pagar Total",
   "paymentMethod": "Método de Pago",
-  "amountToPay": "Monto a Pagar"
+  "amountToPay": "Monto a Pagar",
+  "account": "Cuenta"
 }
