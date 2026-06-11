@@ -1,5 +1,5 @@
+import MapboxGL from '@rnmapbox/maps';
 import { StyleSheet, Text, View } from 'react-native';
-import { Marker } from 'react-native-maps';
 
 type CustomViewMarkerProps = {
   coordinate: {
@@ -11,15 +11,14 @@ type CustomViewMarkerProps = {
 };
 
 export const CustomMarker = ({ coordinate, title, backgroundColor }: CustomViewMarkerProps) => (
-  <Marker
-    coordinate={coordinate}
-    anchor={{ x: 0.5, y: 0.5 }} // Optional: anchors the center of the view
-    onPress={() => console.log('Marker pressed')}
+  <MapboxGL.PointAnnotation
+    id={`marker-${coordinate.latitude}-${coordinate.longitude}`}
+    coordinate={[coordinate.longitude, coordinate.latitude]}
   >
     <View style={[styles.markerContainer, { backgroundColor }]}>
       <Text style={styles.markerText}>{title}</Text>
     </View>
-  </Marker>
+  </MapboxGL.PointAnnotation>
 );
 
 const styles = StyleSheet.create({
@@ -28,21 +27,17 @@ const styles = StyleSheet.create({
     height: 30,
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: 'white',
     borderRadius: 30,
     padding: 5,
-    elevation: 5, // Android shadow
-    shadowColor: '#000', // iOS shadow
+    elevation: 5,
+    shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.8,
     shadowRadius: 2,
   },
-  markerImage: {
-    width: 40,
-    height: 40,
-  },
   markerText: {
     fontSize: 8,
     textAlign: 'center',
+    color: '#fff',
   },
 });

@@ -68,7 +68,7 @@ export default function RouteFinishedScreen() {
   return (
     <SafeAreaView style={styles.container}>
       <TopBar title={t('routeSummary')} />
-      
+
       <ScrollView style={styles.content} showsVerticalScrollIndicator={false}>
         {/* Success Header */}
         <View style={styles.successHeader}>
@@ -87,12 +87,12 @@ export default function RouteFinishedScreen() {
             <Text style={styles.statLabel}>{t('distance')}</Text>
             <Text style={styles.statValue}>{totalDistance}<Text style={styles.statUnit}>{t('mi')}</Text></Text>
           </View>
-          
+
           <View style={styles.statCard}>
             <Text style={styles.statLabel}>{t('totalTime')}</Text>
             <Text style={styles.statValue}>{totalTime}</Text>
           </View>
-          
+
           <View style={styles.statCard}>
             <Text style={styles.statLabel}>{t('deliveries')}</Text>
             <Text style={styles.statValue}>
@@ -103,7 +103,7 @@ export default function RouteFinishedScreen() {
 
         {/* Route Map */}
         <View style={styles.mapContainer}>
-          <Map 
+          <Map
             markers={route.points.map((point, index) => ({
               coordinate: {
                 latitude: point.order.client.location.lat || 37.7749,
@@ -125,7 +125,7 @@ export default function RouteFinishedScreen() {
               {completedDeliveries.completed} {t('total')}
             </Text>
           </View>
-          
+
           <View style={styles.completedStopsList}>
             {route.points
               .filter(point => point.status === 'VISITED')
@@ -134,7 +134,7 @@ export default function RouteFinishedScreen() {
                   <View style={styles.completedStopCheck}>
                     <Ionicons name="checkmark" size={16} color={Colors.light.success} />
                   </View>
-                  
+
                   <View style={styles.completedStopContent}>
                     <Text style={styles.completedStopName}>{point.order.client.name}</Text>
                     <Text style={styles.completedStopAddress}>
