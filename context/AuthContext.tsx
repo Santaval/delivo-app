@@ -3,6 +3,7 @@ import AuthService from "@/services/auth/Auth.service";
 import { router } from "expo-router";
 import * as SecureStore from "expo-secure-store";
 import { createContext, useContext, useEffect, useState } from "react";
+import { markInteractive } from "expo-observe";
 
 /**
  * Represents the authentication state of the application
@@ -165,6 +166,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         setError(error instanceof Error ? error.message : "Failed to load user session");
       } finally {
         setLoading(false);
+        markInteractive();
       }
     };
 
