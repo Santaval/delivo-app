@@ -4,6 +4,7 @@ import useGeolsocation from '@/hooks/useGeolocation';
 import PlacesService from '@/services/geolocation/places.service';
 import { MaterialIcons } from '@expo/vector-icons';
 import React, { useCallback, useRef, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import {
   ActivityIndicator,
   Alert,
@@ -71,6 +72,7 @@ export function LocationSearch({
   required = false,
   style,
 }: LocationSearchProps) {
+  const { t } = useTranslation();
   const colors = useThemeColor();
   const { locations, autocomplete, clearLocations, isLoading } = useGeolsocation();
   
@@ -118,7 +120,7 @@ export function LocationSearch({
       onLocationSelect(placeDetails);
     } catch (error) {
       console.error('Error fetching place details:', error);
-      Alert.alert('Error', 'Failed to get location details. Please try again.');
+      Alert.alert(t('error'), t('failedToGetLocationDetails'));
     }
   }, [onLocationSelect, clearLocations]);
 

@@ -33,7 +33,7 @@ export default function RoutePlanningScreen() {
       
       {/* <View style={styles.stopTime}>
         <Text style={styles.timeText}>{formatEstimatedArrival(index)}</Text>
-        <Text style={styles.timeLabel}>Arrival Est.</Text>
+        <Text style={styles.timeLabel}>{t('arrivalEst')}</Text>
       </View> */}
     </View>
   );
@@ -41,10 +41,10 @@ export default function RoutePlanningScreen() {
   if (isLoading) {
     return (
       <SafeAreaView style={styles.container}>
-        <TopBar title="Route Map" />
+        <TopBar title={t('routeMap')} />
         <View style={styles.centerContent}>
           <ActivityIndicator size="large" color={Colors.light.primary} />
-          <Text style={styles.loadingText}>Loading route...</Text>
+          <Text style={styles.loadingText}>{t('loadingRoute')}</Text>
         </View>
       </SafeAreaView>
     );
@@ -53,9 +53,9 @@ export default function RoutePlanningScreen() {
   if (error || !route) {
     return (
       <SafeAreaView style={styles.container}>
-        <TopBar title="Route Map" />
+        <TopBar title={t('routeMap')} />
         <View style={styles.centerContent}>
-          <Text style={styles.errorText}>{error || 'Route not found'}</Text>
+          <Text style={styles.errorText}>{error || t('routeNotFound')}</Text>
         </View>
       </SafeAreaView>
     );

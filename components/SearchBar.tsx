@@ -1,9 +1,9 @@
-import { BorderRadius, Spacing, Typography } from '@/constants';
-import { useThemeColor } from '@/hooks/useColorScheme';
-import { MaterialIcons } from '@expo/vector-icons';
-import React, { useEffect, useRef, useState } from 'react';
-import { StyleSheet, TextInput, TouchableOpacity, View } from 'react-native';
-import { ThemedView } from './ThemedView';
+import { BorderRadius, Spacing, Typography } from "@/constants";
+import { useThemeColor } from "@/hooks/useColorScheme";
+import { MaterialIcons } from "@expo/vector-icons";
+import React, { useEffect, useRef, useState } from "react";
+import { StyleSheet, TextInput, TouchableOpacity, View } from "react-native";
+import { ThemedView } from "./ThemedView";
 
 export type SearchBarProps = {
   placeholder?: string;
@@ -16,10 +16,10 @@ export type SearchBarProps = {
 };
 
 export function SearchBar({
-  placeholder = 'Search by name or number...',
+  placeholder = "Search by name or number...",
   onSearch,
   debounceMs = 300,
-  initialValue = '',
+  initialValue = "",
   autoFocus = false,
   onClear,
   showClearButton = true,
@@ -51,7 +51,7 @@ export function SearchBar({
   }, [searchQuery, onSearch, debounceMs]);
 
   const handleClear = () => {
-    setSearchQuery('');
+    setSearchQuery("");
     if (onClear) {
       onClear();
     }
@@ -67,19 +67,21 @@ export function SearchBar({
   };
 
   return (
-    <ThemedView style={[
-      styles.container,
-      {
-        borderColor: isFocused ? colors.primary : colors.border,
-        backgroundColor: colors.surface,
-      }
-    ]}>
+    <ThemedView
+      style={[
+        styles.container,
+        {
+          borderColor: isFocused ? colors.primary : colors.border,
+          backgroundColor: colors.surface,
+        },
+      ]}
+    >
       {/* Search Icon */}
       <View style={styles.iconContainer}>
-        <MaterialIcons 
-          name="search" 
-          size={20} 
-          color={isFocused ? colors.primary : colors.textSecondary} 
+        <MaterialIcons
+          name="search"
+          size={20}
+          color={isFocused ? colors.primary : colors.textSecondary}
         />
       </View>
 
@@ -90,7 +92,7 @@ export function SearchBar({
           styles.input,
           {
             color: colors.text,
-          }
+          },
         ]}
         placeholder={placeholder}
         placeholderTextColor={colors.textSecondary}
@@ -111,11 +113,7 @@ export function SearchBar({
           onPress={handleClear}
           activeOpacity={0.7}
         >
-          <MaterialIcons 
-            name="close" 
-            size={20} 
-            color={colors.textSecondary} 
-          />
+          <MaterialIcons name="close" size={20} color={colors.textSecondary} />
         </TouchableOpacity>
       )}
     </ThemedView>
@@ -124,8 +122,8 @@ export function SearchBar({
 
 const styles = StyleSheet.create({
   container: {
-    flexDirection: 'row',
-    alignItems: 'center',
+    flexDirection: "row",
+    alignItems: "center",
     borderWidth: 1,
     borderRadius: BorderRadius.lg,
     paddingHorizontal: Spacing.md,

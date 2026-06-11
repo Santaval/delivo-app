@@ -23,7 +23,7 @@ export default function ClientLocationView({ client, onUpdateLocation }: ClientL
 
   const handleUpdateToCurrentLocation = async () => {
     if (!location) {
-      Alert.alert('Location Error', 'Unable to access your current location. Please enable location services.');
+      Alert.alert(t('locationError'), t('unableToAccessLocation'));
       return;
     }
 
@@ -39,10 +39,10 @@ export default function ClientLocationView({ client, onUpdateLocation }: ClientL
         await onUpdateLocation(newLocation);
       }
 
-      Alert.alert('Success', 'Client location updated successfully');
+      Alert.alert(t('success'), t('clientLocationUpdated'));
     } catch (error) {
       console.error('Error updating location:', error);
-      Alert.alert('Error', 'Failed to update location. Please try again.');
+      Alert.alert(t('error'), t('failedToUpdateLocation'));
     } finally {
       setIsUpdating(false);
     }
@@ -96,7 +96,7 @@ export default function ClientLocationView({ client, onUpdateLocation }: ClientL
 
         {/* Update Button */}
         <PrimaryButton
-          title={isUpdating ? 'Updating...' : t('updateToCurrentLocation')}
+          title={isUpdating ? t('updating') : t('updateToCurrentLocation')}
           onPress={handleUpdateToCurrentLocation}
           disabled={!location || isUpdating}
           style={styles.updateButton}

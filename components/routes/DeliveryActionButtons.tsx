@@ -1,6 +1,7 @@
 import { BorderRadius, Colors, Spacing, Typography } from '@/constants';
 import { Ionicons } from '@expo/vector-icons';
 import React from 'react';
+import { useTranslation } from 'react-i18next';
 import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 
 type DeliveryActionButtonsProps = {
@@ -12,6 +13,7 @@ const DeliveryActionButtons: React.FC<DeliveryActionButtonsProps> = ({
   onCall,
   onOpenGPS,
 }) => {
+  const { t } = useTranslation();
   return (
     <View style={styles.actionButtons}>
       <TouchableOpacity 
@@ -19,7 +21,7 @@ const DeliveryActionButtons: React.FC<DeliveryActionButtonsProps> = ({
         onPress={onCall}
       >
         <Ionicons name="call" size={20} color={Colors.light.primary} />
-        <Text style={styles.actionButtonText}>Call</Text>
+        <Text style={styles.actionButtonText}>{t('call')}</Text>
       </TouchableOpacity>
 
       <TouchableOpacity 
@@ -28,7 +30,7 @@ const DeliveryActionButtons: React.FC<DeliveryActionButtonsProps> = ({
       >
         <Ionicons name="navigate" size={20} color={Colors.light.textInverse} />
         <Text style={[styles.actionButtonText, styles.primaryActionButtonText]}>
-          Open GPS
+          {t('openGPS')}
         </Text>
       </TouchableOpacity>
     </View>

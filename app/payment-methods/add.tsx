@@ -5,6 +5,7 @@ import PaymentMethodsService from '@/services/paymentMethods/PaymentMethods.serv
 import { MaterialIcons } from '@expo/vector-icons';
 import { router } from 'expo-router';
 import React, { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import {
   Alert,
   KeyboardAvoidingView,
@@ -17,28 +18,29 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 export default function AddPaymentMethodScreen() {
+  const { t } = useTranslation();
   const colors = useThemeColor();
   const [name, setName] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const handleSave = async () => {
     if (!name.trim()) {
-      Alert.alert('Error', 'Please enter a payment method name');
+      Alert.alert(t('error'), t('paymentMethodNameRequired'));
       return;
     }
 
     setIsSubmitting(true);
     try {
       await PaymentMethodsService.create({ name: name.trim() });
-      Alert.alert('Success', 'Payment method created successfully', [
+      Alert.alert(t('success'), t('paymentMethodCreated'), [
         {
-          text: 'OK',
+          text: t('ok'),
           onPress: () => router.back(),
         },
       ]);
     } catch (error) {
       console.error('Error creating payment method:', error);
-      Alert.alert('Error', 'Failed to create payment method. Please try again.');
+      Alert.alert(t('error'), t('failedToCreatePaymentMethod'));
     } finally {
       setIsSubmitting(false);
     }
@@ -46,7 +48,7 @@ export default function AddPaymentMethodScreen() {
 
   return (
     <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]}>
-      <TopBar title="New Method" />
+      <TopBar title={t('newMethod')} />
 
       <KeyboardAvoidingView
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
@@ -63,7 +65,7 @@ export default function AddPaymentMethodScreen() {
           {/* Input Section */}
           <View style={styles.inputSection}>
             <ThemedText style={[styles.label, { color: colors.text }]}>
-              Payment Method Name
+              {t('paymentMethodName')}
             </ThemedText>
 
             <View
@@ -79,7 +81,7 @@ export default function AddPaymentMethodScreen() {
                 style={[styles.input, { color: colors.text }]}
                 value={name}
                 onChangeText={setName}
-                placeholder="e.g., Business Bank Account"
+                placeholder={t('enterPaymentMethodName')}
                 placeholderTextColor={colors.textSecondary}
                 autoFocus
                 returnKeyType="done"
@@ -93,8 +95,7 @@ export default function AddPaymentMethodScreen() {
             </View>
 
             <ThemedText style={[styles.hint, { color: colors.textSecondary }]}>
-              This name will appear in your transaction logs, automated tax reports,
-              and delivery optimization summaries.
+              {t('paymentMethodHint')}
             </ThemedText>
           </View>
 
@@ -114,7 +115,7 @@ export default function AddPaymentMethodScreen() {
         {/* Fixed Bottom Button */}
         <View style={[styles.buttonContainer, { backgroundColor: colors.background }]}>
           <PrimaryButton
-            title={isSubmitting ? 'Saving...' : 'Save Method'}
+            title={isSubmitting ? t('saving') : t('saveMethod')}
             onPress={handleSave}
             disabled={isSubmitting || !name.trim()}
           />

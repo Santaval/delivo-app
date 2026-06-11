@@ -4,6 +4,7 @@ import { Colors } from '@/constants/Colors';
 import ClientsService from '@/services/clients/Clients.service';
 import { useRouter } from 'expo-router';
 import React, { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Alert, KeyboardAvoidingView, Platform, ScrollView, StyleSheet, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { z } from 'zod';
@@ -21,6 +22,7 @@ type ClientFormData = z.infer<typeof clientSchema>;
 
 export default function AddClient() {
   const router = useRouter();
+  const { t } = useTranslation();
 
   const [formData, setFormData] = useState<ClientFormData>({
     name: '',
@@ -73,7 +75,7 @@ export default function AddClient() {
       router.push(`/clients/profile/${client.id}`);
     } catch (error) {
       console.error('Error creating client:', error);
-      Alert.alert('Error', 'Failed to create client. Please try again.');
+      Alert.alert(t('error'), t('failedToCreateClient'));
     } finally {
       setIsSubmitting(false);
     }
@@ -89,23 +91,23 @@ export default function AddClient() {
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
       >
         <TopBar
-          title="Add New Client"
+          title={t('addNewClient')}
         />
         <ScrollView showsVerticalScrollIndicator={false}>
           <ThemedView style={styles.content}>
-            <ThemedText style={styles.sectionTitle}>Contact details</ThemedText>
+            <ThemedText style={styles.sectionTitle}>{t('contactDetails')}</ThemedText>
 
             <FormField
-              label="Client name"
+              label={t('clientName')}
               value={formData.name}
               onChangeText={(value) => handleInputChange('name', value)}
-              placeholder="Enter client name"
+              placeholder={t('enterClientName')}
               error={errors.name}
               required
             />
 
             <FormField
-              label="Phone Number"
+              label={t('phoneNumber')}
               value={formData.phoneNumber}
               onChangeText={(value) => handleInputChange('phoneNumber', value)}
               placeholder="+506 8715 6553"
@@ -115,7 +117,7 @@ export default function AddClient() {
             />
 
             <FormField
-              label="Email"
+              label={t('email')}
               value={formData.email || ""}
               onChangeText={(value) => handleInputChange('email', value)}
               placeholder="contact@business.com"
@@ -125,8 +127,8 @@ export default function AddClient() {
             />
 
             <LocationSearch
-              label="Location"
-              placeholder="Search for a location..."
+              label={t('location')}
+              placeholder={t('searchForALocation')}
               onLocationSelect={(location) => {
                 handleInputChange('lat', location.latitude);
                 handleInputChange('lng', location.longitude);
@@ -143,13 +145,13 @@ export default function AddClient() {
 
             <View style={styles.buttonContainer}>
               <PrimaryButton
-                title="Cancel"
+                title={t('cancel')}
                 onPress={handleCancel}
                 variant="outline"
                 style={styles.cancelButton}
               />
               <PrimaryButton
-                title={isSubmitting ? "Creating..." : "Create Client"}
+                title={isSubmitting ? t('creatingClient') : t('createClient')}
                 onPress={handleSubmit}
                 disabled={isSubmitting}
                 style={styles.submitButton}

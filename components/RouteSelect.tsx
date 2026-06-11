@@ -3,6 +3,7 @@ import { useThemeColor } from '@/hooks';
 import useRoutes from '@/hooks/useRoutes';
 import { Ionicons } from '@expo/vector-icons';
 import React, { useMemo, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import {
   ActivityIndicator,
   FlatList,
@@ -30,6 +31,7 @@ export default function RouteSelect({
   selectedRoute,
   disabled = false,
 }: RouteSelectProps) {
+  const { t } = useTranslation();
   const [isModalVisible, setIsModalVisible] = useState(false);
   const { routes, loading, error, filterByStatus } = useRoutes();
   const colors = useThemeColor();
@@ -95,9 +97,9 @@ export default function RouteSelect({
   const renderEmptyState = () => (
     <View style={styles.emptyState}>
       <Ionicons name="map-outline" size={48} color={colors.textTertiary} />
-      <Text style={styles.emptyStateTitle}>No Routes Found</Text>
+      <Text style={styles.emptyStateTitle}>{t('noRoutesFound')}</Text>
       <Text style={styles.emptyStateMessage}>
-        No routes with status "{getStatusLabel(status)}" available.
+        {t('noRoutesWithStatusAvailable', { status: getStatusLabel(status) })}
       </Text>
     </View>
   );
@@ -107,7 +109,7 @@ export default function RouteSelect({
       return (
         <View style={styles.loadingState}>
           <ActivityIndicator size="large" color={colors.primary} />
-          <Text style={styles.loadingText}>Loading routes...</Text>
+          <Text style={styles.loadingText}>{t('loadingRoutes')}</Text>
         </View>
       );
     }
@@ -116,7 +118,7 @@ export default function RouteSelect({
       return (
         <View style={styles.errorState}>
           <Ionicons name="alert-circle-outline" size={48} color={colors.danger} />
-          <Text style={styles.errorTitle}>Error Loading Routes</Text>
+          <Text style={styles.errorTitle}>{t('failedToLoadRoutes')}</Text>
           <Text style={styles.errorMessage}>{error}</Text>
         </View>
       );

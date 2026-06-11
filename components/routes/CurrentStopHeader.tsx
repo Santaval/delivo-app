@@ -1,6 +1,7 @@
 import { Colors, Spacing, Typography } from '@/constants';
 import { Ionicons } from '@expo/vector-icons';
 import React from 'react';
+import { useTranslation } from 'react-i18next';
 import { StyleSheet, Text, View } from 'react-native';
 
 type CurrentStopHeaderProps = {
@@ -8,6 +9,7 @@ type CurrentStopHeaderProps = {
 };
 
 const CurrentStopHeader: React.FC<CurrentStopHeaderProps> = ({ clientName }) => {
+  const { t } = useTranslation();
   return (
     <View>
       {/* Current Stop Header */}
@@ -15,7 +17,7 @@ const CurrentStopHeader: React.FC<CurrentStopHeaderProps> = ({ clientName }) => 
         <View style={styles.stopIndicator}>
           <Ionicons name="location" size={16} color={Colors.light.primary} />
         </View>
-        <Text style={styles.currentStopLabel}>CURRENT STOP</Text>
+        <Text style={styles.currentStopLabel}>{t('currentStopLabel')}</Text>
       </View>
 
       {/* Client Details */}

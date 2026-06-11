@@ -1,17 +1,21 @@
-import { BorderRadius, Colors, Shadows, Spacing, Typography } from '@/constants';
-import { useThemeColor } from '@/hooks/useColorScheme';
-import { MaterialIcons } from '@expo/vector-icons';
-import React from 'react';
-import { Image, StyleSheet, TouchableOpacity, View } from 'react-native';
-import { ThemedText } from './ThemedText';
-import { ThemedView } from './ThemedView';
+import {
+  BorderRadius,
+  Colors,
+  Shadows,
+  Spacing,
+  Typography,
+} from "@/constants";
+import { useThemeColor } from "@/hooks/useColorScheme";
+import React from "react";
+import { Image, StyleSheet, TouchableOpacity, View } from "react-native";
+import { ThemedText } from "./ThemedText";
+import { ThemedView } from "./ThemedView";
 
 export type ClientCardProps = {
   name: string;
   phone?: string;
   profileImage?: any; // Image source
   onPress?: () => void;
-  onEditPress?: () => void;
   showEditIcon?: boolean;
 };
 
@@ -20,8 +24,6 @@ export function ClientCard({
   phone,
   profileImage,
   onPress = () => console.log(`${name} pressed`),
-  onEditPress = () => console.log(`Edit ${name} pressed`),
-  showEditIcon = true,
 }: ClientCardProps) {
   const colors = useThemeColor();
 
@@ -34,8 +36,10 @@ export function ClientCard({
       <ThemedView style={styles.content}>
         {/* Profile Image */}
         <View style={styles.imageContainer}>
-          <Image 
-            source={profileImage || require('@/assets/images/user-placeholder.png')}
+          <Image
+            source={
+              profileImage || require("@/assets/images/user-placeholder.png")
+            }
             style={styles.profileImage}
             resizeMode="cover"
           />
@@ -43,28 +47,11 @@ export function ClientCard({
 
         {/* Client Info */}
         <View style={styles.clientInfo}>
-          <ThemedText style={styles.name}>
-            {name}
-          </ThemedText>
+          <ThemedText style={styles.name}>{name}</ThemedText>
           <ThemedText variant="caption" style={styles.phone}>
             {phone}
           </ThemedText>
         </View>
-
-        {/* Edit Icon */}
-        {showEditIcon && (
-          <TouchableOpacity 
-            style={styles.editButton}
-            onPress={onEditPress}
-            activeOpacity={0.7}
-          >
-            <MaterialIcons 
-              name="edit" 
-              size={20} 
-              color={colors.primary} 
-            />
-          </TouchableOpacity>
-        )}
       </ThemedView>
     </TouchableOpacity>
   );
@@ -75,8 +62,8 @@ const styles = StyleSheet.create({
     marginVertical: Spacing.xs,
   },
   content: {
-    flexDirection: 'row',
-    alignItems: 'center',
+    flexDirection: "row",
+    alignItems: "center",
     padding: Spacing.lg,
     borderRadius: BorderRadius.lg,
     backgroundColor: Colors.light.background,
@@ -89,7 +76,7 @@ const styles = StyleSheet.create({
     width: 48,
     height: 48,
     borderRadius: 24,
-    backgroundColor: '#f0f0f0', // Fallback background
+    backgroundColor: "#f0f0f0", // Fallback background
   },
   clientInfo: {
     flex: 1,
@@ -105,7 +92,7 @@ const styles = StyleSheet.create({
   },
   editButton: {
     padding: Spacing.sm,
-    justifyContent: 'center',
-    alignItems: 'center',
+    justifyContent: "center",
+    alignItems: "center",
   },
 });

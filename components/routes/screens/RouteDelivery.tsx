@@ -34,7 +34,7 @@ export default function RouteDeliveryScreen() {
 
     } catch (error) {
       console.error('Failed to complete delivery:', error);
-      Alert.alert('Error', 'Failed to complete delivery. Please try again.');
+      Alert.alert(t('error'), t('failedToCompleteDelivery'));
     } finally {
       setIsCompletingDelivery(false);
     }
@@ -44,7 +44,7 @@ export default function RouteDeliveryScreen() {
     if (currentPoint?.order.client.phoneNumber) {
       Linking.openURL(`tel:${currentPoint.order.client.phoneNumber}`);
     } else {
-      Alert.alert('No Phone Number', 'No phone number available for this client.');
+      Alert.alert(t('error'), t('noPhoneNumber'));
     }
   };
 
@@ -67,7 +67,7 @@ export default function RouteDeliveryScreen() {
   if (isLoading) {
     return (
       <SafeAreaView style={styles.container}>
-        <TopBar title="Delivery" />
+        <TopBar title={t('delivery')} />
         <View style={styles.centerContent}>
           <ActivityIndicator size="large" color={Colors.light.primary} />
           <Text style={styles.loadingText}>{t("loadingDelivery")}</Text>
@@ -79,9 +79,9 @@ export default function RouteDeliveryScreen() {
   if (error || !route || !currentPoint) {
     return (
       <SafeAreaView style={styles.container}>
-        <TopBar title="Delivery" />
+        <TopBar title={t('delivery')} />
         <View style={styles.centerContent}>
-          <Text style={styles.errorText}>{error || 'No active delivery found'}</Text>
+          <Text style={styles.errorText}>{error || t('noActiveDeliveryFound')}</Text>
         </View>
       </SafeAreaView>
     );
@@ -91,7 +91,7 @@ export default function RouteDeliveryScreen() {
 
   return (
     <SafeAreaView style={styles.container}>
-      <TopBar title="Current Delivery" />
+      <TopBar title={t('currentDelivery')} />
       
       <View style={styles.content}>
         {/* Map Section */}

@@ -1,6 +1,7 @@
 import { MaterialIcons } from '@expo/vector-icons';
 import { router } from 'expo-router';
 import React from 'react';
+import { useTranslation } from 'react-i18next';
 import {
   ActivityIndicator,
   Alert,
@@ -15,6 +16,7 @@ import { BorderRadius, Colors, Shadows, Spacing, Typography } from '../../consta
 import { useCompanies } from '../../context/CompaniesContext';
 
 export default function CompanySelectPage() {
+  const { t } = useTranslation();
   const { companies, selectCompany, activeCompany } = useCompanies();
 
   const handleSelectCompany = async (companyId: string) => {
@@ -22,7 +24,7 @@ export default function CompanySelectPage() {
       await selectCompany(companyId);
       router.replace('/');
     } catch (error) {
-      Alert.alert('Error', 'Failed to select company. Please try again.');
+      Alert.alert(t('error'), t('failedToSelectCompany'));
     }
   };
 
@@ -50,7 +52,7 @@ export default function CompanySelectPage() {
         <StatusBar barStyle="dark-content" backgroundColor={Colors.light.background} />
         <ThemedView style={styles.centerContent}>
           <ActivityIndicator size="large" color={Colors.light.primary} />
-          <ThemedText style={styles.loadingText}>Loading companies...</ThemedText>
+          <ThemedText style={styles.loadingText}>{t('loadingCompanies')}</ThemedText>
         </ThemedView>
       </SafeAreaView>
     );
@@ -61,8 +63,8 @@ export default function CompanySelectPage() {
       <StatusBar barStyle="dark-content" backgroundColor={Colors.light.background} />
       <ThemedView style={styles.container}>
         <View style={styles.header}>
-          <ThemedText style={styles.title}>Select Company</ThemedText>
-          <ThemedText style={styles.subtitle}>Choose which company you want to work with</ThemedText>
+          <ThemedText style={styles.title}>{t('selectCompany')}</ThemedText>
+          <ThemedText style={styles.subtitle}>{t('chooseCompanyToWorkWith')}</ThemedText>
         </View>
 
         <View style={styles.companiesList}>
@@ -119,7 +121,7 @@ export default function CompanySelectPage() {
 
         <View style={styles.addButtonContainer}>
           <PrimaryButton
-            title="Add New Company"
+            title={t('addNewCompany')}
             onPress={handleAddNewCompany}
             style={styles.addButton}
           />

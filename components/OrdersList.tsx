@@ -4,6 +4,7 @@ import React, { useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { RefreshControl, ScrollView, StyleSheet, TouchableOpacity, View } from 'react-native';
 import { OrderCard } from './OrderCard';
+import { OrderCardSkeleton } from './OrderCardSkeleton';
 import { ThemedText } from './ThemedText';
 import { ThemedView } from './ThemedView';
 
@@ -14,9 +15,10 @@ export type OrdersListProps = {
   onOrderPress?: (orderId: string) => void;
   onRefresh: () => void;
   isRefreshing: boolean;
+  loading?: boolean;
 };
 
-export function OrdersList({ orders, onOrderPress, onRefresh, isRefreshing }: OrdersListProps) {
+export function OrdersList({ orders, onOrderPress, onRefresh, isRefreshing, loading }: OrdersListProps) {
   const colors = useThemeColor();
   const { t } = useTranslation();
   const [activeTab, setActiveTab] = useState<TabType>('ALL');
@@ -118,7 +120,7 @@ export function OrdersList({ orders, onOrderPress, onRefresh, isRefreshing }: Or
       </View>
 
       {/* Orders List */}
-      <ScrollView 
+      <ScrollView
         style={styles.ordersContainer}
         contentContainerStyle={styles.ordersContent}
         showsVerticalScrollIndicator={false}
@@ -126,13 +128,14 @@ export function OrdersList({ orders, onOrderPress, onRefresh, isRefreshing }: Or
           <RefreshControl refreshing={isRefreshing} onRefresh={onRefresh} />
         }
       >
-        {filteredOrders.length > 0 ? (
+        {loading ? (
+          Array.from({ length: 6 }).map((_, i) => <OrderCardSkeleton key={i} />)
+        ) : filteredOrders.length > 0 ? (
           filteredOrders.map((order) => (
             <OrderCard
               key={order.id}
               order={order}
               onPress={onOrderPress}
-
             />
           ))
         ) : (

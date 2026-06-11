@@ -6,6 +6,7 @@ import {
 } from '@/components';
 import ClientCompactCard from '@/components/clients/ClientCompactCard';
 import CurrencyText from '@/components/currency/CurrencyText';
+import AddProductsModal from '@/components/orders/AddProductsModal';
 import OrderStatusBadge from '@/components/orders/OrderStatusBadge';
 import { BorderRadius, Shadows, Spacing, Typography } from '@/constants';
 import { Colors } from '@/constants/Colors';
@@ -35,6 +36,7 @@ type LineItemRowProps = {
 
 const LineItemRow: React.FC<LineItemRowProps> = ({ item, onRemove }) => {
   const colors = useThemeColor();
+  const { t } = useTranslation();
 
   const itemTotal = item.pricing.totalPrice * item.quantity;
 
@@ -44,12 +46,15 @@ const LineItemRow: React.FC<LineItemRowProps> = ({ item, onRemove }) => {
         <View style={styles.lineItemLeft}>
           <ThemedText style={[styles.productName, { color: colors.text }]}>
             <MaterialIcons name="delete" size={24} color={colors.danger} onPress={() => onRemove(item.id)} />
-
             {item.name}
           </ThemedText>
+          {item.deletedAt && (
+            <ThemedText style={[styles.unitPrice, { color: colors.danger }]}>
+              {t("deleted")}
+            </ThemedText>
+          )}
           <CurrencyText style={[styles.unitPrice, { color: colors.textSecondary }]} amount={item.pricing.totalPrice} />
         </View>
-
         <View style={styles.lineItemRight}>
           <ThemedText style={[styles.quantity, { color: colors.text }]}>
             {item.quantity}
@@ -69,6 +74,7 @@ export default function OrderDetailsPage() {
   const { t } = useTranslation();
   const { order, loading, error, refresh, addItems, removeItem, markAsDelivered } = useOrder(id);
   const [showAddProductsModal, setShowAddProductsModal] = useState(false);
+  const isSomeProductDeleted = order?.items.some(item => item.deletedAt);
 
   const onMarkAsDelivered = async () => {
     try {
@@ -109,10 +115,10 @@ export default function OrderDetailsPage() {
         <View style={styles.centerContent}>
           <MaterialIcons name="error-outline" size={48} color={colors.danger} />
           <ThemedText style={[styles.errorText, { color: colors.danger }]}>
-            {error || 'Order not found'}
+            {error || t('orderNotFound')}
           </ThemedText>
           <PrimaryButton
-            title="Try Again"
+            title={t('tryAgain')}
             onPress={refresh}
             style={styles.retryButton}
           />
@@ -242,12 +248,25 @@ export default function OrderDetailsPage() {
         {/* Action Buttons */}
         <View style={styles.actionButtons}>
 
+          {isSomeProductDeleted && (
+            <ThemedText style={[styles.warningMessage, { color: colors.danger }]}>
+              {t('deletedProductsWarningMessage')}
+            </ThemedText>
+          )}
+
           <PrimaryButton
             title={t("generateBill")}
             onPress={onMarkAsDelivered}
+            disabled={isSomeProductDeleted}
             style={{ marginTop: Spacing.md }}
           />
         </View>
+
+        <AddProductsModal
+          onAdd={addItems}
+          onClose={() => setShowAddProductsModal(false)}
+          visible={showAddProductsModal}
+        />
       </ScrollView>
     </SafeAreaView>
   );
@@ -429,5 +448,10 @@ const styles = StyleSheet.create({
   },
   actionButton: {
     marginBottom: Spacing.sm,
+  },
+  warningMessage: {
+    fontSize: Typography.fontSize.sm,
+    textAlign: 'center',
+    marginBottom: Spacing.md,
   },
 });

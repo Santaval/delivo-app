@@ -19,7 +19,7 @@ export default function Clients() {
   if (error) {
     return (
       <SafeAreaView>
-        <Text>Error: {error}</Text>
+        <Text>{t('error')}: {error}</Text>
       </SafeAreaView>
     );
   }
@@ -47,7 +47,7 @@ export default function Clients() {
             onPress={() => router.push(`/clients/profile/${client.id}`)}
           />
         ))}
-      </ScrollView> : <Text>Loading...</Text>}
+      </ScrollView> : <Text>{t('loading')}...</Text>}
 
       <FloatingActionButton
         onPress={handleAddClient}

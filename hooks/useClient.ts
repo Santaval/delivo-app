@@ -27,6 +27,35 @@ const useClient = (clientId: string) => {
     }
   };
 
+  const updateClient = async (data: Partial<Client>) => {
+    if (!client) return;
+
+    try {
+      setLoading(true);
+      const updatedClient = await ClientsService.updateClient(clientId, { ...client, ...data });
+      setClient(updatedClient);
+      return updatedClient;
+    } catch (err) {
+      console.error('Failed to update client:', err);
+      throw err;
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const deleteClient = async () => {
+    try {
+      setLoading(true);
+      await ClientsService.deleteClient(clientId);
+      setClient(null);
+    } catch (err) {
+      console.error('Failed to delete client:', err);
+      throw err;
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const updateLocation = async (location: LocationCords) => {
     if (!client) return;
 
@@ -52,6 +81,8 @@ const useClient = (clientId: string) => {
     loading,
     error,
     refreshClient: fetchClient,
+    updateClient,
+    deleteClient,
     updateLocation
   };
 }

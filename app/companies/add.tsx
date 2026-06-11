@@ -4,6 +4,7 @@ import CompaniesService from '@/services/companies/Companies.service';
 import { MaterialIcons } from '@expo/vector-icons';
 import { router } from 'expo-router';
 import React, { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import {
   Alert,
   KeyboardAvoidingView,
@@ -19,6 +20,7 @@ import { FormField, PrimaryButton, ThemedText } from '../../components';
 import { BorderRadius, Colors, Spacing, Typography } from '../../constants';
 
 export default function AddCompanyPage() {
+  const { t } = useTranslation();
   const [name, setName] = useState('');
   const [taxId, setTaxId] = useState('');
   const [isLoading, setIsLoading] = useState(false);
@@ -27,7 +29,7 @@ export default function AddCompanyPage() {
 
   const handleSubmit = async () => {
     if (!name.trim()) {
-      Alert.alert('Error', 'Company name is required');
+      Alert.alert(t('error'), t('companyNameIsRequired'));
       return;
     }
 
@@ -39,7 +41,7 @@ export default function AddCompanyPage() {
       router.replace('/companies/select');
       
     } catch (error) {
-      Alert.alert('Error', 'Failed to create company. Please try again.');
+      Alert.alert(t('error'), t('failedToCreateCompany'));
     } finally {
       setIsLoading(false);
     }
@@ -58,7 +60,7 @@ export default function AddCompanyPage() {
         >
           <MaterialIcons name="arrow-back" size={24} color={Colors.light.text} />
         </TouchableOpacity>
-        <ThemedText style={styles.headerTitle}>Add New Company</ThemedText>
+        <ThemedText style={styles.headerTitle}>{t('addNewCompany')}</ThemedText>
         <View style={styles.placeholder} />
       </View>
       
@@ -68,22 +70,22 @@ export default function AddCompanyPage() {
       >
         <ScrollView style={styles.scrollView} contentContainerStyle={styles.content}>
           <View style={styles.form}>
-            <ThemedText style={styles.sectionTitle}>Company Information</ThemedText>
+            <ThemedText style={styles.sectionTitle}>{t('companyInformation')}</ThemedText>
             
             <FormField
-              label="Company Name"
+              label={t('companyName')}
               value={name}
               onChangeText={setName}
-              placeholder="Enter company name"
+              placeholder={t('enterCompanyName')}
               required
               autoCapitalize="words"
             />
 
             <FormField
-              label="Tax ID (Optional)"
+              label={t('taxIdOptional')}
               value={taxId}
               onChangeText={setTaxId}
-              placeholder="Enter tax identification number"
+              placeholder={t('enterTaxId')}
               autoCapitalize="characters"
             />
 
@@ -95,7 +97,7 @@ export default function AddCompanyPage() {
                 style={styles.infoIcon}
               />
               <ThemedText style={styles.infoText}>
-                You can add more company details like address and contact information later in the company settings.
+                {t('companyInfoLater')}
               </ThemedText>
             </View>
           </View>
@@ -103,7 +105,7 @@ export default function AddCompanyPage() {
 
         <View style={styles.buttonContainer}>
           <PrimaryButton
-            title={isLoading ? "Creating Company..." : "Create Company"}
+            title={isLoading ? t('creatingCompany') : t('createCompany')}
             onPress={handleSubmit}
             disabled={isLoading || !name.trim()}
           />

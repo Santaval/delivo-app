@@ -1,39 +1,43 @@
-import { FloatingActionButton, TopBar } from '@/components';
-import ProductCard from '@/components/ProductCard';
-import { SearchBar } from '@/components/SearchBar';
-import { ThemedText } from '@/components/ThemedText';
-import { ThemedView } from '@/components/ThemedView';
-import { Colors, Spacing, Typography } from '@/constants';
-import { useThemeColor } from '@/hooks/useColorScheme';
-import useProducts from '@/hooks/useProducts';
-import { MaterialIcons } from '@expo/vector-icons';
-import { router } from 'expo-router';
-import React, { useState } from 'react';
-import { useTranslation } from 'react-i18next';
-import { RefreshControl, ScrollView, StatusBar, StyleSheet, View } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import { FloatingActionButton, TopBar } from "@/components";
+import { ProductsList } from "@/components/products/ProductsList";
+import { SearchBar } from "@/components/SearchBar";
+import { ThemedView } from "@/components/ThemedView";
+import { Colors, Spacing, Typography } from "@/constants";
+import { useThemeColor } from "@/hooks/useColorScheme";
+import useProducts from "@/hooks/useProducts";
+import { router } from "expo-router";
+import React, { useState } from "react";
+import { useTranslation } from "react-i18next";
+import {
+  StatusBar,
+  StyleSheet,
+  View
+} from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
 
 export default function Products() {
   const colors = useThemeColor();
   const { products, loading, error, refresh } = useProducts();
-  const [searchQuery, setSearchQuery] = useState('');
+  const [searchQuery, setSearchQuery] = useState("");
   const { t } = useTranslation();
 
   // Filter products based on search query
-  const filteredProducts = products.filter(product =>
-    product.name.toLowerCase().includes(searchQuery.toLowerCase())
+  const filteredProducts = products.filter((product) =>
+    product.name.toLowerCase().includes(searchQuery.toLowerCase()),
   );
 
-  const handleEditProduct = (productId: string) => {
-    // TODO: Navigate to edit product screen
-    console.log('Edit product:', productId);
+  const handlePress = (productId: string) => {
+    router.push({
+      pathname: "/products/view/[id]",
+      params: { id: productId }
+    });
   };
 
   return (
     <SafeAreaView style={styles.container}>
-      <TopBar title='Products' />
+      <TopBar title={t('products')} />
       <StatusBar barStyle="dark-content" backgroundColor={colors.background} />
-      
+
       <ThemedView style={{ flex: 1 }}>
         {/* Search Section */}
         <View style={styles.searchContainer}>
@@ -45,58 +49,17 @@ export default function Products() {
         </View>
 
         {/* Content */}
-        <ScrollView 
-          style={styles.scrollView}
-          contentContainerStyle={styles.scrollContent}
-          showsVerticalScrollIndicator={false}
-          refreshControl={<RefreshControl refreshing={loading} onRefresh={refresh} />}
-        >
-          {/* Section Header */}
-          <View style={styles.sectionHeader}>
-            <ThemedText style={styles.sectionTitle}>{t("stockItems")}</ThemedText>
-            <View style={styles.totalContainer}>
-              <ThemedText style={styles.totalText}>{filteredProducts.length} Total</ThemedText>
-            </View>
-          </View>
-          
-
-          {/* Product Cards */}
-          <View style={styles.productsList}>
-            {filteredProducts.map((product) => (
-              <ProductCard 
-                key={product.id} 
-                item={product} 
-                onEdit={handleEditProduct}
-              />
-            ))}
-          </View>
-
-          {/* Empty State */}
-          {filteredProducts.length === 0 && (
-            <View style={styles.emptyState}>
-              <MaterialIcons 
-                name="inventory-2" 
-                size={64} 
-                color={colors.textTertiary || Colors.light.textTertiary} 
-              />
-              <ThemedText style={styles.emptyTitle}>
-                {searchQuery ? 'No products found' : 'No products yet'}
-              </ThemedText>
-              <ThemedText style={styles.emptySubtitle}>
-                {searchQuery 
-                  ? `No products match "${searchQuery}"`
-                  : 'Add your first product to get started'
-                }
-              </ThemedText>
-            </View>
-          )}
-        
-        </ScrollView>
+        <ProductsList
+          products={filteredProducts}
+          onProductPress={handlePress}
+          isRefreshing={loading}
+          onRefresh={refresh}
+        />
       </ThemedView>
       <FloatingActionButton
-          icon="add"
-          onPress={() => router.push('/products/add')}
-        />
+        icon="add"
+        onPress={() => router.push("/products/add")}
+      />
     </SafeAreaView>
   );
 }
@@ -108,8 +71,6 @@ const styles = StyleSheet.create({
     backgroundColor: Colors.light.backgroundSecondary,
   },
   searchContainer: {
-    paddingHorizontal: Spacing.lg,
-    paddingVertical: Spacing.md,
     borderBottomWidth: 1,
     borderBottomColor: Colors.light.border,
   },
@@ -120,9 +81,9 @@ const styles = StyleSheet.create({
     paddingBottom: Spacing.xl,
   },
   sectionHeader: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
     paddingHorizontal: Spacing.lg,
     paddingVertical: Spacing.md,
     backgroundColor: Colors.light.backgroundSecondary,
@@ -149,8 +110,8 @@ const styles = StyleSheet.create({
   },
   emptyState: {
     flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
+    justifyContent: "center",
+    alignItems: "center",
     paddingVertical: Spacing.xl * 2,
     paddingHorizontal: Spacing.xl,
   },
@@ -159,12 +120,12 @@ const styles = StyleSheet.create({
     fontWeight: Typography.fontWeight.semibold,
     marginTop: Spacing.md,
     marginBottom: Spacing.xs,
-    textAlign: 'center',
+    textAlign: "center",
   },
   emptySubtitle: {
     fontSize: Typography.fontSize.sm,
     color: Colors.light.textSecondary,
-    textAlign: 'center',
+    textAlign: "center",
     lineHeight: 20,
   },
 });
