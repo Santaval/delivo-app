@@ -1,3 +1,5 @@
+import { toast } from "@/context/ToastContext";
+import i18n from "@/i18n";
 import OrdersService from "@/services/orders/Orders.service";
 import { useEffect, useState } from "react";
 
@@ -10,11 +12,14 @@ const useOrders = () => {
   const fetchOrders = async () => {
     try {
       setLoading(true);
+      setError(null);
       const response = await OrdersService.all();
       setOrders(response);
       setOriginalOrders(response);
     } catch (err) {
-      setError('Failed to load orders');
+      setError(i18n.t('loadFailedError'));
+      // Keep stale data visible but tell the user the refresh failed
+      if (originalOrders.length > 0) toast.error(i18n.t('loadFailedError'));
       console.error('Error fetching orders:', err);
     } finally {
       setLoading(false);

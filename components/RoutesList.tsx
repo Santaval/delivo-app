@@ -3,6 +3,9 @@ import { useThemeColor } from '@/hooks/useColorScheme';
 import React, { useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { RefreshControl, ScrollView, StyleSheet, TouchableOpacity, View } from 'react-native';
+import { EmptyState } from './feedback/EmptyState';
+import { ErrorState } from './feedback/ErrorState';
+import { ListSkeleton } from './feedback/Skeleton';
 import { RouteCard } from './RouteCard';
 import { ThemedText } from './ThemedText';
 import { ThemedView } from './ThemedView';
@@ -15,9 +18,12 @@ export type RoutesListProps = {
   onRouteDetailsPress?: (routeId: string) => void;
   isRefreshing: boolean;
   onRefresh: () => void;
+  loading?: boolean;
+  error?: string | null;
+  onCreateFirst?: () => void;
 };
 
-export function RoutesList({ routes, onRoutePress, onRouteDetailsPress, isRefreshing, onRefresh }: RoutesListProps) {
+export function RoutesList({ routes, onRoutePress, onRouteDetailsPress, isRefreshing, onRefresh, loading, error, onCreateFirst }: RoutesListProps) {
   const colors = useThemeColor();
   const [activeTab, setActiveTab] = useState<TabType>('all');
   const { t } = useTranslation();
@@ -100,46 +106,15 @@ export function RoutesList({ routes, onRoutePress, onRouteDetailsPress, isRefres
     );
   };
 
-  const renderEmptyState = () => {
-    const getEmptyMessage = () => {
-      switch (activeTab) {
-        case 'created':
-          return 'No routes created yet';
-        case 'started':
-          return 'No routes in progress';
-        case 'completed':
-          return 'No completed routes';
-        case 'all':
-        default:
-          return 'No routes yet';
-      }
-    };
-
-    const getEmptySubtitle = () => {
-      switch (activeTab) {
-        case 'created':
-          return 'New routes will appear here';
-        case 'started':
-          return 'Active routes will appear here';
-        case 'completed':
-          return 'Finished routes will appear here';
-        case 'all':
-        default:
-          return 'Create your first route to get started';
-      }
-    };
-
-    return (
-      <View style={styles.emptyState}>
-        <ThemedText style={styles.emptyTitle}>
-          {getEmptyMessage()}
-        </ThemedText>
-        <ThemedText style={styles.emptySubtitle}>
-          {getEmptySubtitle()}
-        </ThemedText>
-      </View>
-    );
-  };
+  const renderEmptyState = () => (
+    <EmptyState
+      icon="map"
+      title={t('noRoutesYet')}
+      subtitle={activeTab === 'all' ? t('noRoutesYetSubtitle') : undefined}
+      actionLabel={activeTab === 'all' && onCreateFirst ? t('createRoute') : undefined}
+      onAction={activeTab === 'all' ? onCreateFirst : undefined}
+    />
+  );
 
   return (
     <ThemedView style={styles.container}>
@@ -163,7 +138,11 @@ export function RoutesList({ routes, onRoutePress, onRouteDetailsPress, isRefres
           <RefreshControl refreshing={isRefreshing} onRefresh={onRefresh} />
         }
       >
-        {filteredRoutes.length > 0 ? (
+        {loading ? (
+          <ListSkeleton />
+        ) : error && routes.length === 0 ? (
+          <ErrorState message={error} onRetry={onRefresh} />
+        ) : filteredRoutes.length > 0 ? (
           filteredRoutes.map((route) => (
             <RouteCard
               key={route.id}

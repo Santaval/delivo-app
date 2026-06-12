@@ -3,6 +3,9 @@ import { useThemeColor } from '@/hooks/useColorScheme';
 import React, { useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { RefreshControl, ScrollView, StyleSheet, TouchableOpacity, View } from 'react-native';
+import { EmptyState } from '../feedback/EmptyState';
+import { ErrorState } from '../feedback/ErrorState';
+import { ListSkeleton } from '../feedback/Skeleton';
 import { ThemedText } from '../ThemedText';
 import { ThemedView } from '../ThemedView';
 import { BillCard } from './BillCard';
@@ -14,9 +17,11 @@ export type BillListProps = {
   onOrderPress?: (orderId: string) => void;
   onRefresh: () => void;
   isRefreshing: boolean;
+  loading?: boolean;
+  error?: string | null;
 };
 
-export function BillsList({ orders, onOrderPress, onRefresh, isRefreshing }: BillListProps) {
+export function BillsList({ orders, onOrderPress, onRefresh, isRefreshing, loading, error }: BillListProps) {
   const colors = useThemeColor();
   const { t } = useTranslation();
   const [activeTab, setActiveTab] = useState<TabType>('ALL');
@@ -85,19 +90,13 @@ export function BillsList({ orders, onOrderPress, onRefresh, isRefreshing }: Bil
     );
   };
 
-  const renderEmptyState = () => {
-    
-
-    return (
-      <View style={styles.emptyState}>
-        <ThemedText style={styles.emptyTitle}>
-          {activeTab === 'ALL' && 'No orders yet'}
-          {activeTab === 'PAID' && 'No paid orders yet'}
-          {activeTab === 'PENDING' && 'No pending orders yet'}
-        </ThemedText>
-      </View>
-    );
-  };
+  const renderEmptyState = () => (
+    <EmptyState
+      icon="receipt"
+      title={t('noBillsYet')}
+      subtitle={activeTab === 'ALL' ? t('noBillsYetSubtitle') : undefined}
+    />
+  );
 
   return (
     <ThemedView style={styles.container}>
@@ -121,7 +120,11 @@ export function BillsList({ orders, onOrderPress, onRefresh, isRefreshing }: Bil
           <RefreshControl refreshing={isRefreshing} onRefresh={onRefresh} />
         }
       >
-        {filteredOrders.length > 0 ? (
+        {loading ? (
+          <ListSkeleton />
+        ) : error && orders.length === 0 ? (
+          <ErrorState message={error} onRetry={onRefresh} />
+        ) : filteredOrders.length > 0 ? (
           filteredOrders.map((order) => (
             <BillCard
               key={order.id}

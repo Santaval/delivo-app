@@ -8,8 +8,8 @@ import { useTranslation } from 'react-i18next';
 import { StyleSheet } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
-export default function Clients() {
-  const { orders, loading, refresh, search } = useOrders();
+export default function Orders() {
+  const { orders, loading, error, refresh, search } = useOrders();
   const { t } = useTranslation();
 
   const handleAddOrder = () => {
@@ -33,7 +33,9 @@ export default function Clients() {
         orders={orders}
         isRefreshing={loading && orders.length > 0}
         loading={loading && orders.length === 0}
+        error={error}
         onRefresh={refresh}
+        onCreateFirst={handleAddOrder}
       />
       
       <FloatingActionButton

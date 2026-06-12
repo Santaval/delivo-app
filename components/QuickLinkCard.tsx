@@ -19,7 +19,7 @@ export function QuickLinkCard({
   subtitle,
   icon,
   iconColor,
-  onPress = () => console.log(`${title} pressed`),
+  onPress = () => {},
   showChevron = true,
 }: QuickLinkCardProps) {
   const colors = useThemeColor();

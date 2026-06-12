@@ -1,12 +1,12 @@
 import { useAuth } from '@/context/AuthContext';
 import { useCompanies } from '@/context/CompaniesContext';
+import { useToast } from '@/context/ToastContext';
 import CompaniesService from '@/services/companies/Companies.service';
 import { MaterialIcons } from '@expo/vector-icons';
 import { router } from 'expo-router';
 import React, { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
-  Alert,
   KeyboardAvoidingView,
   Platform,
   ScrollView,
@@ -26,10 +26,11 @@ export default function AddCompanyPage() {
   const [isLoading, setIsLoading] = useState(false);
   const { selectCompany } = useCompanies();
   const {refreshUser } = useAuth()
+  const toast = useToast();
 
   const handleSubmit = async () => {
     if (!name.trim()) {
-      Alert.alert(t('error'), t('companyNameIsRequired'));
+      toast.show({ message: t('companyNameIsRequired'), type: 'error' });
       return;
     }
 
@@ -39,9 +40,9 @@ export default function AddCompanyPage() {
       selectCompany(company.id);
       refreshUser();
       router.replace('/companies/select');
-      
+
     } catch (error) {
-      Alert.alert(t('error'), t('failedToCreateCompany'));
+      toast.show({ message: t('failedToCreateCompany'), type: 'error' });
     } finally {
       setIsLoading(false);
     }

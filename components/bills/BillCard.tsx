@@ -55,6 +55,8 @@ export function BillCard({
       style={styles.container}
       onPress={() => onPress && onPress(order.id)}
       activeOpacity={0.8}
+      accessibilityRole="button"
+      accessibilityLabel={`${order.client?.name ?? ''}, ${statusConfig.label}`}
     >
       <ThemedView style={[styles.card, { backgroundColor: colors.surface }]}>
         <View style={styles.content}>

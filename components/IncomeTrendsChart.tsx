@@ -31,7 +31,7 @@ export function IncomeTrendsChart({
   currency = '$',
   height = 180,
   showGrid = false,
-  onPress = () => console.log('Chart pressed'),
+  onPress = () => {},
 }: IncomeTrendsChartProps) {
   const colors = useThemeColor();
   const { width: screenWidth } = Dimensions.get('window');

@@ -1,10 +1,35 @@
 import { BorderRadius, Shadows, Spacing } from '@/constants';
 import { useThemeColor } from '@/hooks/useColorScheme';
-import React from 'react';
+import React, { useEffect } from 'react';
 import { StyleSheet, View } from 'react-native';
-import { SkeletonBox } from './feedback/Skeleton';
+import Animated, {
+  useAnimatedStyle,
+  useSharedValue,
+  withRepeat,
+  withSequence,
+  withTiming,
+} from 'react-native-reanimated';
 
-export function OrderCardSkeleton() {
+export function SkeletonBox({ style }: { style?: object }) {
+  const opacity = useSharedValue(1);
+
+  useEffect(() => {
+    opacity.value = withRepeat(
+      withSequence(
+        withTiming(0.4, { duration: 800 }),
+        withTiming(1, { duration: 800 }),
+      ),
+      -1,
+      false,
+    );
+  }, []);
+
+  const animatedStyle = useAnimatedStyle(() => ({ opacity: opacity.value }));
+
+  return <Animated.View style={[style, animatedStyle]} />;
+}
+
+export function GenericCardSkeleton() {
   const colors = useThemeColor();
   const shimmerColor = colors.backgroundSecondary;
 
@@ -12,18 +37,29 @@ export function OrderCardSkeleton() {
     <View style={[styles.card, { backgroundColor: colors.surface }]}>
       <View style={styles.content}>
         <View style={styles.leftSection}>
-          <SkeletonBox style={[styles.badge, { backgroundColor: shimmerColor }]} />
-          <View style={styles.orderInfo}>
-            <SkeletonBox style={[styles.lineWide, { backgroundColor: shimmerColor }]} />
-            <SkeletonBox style={[styles.lineMedium, { backgroundColor: shimmerColor }]} />
-            <SkeletonBox style={[styles.lineNarrow, { backgroundColor: shimmerColor }]} />
-          </View>
+          <SkeletonBox style={[styles.lineWide, { backgroundColor: shimmerColor }]} />
+          <SkeletonBox style={[styles.lineMedium, { backgroundColor: shimmerColor }]} />
         </View>
         <View style={styles.rightSection}>
           <SkeletonBox style={[styles.amount, { backgroundColor: shimmerColor }]} />
         </View>
       </View>
     </View>
+  );
+}
+
+export type ListSkeletonProps = {
+  count?: number;
+  Row?: React.ComponentType;
+};
+
+export function ListSkeleton({ count = 6, Row = GenericCardSkeleton }: ListSkeletonProps) {
+  return (
+    <>
+      {Array.from({ length: count }).map((_, i) => (
+        <Row key={i} />
+      ))}
+    </>
   );
 }
 
@@ -43,14 +79,6 @@ const styles = StyleSheet.create({
     flex: 1,
     gap: Spacing.sm,
   },
-  badge: {
-    width: 80,
-    height: 22,
-    borderRadius: BorderRadius.full,
-  },
-  orderInfo: {
-    gap: 6,
-  },
   lineWide: {
     width: '70%',
     height: 14,
@@ -58,11 +86,6 @@ const styles = StyleSheet.create({
   },
   lineMedium: {
     width: '50%',
-    height: 12,
-    borderRadius: BorderRadius.sm,
-  },
-  lineNarrow: {
-    width: '40%',
     height: 12,
     borderRadius: BorderRadius.sm,
   },

@@ -12,6 +12,7 @@ import { BorderRadius, Shadows, Spacing, Typography } from '@/constants';
 import { Colors } from '@/constants/Colors';
 import { useThemeColor } from '@/hooks/useColorScheme';
 import useOrder from '@/hooks/useOrder';
+import { confirmDestructive } from '@/utils/confirm';
 import { MaterialIcons } from '@expo/vector-icons';
 import { router, useLocalSearchParams } from 'expo-router';
 import moment from 'moment';
@@ -40,12 +41,27 @@ const LineItemRow: React.FC<LineItemRowProps> = ({ item, onRemove }) => {
 
   const itemTotal = item.pricing.totalPrice * item.quantity;
 
+  const handleRemove = () => {
+    confirmDestructive({
+      title: t('removeProductFromOrder'),
+      message: t('removeProductFromOrderMessage'),
+      onConfirm: () => onRemove(item.id),
+    });
+  };
+
   return (
     <View style={[styles.lineItemRow, { borderBottomColor: colors.border }]}>
       <View style={styles.lineItemContent}>
         <View style={styles.lineItemLeft}>
           <ThemedText style={[styles.productName, { color: colors.text }]}>
-            <MaterialIcons name="delete" size={24} color={colors.danger} onPress={() => onRemove(item.id)} />
+            <MaterialIcons
+              name="delete"
+              size={24}
+              color={colors.danger}
+              onPress={handleRemove}
+              accessibilityRole="button"
+              accessibilityLabel={t('removeProductFromOrder')}
+            />
             {item.name}
           </ThemedText>
           {item.deletedAt && (

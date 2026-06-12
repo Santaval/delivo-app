@@ -10,6 +10,8 @@ interface Config {
   mapboxAccessToken: string;
   revenueCatIosKey: string;
   revenueCatAndroidKey: string;
+  termsUrl: string;
+  privacyUrl: string;
   isDevelopment: boolean;
   isProduction: boolean;
 }
@@ -23,6 +25,8 @@ const config: Config = {
   mapboxAccessToken: process.env.EXPO_PUBLIC_MAPBOX_ACCESS_TOKEN as string,
   revenueCatIosKey: process.env.EXPO_PUBLIC_REVENUECAT_IOS_KEY as string,
   revenueCatAndroidKey: process.env.EXPO_PUBLIC_REVENUECAT_ANDROID_KEY as string,
+  termsUrl: process.env.EXPO_PUBLIC_TERMS_URL || 'https://delivo.savaldev.com/terms',
+  privacyUrl: process.env.EXPO_PUBLIC_PRIVACY_URL || 'https://delivo.savaldev.com/privacy',
   env: "development",
   isDevelopment: true,
   isProduction: false,

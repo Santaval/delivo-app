@@ -15,10 +15,6 @@ export const useGoogleAuth = () => {
   const { googleAuth } = useAuth();
   const [isLoading, setIsLoading] = useState(false);
 
-
-
-  // console.log("Redirect URI:", redirectUri);
-
   const [request, response, promptAsync] = Google.useAuthRequest({
     androidClientId: GOOGLE_CLIENT_ID_ANDROID,
     iosClientId: GOOGLE_CLIENT_ID_IOS,

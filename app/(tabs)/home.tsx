@@ -1,45 +1,78 @@
-import { IncomeCard, IncomeTrendsChart, QuickLinks, TopBar } from '@/components';
-import { Spacing } from '@/constants';
+import { EmptyState, ErrorState, IncomeCard, IncomeTrendsChart, PrimaryButton, QuickLinks, SkeletonBox, TopBar } from '@/components';
+import { BorderRadius, Spacing } from '@/constants';
 import { useThemeColor } from '@/hooks';
 import useFinancialSummary from '@/hooks/useFinanancialSummary';
 import { MaterialCommunityIcons, MaterialIcons } from '@expo/vector-icons';
 import { router } from 'expo-router';
 import React from 'react';
 import { useTranslation } from 'react-i18next';
-import { StyleSheet, Text } from 'react-native';
+import { StyleSheet, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 export default function Home() {
-  const { data, loading } = useFinancialSummary();
+  const { data, loading, error, refresh } = useFinancialSummary();
   const { t } = useTranslation();
 
   const colors = useThemeColor();
 
   if (loading) {
-    return <Text>{t('loading')}...</Text>;
+    const shimmerColor = colors.backgroundSecondary;
+    return (
+      <SafeAreaView style={styles.container}>
+        <TopBar title={t('home')} />
+        <SkeletonBox style={[styles.skeletonCard, { backgroundColor: shimmerColor }]} />
+        <SkeletonBox style={[styles.skeletonChart, { backgroundColor: shimmerColor }]} />
+      </SafeAreaView>
+    );
   }
 
-  if (!data) {
-    return null;
+  if (error || !data) {
+    return (
+      <SafeAreaView style={styles.container}>
+        <TopBar title={t('home')} />
+        <ErrorState message={error ?? undefined} onRetry={refresh} />
+      </SafeAreaView>
+    );
   }
 
+  const isGettingStarted = data.incomes.total === 0;
 
   return (
     <SafeAreaView style={styles.container}>
       <TopBar
         title={t('home')}
       />
-      <IncomeCard
-        amount={data.incomes.total}
-        title={t('monthlyIncome')}
-        percentage={data.incomes.increasePercentage || 0}
-        timeStamp={t('sinceLastMonth')}
-      />
-      <IncomeTrendsChart
-        data={Object.entries(data.incomes.byDay).map(([label, value]) => ({ label, value })) as any}
-        title={t('incomeTrends')}
-        averageValue={data.incomes.averagePerDay}
-      />
+      {isGettingStarted ? (
+        <View style={styles.gettingStarted}>
+          <EmptyState
+            icon="storefront"
+            title={t('gettingStartedTitle')}
+            subtitle={t('gettingStartedSubtitle')}
+            actionLabel={t('addFirstClient')}
+            onAction={() => router.push('/clients/add')}
+          />
+          <PrimaryButton
+            title={t('addFirstProduct')}
+            variant="outline"
+            onPress={() => router.push('/products/add')}
+            style={styles.secondaryCta}
+          />
+        </View>
+      ) : (
+        <>
+          <IncomeCard
+            amount={data.incomes.total}
+            title={t('monthlyIncome')}
+            percentage={data.incomes.increasePercentage || 0}
+            timeStamp={t('sinceLastMonth')}
+          />
+          <IncomeTrendsChart
+            data={Object.entries(data.incomes.byDay).map(([label, value]) => ({ label, value })) as any}
+            title={t('incomeTrends')}
+            averageValue={data.incomes.averagePerDay}
+          />
+        </>
+      )}
 
       <QuickLinks
         title={t('quickLinks')}
@@ -96,5 +129,19 @@ const styles = StyleSheet.create({
     flex: 1,
     padding: Spacing.lg,
     gap: Spacing['3xl']
+  },
+  skeletonCard: {
+    height: 120,
+    borderRadius: BorderRadius.xl,
+  },
+  skeletonChart: {
+    height: 220,
+    borderRadius: BorderRadius.xl,
+  },
+  gettingStarted: {
+    gap: Spacing.sm,
+  },
+  secondaryCta: {
+    marginHorizontal: Spacing.xl,
   },
 });

@@ -3,7 +3,6 @@ import { useThemeColor } from '@/hooks/useColorScheme';
 import { MaterialIcons } from '@expo/vector-icons';
 import moment from 'moment';
 import React from 'react';
-import { useTranslation } from 'react-i18next';
 import { StyleSheet, TouchableOpacity, View } from 'react-native';
 import { ThemedText } from './ThemedText';
 import { ThemedView } from './ThemedView';
@@ -21,9 +20,6 @@ export function OrderCard({
   onPress,
 }: OrderCardProps) {
   const colors = useThemeColor();
-  const { t } = useTranslation();
-
-
 
 
   return (
@@ -31,6 +27,8 @@ export function OrderCard({
       style={styles.container}
       onPress={() => onPress && onPress(order.id)}
       activeOpacity={0.8}
+      accessibilityRole="button"
+      accessibilityLabel={`INV-${order.number}, ${order.client.name ?? ''}`}
     >
       <ThemedView style={[styles.card, { backgroundColor: colors.surface }]}>
         <View style={styles.content}>

@@ -1,5 +1,6 @@
 import { SwipeButton, TopBar } from '@/components';
 import { BorderRadius, Colors, Spacing, Typography } from '@/constants';
+import { useToast } from '@/context/ToastContext';
 import useOrders from '@/hooks/useOrders';
 import RoutesService from '@/services/routes/Routes.service';
 import { Ionicons } from '@expo/vector-icons';
@@ -8,7 +9,6 @@ import React, { useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
   ActivityIndicator,
-  Alert,
   FlatList,
   StyleSheet,
   Text,
@@ -21,6 +21,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 
 export default function AddOrders() {
   const { t } = useTranslation();
+  const toast = useToast();
   const { orders, loading, error } = useOrders();
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedOrders, setSelectedOrders] = useState<Set<string>>(new Set());
@@ -67,20 +68,20 @@ export default function AddOrders() {
 
   const handleAddToRoute = async () => {
     if (selectedOrders.size === 0) {
-      Alert.alert(t('noOrdersSelected'), t('selectAtLeastOneOrder'));
+      toast.show({ message: t('selectAtLeastOneOrder'), type: 'info' });
       return;
     }
 
     setIsAddingToRoute(true);
     try {
-      
+
       const promises = Array.from(selectedOrders).map(orderId =>
         RoutesService.addPoint(routeId, orderId)
       );
       await Promise.all(promises);
 
     } catch (err) {
-      Alert.alert(t('error'), t('failedToAddOrdersToRoute'));
+      toast.show({ message: t('failedToAddOrdersToRoute'), type: 'error' });
     } finally {
       setIsAddingToRoute(false);
     }

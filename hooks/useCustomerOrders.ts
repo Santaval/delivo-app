@@ -1,3 +1,4 @@
+import i18n from "@/i18n";
 import OrdersService from "@/services/orders/Orders.service";
 import { useEffect, useState } from "react";
 
@@ -12,7 +13,7 @@ const useCustomerOrders = (customerId: string) => {
         const fetchedOrders = await OrdersService.byCustomerId(customerId);
         setOrders(fetchedOrders);
       } catch (err) {
-        setError('Failed to fetch orders');
+        setError(i18n.t('loadFailedError'));
       } finally {
         setLoading(false);
       }
@@ -23,11 +24,12 @@ const useCustomerOrders = (customerId: string) => {
 
   const refreshOrders = async () => {
     setLoading(true);
+    setError(null);
     try {
       const fetchedOrders = await OrdersService.byCustomerId(customerId);
       setOrders(fetchedOrders);
     } catch (err) {
-      setError('Failed to fetch orders');
+      setError(i18n.t('loadFailedError'));
     } finally {
       setLoading(false);
     }

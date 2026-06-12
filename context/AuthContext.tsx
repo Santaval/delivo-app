@@ -1,9 +1,11 @@
-import api from "@/services/api";
+import { toast } from "@/context/ToastContext";
+import i18n from "@/i18n";
+import api, { setOnUnauthorized } from "@/services/api";
 import AuthService from "@/services/auth/Auth.service";
 import { router } from "expo-router";
 import * as SecureStore from "expo-secure-store";
 import { createContext, useContext, useEffect, useState } from "react";
-import { markInteractive } from "expo-observe";
+import { Observe } from "expo-observe";
 
 /**
  * Represents the authentication state of the application
@@ -166,11 +168,33 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         setError(error instanceof Error ? error.message : "Failed to load user session");
       } finally {
         setLoading(false);
-        markInteractive();
+        Observe.markInteractive();
       }
     };
 
     loadToken();
+  }, []);
+
+  /**
+   * Effect hook to force logout + redirect when any API call returns 401
+   * (expired session). Guarded so a burst of parallel 401s only logs out once.
+   */
+  useEffect(() => {
+    let handling = false;
+    setOnUnauthorized(() => {
+      if (handling) return;
+      handling = true;
+      (async () => {
+        try {
+          await handleLogout();
+          toast.info(i18n.t("sessionExpired"));
+          router.replace("/");
+        } finally {
+          handling = false;
+        }
+      })();
+    });
+    return () => setOnUnauthorized(null);
   }, []);
 
   const refreshUser = async () => {

@@ -1,4 +1,5 @@
 import { OrderItem } from "@/components";
+import i18n from "@/i18n";
 import OrdersService from "@/services/orders/Orders.service";
 import { useEffect, useState } from "react";
 
@@ -10,10 +11,11 @@ const useOrder = (orderId: string) => {
   const fetchOrder = async () => {
     try {
       setLoading(true);
+      setError(null);
       const orderData = await OrdersService.getOrderById(orderId);
       setOrder(orderData);
     } catch (err) {
-      setError('Failed to load order');
+      setError(i18n.t('loadFailedError'));
     } finally {
       setLoading(false);
     }

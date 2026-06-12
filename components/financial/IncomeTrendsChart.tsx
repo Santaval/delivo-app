@@ -31,7 +31,7 @@ export function IncomeTrendsChart({
   timeLabels = ['WEEK 1', 'WEEK 2', 'WEEK 3', 'WEEK 4'],
   height = 180,
   showGrid = false,
-  onPress = () => console.log('Chart pressed'),
+  onPress = () => {},
 }: IncomeTrendsChartProps) {
   const colors = useThemeColor();
   const { width: screenWidth } = Dimensions.get('window');

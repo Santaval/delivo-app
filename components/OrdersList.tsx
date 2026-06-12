@@ -3,6 +3,8 @@ import { useThemeColor } from '@/hooks/useColorScheme';
 import React, { useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { RefreshControl, ScrollView, StyleSheet, TouchableOpacity, View } from 'react-native';
+import { EmptyState } from './feedback/EmptyState';
+import { ErrorState } from './feedback/ErrorState';
 import { OrderCard } from './OrderCard';
 import { OrderCardSkeleton } from './OrderCardSkeleton';
 import { ThemedText } from './ThemedText';
@@ -16,9 +18,11 @@ export type OrdersListProps = {
   onRefresh: () => void;
   isRefreshing: boolean;
   loading?: boolean;
+  error?: string | null;
+  onCreateFirst?: () => void;
 };
 
-export function OrdersList({ orders, onOrderPress, onRefresh, isRefreshing, loading }: OrdersListProps) {
+export function OrdersList({ orders, onOrderPress, onRefresh, isRefreshing, loading, error, onCreateFirst }: OrdersListProps) {
   const colors = useThemeColor();
   const { t } = useTranslation();
   const [activeTab, setActiveTab] = useState<TabType>('ALL');
@@ -90,21 +94,23 @@ export function OrdersList({ orders, onOrderPress, onRefresh, isRefreshing, load
     );
   };
 
-  const renderEmptyState = () => {
-    
-
-    return (
-      <View style={styles.emptyState}>
-        <ThemedText style={styles.emptyTitle}>
-          {activeTab === 'ALL' && 'No orders yet'}
-          {activeTab === 'DELIVERED' && 'No delivered orders yet'}
-          {activeTab === 'PENDING' && 'No pending orders yet'}
-          {activeTab === 'IN_TRANSIT' && 'No in-transit orders yet'}
-          {activeTab === 'RETURNED' && 'No returned orders yet'}
-        </ThemedText>
-      </View>
-    );
+  const emptyTitleByTab: Record<string, string> = {
+    ALL: t('noOrdersYet'),
+    DELIVERED: t('noDeliveredOrdersYet'),
+    PENDING: t('noPendingOrdersYet'),
+    ON_ROUTE: t('noOnRouteOrdersYet'),
+    IN_TRANSIT: t('noInTransitOrdersYet'),
+    RETURNED: t('noReturnedOrdersYet'),
   };
+
+  const renderEmptyState = () => (
+    <EmptyState
+      icon="shopping-cart"
+      title={emptyTitleByTab[activeTab] ?? t('noOrdersYet')}
+      actionLabel={activeTab === 'ALL' && onCreateFirst ? t('createOrder') : undefined}
+      onAction={activeTab === 'ALL' ? onCreateFirst : undefined}
+    />
+  );
 
   return (
     <ThemedView style={styles.container}>
@@ -130,6 +136,8 @@ export function OrdersList({ orders, onOrderPress, onRefresh, isRefreshing, load
       >
         {loading ? (
           Array.from({ length: 6 }).map((_, i) => <OrderCardSkeleton key={i} />)
+        ) : error && orders.length === 0 ? (
+          <ErrorState message={error} onRetry={onRefresh} />
         ) : filteredOrders.length > 0 ? (
           filteredOrders.map((order) => (
             <OrderCard

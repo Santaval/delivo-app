@@ -1,10 +1,10 @@
-import { ClientCard, FloatingActionButton, SearchBar, TopBar } from '@/components';
+import { ClientCard, EmptyState, ErrorState, FloatingActionButton, ListSkeleton, SearchBar, TopBar } from '@/components';
 import { Spacing } from '@/constants';
 import useClients from '@/hooks/useClients';
 import { router } from 'expo-router';
 import React from 'react';
 import { useTranslation } from 'react-i18next';
-import { RefreshControl, ScrollView, StyleSheet, Text } from 'react-native';
+import { RefreshControl, ScrollView, StyleSheet } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 export default function Clients() {
@@ -14,15 +14,6 @@ export default function Clients() {
   const handleAddClient = () => {
     router.push('/clients/add');
   };
-
-
-  if (error) {
-    return (
-      <SafeAreaView>
-        <Text>{t('error')}: {error}</Text>
-      </SafeAreaView>
-    );
-  }
 
   return (
     <SafeAreaView style={styles.container}>
@@ -36,18 +27,36 @@ export default function Clients() {
         showClearButton
       />
 
-      {!loading ? <ScrollView showsVerticalScrollIndicator={false}
-        refreshControl={<RefreshControl refreshing={loading} onRefresh={refresh} />}
+      <ScrollView
+        showsVerticalScrollIndicator={false}
+        contentContainerStyle={styles.listContent}
+        refreshControl={
+          <RefreshControl refreshing={loading && clients.length > 0} onRefresh={refresh} />
+        }
       >
-        {clients.map(client => (
-          <ClientCard
-            key={client.id}
-            name={client.name}
-            phone={client.phoneNumber}
-            onPress={() => router.push(`/clients/profile/${client.id}`)}
+        {loading && clients.length === 0 ? (
+          <ListSkeleton />
+        ) : error && clients.length === 0 ? (
+          <ErrorState message={error} onRetry={refresh} />
+        ) : clients.length > 0 ? (
+          clients.map(client => (
+            <ClientCard
+              key={client.id}
+              name={client.name}
+              phone={client.phoneNumber}
+              onPress={() => router.push(`/clients/profile/${client.id}`)}
+            />
+          ))
+        ) : (
+          <EmptyState
+            icon="people"
+            title={t('noClientsYet')}
+            subtitle={t('noClientsYetSubtitle')}
+            actionLabel={t('addNewClient')}
+            onAction={handleAddClient}
           />
-        ))}
-      </ScrollView> : <Text>{t('loading')}...</Text>}
+        )}
+      </ScrollView>
 
       <FloatingActionButton
         onPress={handleAddClient}
@@ -61,5 +70,8 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     padding: Spacing.md,
+  },
+  listContent: {
+    flexGrow: 1,
   },
 });

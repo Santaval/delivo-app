@@ -1,5 +1,6 @@
 import {
   FloatingActionButton,
+  LoadingState,
   PrimaryButton,
   ThemedText,
   ThemedView,
@@ -103,7 +104,12 @@ export default function ClientProfile() {
   };
 
   if (loading) {
-    return <Text>{t("loading")}...</Text>;
+    return (
+      <ThemedView style={styles.container}>
+        <TopBar title={t("clientProfile")} />
+        <LoadingState message={t('loading')} />
+      </ThemedView>
+    );
   }
 
   if (error || !client) {

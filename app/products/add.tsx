@@ -2,14 +2,15 @@ import { FormField } from '@/components/FormField';
 import { PrimaryButton } from '@/components/PrimaryButton';
 import { ThemedText } from '@/components/ThemedText';
 import { BorderRadius, Colors, Spacing, Typography } from '@/constants';
+import { useToast } from '@/context/ToastContext';
 import { useThemeColor } from '@/hooks/useColorScheme';
+import i18n from '@/i18n';
 import ProductsService from '@/services/products/Products.service';
 import { MaterialIcons } from '@expo/vector-icons';
 import { router } from 'expo-router';
 import React, { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
-  Alert,
   KeyboardAvoidingView,
   Platform,
   ScrollView,
@@ -24,14 +25,15 @@ import { z } from 'zod';
 
 // Zod validation schema
 const productSchema = z.object({
-  name: z.string().min(1, 'Product name is required').max(100, 'Product name too long'),
-  grossPrice: z.number().min(0.01, 'Gross price must be greater than 0'),
-  ivaRate: z.number().min(0, 'IVA rate cannot be negative').max(100, 'IVA rate cannot exceed 100%'),
+  name: z.string().min(1, i18n.t('productNameRequired')).max(100, i18n.t('nameTooLong')),
+  grossPrice: z.number().min(0.01, i18n.t('priceMustBeGreaterThanZero')),
+  ivaRate: z.number().min(0).max(100),
 });
 
 
 export default function AddProduct() {
   const colors = useThemeColor();
+  const toast = useToast();
   const [isLoading, setIsLoading] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
   const { t } = useTranslation();
@@ -86,13 +88,12 @@ export default function AddProduct() {
 
   const handleSubmit = async () => {
     if (!validateForm()) {
-      Alert.alert(t('validationError'), t('pleaseCheckTheFormAndTryAgain'));
+      toast.show({ message: t('pleaseCheckTheFormAndTryAgain'), type: 'error' });
       return;
     }
 
     setIsLoading(true);
     try {
-      // TODO: Implement API call to create product
       const productData = {
         name: name.trim(),
         grossPrice,
@@ -100,16 +101,12 @@ export default function AddProduct() {
         ivaAmount
       };
 
-      
       await ProductsService.create(productData);
 
-      Alert.alert(
-        t('success'),
-        t('productCreatedSuccessfully'),
-        [{ text: t('ok'), onPress: () => router.back() }]
-      );
+      toast.show({ message: t('productCreatedSuccessfully'), type: 'success' });
+      router.back();
     } catch (error) {
-      Alert.alert(t('error'), t('failedToCreateProduct'));
+      toast.show({ message: t('failedToCreateProduct'), type: 'error' });
     } finally {
       setIsLoading(false);
     }

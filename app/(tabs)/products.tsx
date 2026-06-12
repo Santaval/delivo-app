@@ -3,20 +3,17 @@ import { ProductsList } from "@/components/products/ProductsList";
 import { SearchBar } from "@/components/SearchBar";
 import { ThemedView } from "@/components/ThemedView";
 import { Colors, Spacing, Typography } from "@/constants";
-import { useThemeColor } from "@/hooks/useColorScheme";
 import useProducts from "@/hooks/useProducts";
 import { router } from "expo-router";
 import React, { useState } from "react";
 import { useTranslation } from "react-i18next";
 import {
-  StatusBar,
   StyleSheet,
   View
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
 export default function Products() {
-  const colors = useThemeColor();
   const { products, loading, error, refresh } = useProducts();
   const [searchQuery, setSearchQuery] = useState("");
   const { t } = useTranslation();
@@ -36,7 +33,6 @@ export default function Products() {
   return (
     <SafeAreaView style={styles.container}>
       <TopBar title={t('products')} />
-      <StatusBar barStyle="dark-content" backgroundColor={colors.background} />
 
       <ThemedView style={{ flex: 1 }}>
         {/* Search Section */}
@@ -52,8 +48,11 @@ export default function Products() {
         <ProductsList
           products={filteredProducts}
           onProductPress={handlePress}
-          isRefreshing={loading}
+          isRefreshing={loading && products.length > 0}
+          loading={loading && products.length === 0}
+          error={error}
           onRefresh={refresh}
+          onCreateFirst={() => router.push("/products/add")}
         />
       </ThemedView>
       <FloatingActionButton

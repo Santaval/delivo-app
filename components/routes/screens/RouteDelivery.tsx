@@ -8,18 +8,20 @@ import DeliveryMap from '@/components/routes/DeliveryMap';
 import DeliveryTabs, { Tab } from '@/components/routes/DeliveryTabs';
 import { BorderRadius, Colors, Spacing, Typography } from '@/constants';
 import { useRoute } from '@/context/RouteContext';
+import { useToast } from '@/context/ToastContext';
 import useUserLocation from '@/hooks/useUserLocation';
 import { router } from 'expo-router';
 import React, { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { ActivityIndicator, Alert, Linking, StyleSheet, Text, View } from 'react-native';
+import { ActivityIndicator, Linking, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 export default function RouteDeliveryScreen() {
   const { route, isLoading, error, getCurrentPoint, completeCurrentDelivery } = useRoute();
   const { location, refreshLocation } = useUserLocation();
-  const { t } = useTranslation(); 
-  
+  const { t } = useTranslation();
+  const toast = useToast();
+
   const [isCompletingDelivery, setIsCompletingDelivery] = React.useState(false);
   const [activeTab, setActiveTab] = useState<Tab>('current');
 
@@ -34,7 +36,7 @@ export default function RouteDeliveryScreen() {
 
     } catch (error) {
       console.error('Failed to complete delivery:', error);
-      Alert.alert(t('error'), t('failedToCompleteDelivery'));
+      toast.show({ message: t('failedToCompleteDelivery'), type: 'error' });
     } finally {
       setIsCompletingDelivery(false);
     }
@@ -44,7 +46,7 @@ export default function RouteDeliveryScreen() {
     if (currentPoint?.order.client.phoneNumber) {
       Linking.openURL(`tel:${currentPoint.order.client.phoneNumber}`);
     } else {
-      Alert.alert(t('error'), t('noPhoneNumber'));
+      toast.show({ message: t('noPhoneNumber'), type: 'error' });
     }
   };
 

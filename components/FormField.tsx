@@ -61,6 +61,8 @@ export function FormField({
         keyboardType={keyboardType}
         autoCapitalize={autoCapitalize}
         autoCorrect={autoCorrect}
+        accessibilityLabel={label}
+        accessibilityHint={error}
       />
 
       {/* Error Message */}

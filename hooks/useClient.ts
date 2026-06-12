@@ -1,3 +1,4 @@
+import i18n from "@/i18n";
 import ClientsService from "@/services/clients/Clients.service";
 import { useEffect, useState } from "react";
 
@@ -17,10 +18,10 @@ const useClient = (clientId: string) => {
       setClient(clientData);
 
       if (!clientData) {
-        setError('Client not found');
+        setError(i18n.t('clientNotFound'));
       }
     } catch (err) {
-      setError('Failed to load client information');
+      setError(i18n.t('loadFailedError'));
       console.error('Error fetching client:', err);
     } finally {
       setLoading(false);

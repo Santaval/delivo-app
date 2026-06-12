@@ -2,6 +2,7 @@ import { BorderRadius, Spacing, Typography } from '@/constants';
 import { Colors } from '@/constants/Colors';
 import { Ionicons } from '@expo/vector-icons';
 import React from 'react';
+import { useTranslation } from 'react-i18next';
 import {
   ActivityIndicator,
   Animated,
@@ -35,6 +36,7 @@ export default function SwipeButton({
   iconName = 'chevron-forward',
   style
 }: SwipeButtonProps) {
+  const { t } = useTranslation();
   const translateX = React.useRef(new Animated.Value(0)).current;
   const buttonScale = React.useRef(new Animated.Value(1)).current;
   
@@ -98,13 +100,26 @@ export default function SwipeButton({
   };
 
   return (
-    <View style={[styles.container, style]}>
-      <Animated.View 
+    <View
+      style={[styles.container, style]}
+      accessible
+      accessibilityRole="button"
+      accessibilityLabel={text}
+      accessibilityHint={t('swipeToConfirmHint')}
+      accessibilityState={{ disabled, busy: isLoading }}
+      accessibilityActions={[{ name: 'activate' }]}
+      onAccessibilityAction={(event) => {
+        if (event.nativeEvent.actionName === 'activate' && !disabled && !isLoading) {
+          onSwipeComplete();
+        }
+      }}
+    >
+      <Animated.View
         style={[
           styles.button,
-          { 
+          {
             backgroundColor,
-            transform: [{ scale: buttonScale }] 
+            transform: [{ scale: buttonScale }]
           }
         ]}
       >

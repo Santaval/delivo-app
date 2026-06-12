@@ -1,14 +1,17 @@
+import { ErrorBoundary } from "@/components/feedback/ErrorBoundary";
+import { OfflineBanner } from "@/components/feedback/OfflineBanner";
+import config from "@/config/env";
 import { AuthProvider } from "@/context/AuthContext";
 import { CompaniesProvider } from "@/context/CompaniesContext";
 import { PurchasesProvider } from "@/context/PurchasesContext";
-import config from "@/config/env";
+import { ToastProvider } from "@/context/ToastContext";
+import RevenueCatService from "@/services/purchases/RevenueCat.service";
 import MapboxGL from "@rnmapbox/maps";
+import * as Sentry from '@sentry/react-native';
+import { ObserveRoot } from 'expo-observe';
 import { Stack } from "expo-router";
 import 'moment/locale/es';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
-import RevenueCatService from "@/services/purchases/RevenueCat.service";
-import * as Sentry from '@sentry/react-native';
-import { ObserveRoot } from 'expo-observe';
 import '../i18n';
 import '../moment/moment';
 
@@ -30,7 +33,12 @@ function RootLayout() {
       <CompaniesProvider>
         <PurchasesProvider>
           <GestureHandlerRootView>
-            <Stack screenOptions={{ headerShown: false }} />
+            <ToastProvider>
+              <ErrorBoundary>
+                <Stack screenOptions={{ headerShown: false }} />
+                <OfflineBanner />
+              </ErrorBoundary>
+            </ToastProvider>
           </GestureHandlerRootView>
         </PurchasesProvider>
       </CompaniesProvider>

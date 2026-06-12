@@ -8,8 +8,8 @@ import { useTranslation } from 'react-i18next';
 import { StyleSheet } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
-export default function Clients() {
-  const { bills, loading, refresh, search } = useBills();
+export default function Bills() {
+  const { bills, loading, error, refresh, search } = useBills();
   const { t } = useTranslation();
 
 
@@ -25,10 +25,12 @@ export default function Clients() {
         showClearButton
       />
 
-      <BillsList 
+      <BillsList
         onOrderPress={(orderId) => router.push(`/bills/view/${orderId}`)}
         orders={bills}
-        isRefreshing={loading}
+        isRefreshing={loading && bills.length > 0}
+        loading={loading && bills.length === 0}
+        error={error}
         onRefresh={refresh}
       />
       

@@ -1,3 +1,5 @@
+import { toast } from "@/context/ToastContext";
+import i18n from "@/i18n";
 import ProductsService from "@/services/products/Products.service";
 import { useEffect, useState } from "react";
 
@@ -9,12 +11,14 @@ const useProducts = () => {
 
   const fetchProducts = async () => {
     setLoading(true);
+    setError(null);
     try {
       const response = await ProductsService.all();
       setProducts(response);
       setOriginalProducts(response);
     } catch (err) {
-      setError('Failed to fetch products');
+      setError(i18n.t('loadFailedError'));
+      if (originalProducts.length > 0) toast.error(i18n.t('loadFailedError'));
     } finally {
       setLoading(false);
     }

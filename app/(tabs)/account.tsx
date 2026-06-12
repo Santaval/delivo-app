@@ -3,11 +3,12 @@ import { ThemedView } from '@/components/ThemedView';
 import { Colors, Spacing, Typography } from '@/constants';
 import { useAuth } from '@/context/AuthContext';
 import { usePurchases } from '@/context/PurchasesContext';
+import { useToast } from '@/context/ToastContext';
+import { confirmDestructive } from '@/utils/confirm';
 import { MaterialIcons } from '@expo/vector-icons';
 import { useTranslation } from 'react-i18next';
 import {
   ActivityIndicator,
-  Alert,
   ScrollView,
   StyleSheet,
   TouchableOpacity,
@@ -17,6 +18,7 @@ import {
 export default function AccountScreen() {
   const { user, logout } = useAuth();
   const { t } = useTranslation();
+  const toast = useToast();
   const {
     isPro,
     isLoading,
@@ -37,19 +39,19 @@ export default function AccountScreen() {
 
   const handleRestorePurchases = async () => {
     const restored = await restorePurchases();
-    Alert.alert(
-      restored ? 'Purchases Restored' : 'Nothing to Restore',
-      restored
-        ? 'Your Delivo Pro subscription has been restored.'
-        : 'No previous purchases were found for this account.',
-    );
+    toast.show({
+      message: restored ? t('purchasesRestoredMessage') : t('nothingToRestore'),
+      type: restored ? 'success' : 'info',
+    });
   };
 
   const handleLogout = () => {
-    Alert.alert('Sign Out', 'Are you sure you want to sign out?', [
-      { text: 'Cancel', style: 'cancel' },
-      { text: 'Sign Out', style: 'destructive', onPress: logout },
-    ]);
+    confirmDestructive({
+      title: t('signOut'),
+      message: t('signOutConfirmMessage'),
+      confirmLabel: t('signOut'),
+      onConfirm: logout,
+    });
   };
 
   return (
@@ -78,18 +80,18 @@ export default function AccountScreen() {
               color={isPro ? Colors.light.warning : Colors.light.textSecondary}
             />
             <ThemedText variant="subtitle" style={styles.cardTitle}>
-              {isPro ? 'Delivo Pro' : 'Free Plan'}
+              {isPro ? 'Delivo Pro' : t('freePlan')}
             </ThemedText>
             {isLoading && <ActivityIndicator size="small" color={Colors.light.primary} />}
           </View>
 
           {isPro ? (
             <ThemedText variant="caption" style={styles.cardDescription}>
-              You have full access to all Delivo Pro features.
+              {t('proFullAccess')}
             </ThemedText>
           ) : (
             <ThemedText variant="caption" style={styles.cardDescription}>
-              Upgrade to Delivo Pro to unlock all features.
+              {t('upgradeToUnlock')}
             </ThemedText>
           )}
 
@@ -126,7 +128,7 @@ export default function AccountScreen() {
             >
               <MaterialIcons name="upgrade" size={20} color="#fff" />
               <ThemedText style={styles.primaryButtonText}>
-                Upgrade to Delivo Pro
+                {t('upgradeToPro')}
               </ThemedText>
             </TouchableOpacity>
           )}
@@ -139,7 +141,7 @@ export default function AccountScreen() {
             >
               <MaterialIcons name="manage-accounts" size={20} color={Colors.light.primary} />
               <ThemedText style={styles.secondaryButtonText}>
-                Manage Subscription
+                {t('manageSubscription')}
               </ThemedText>
             </TouchableOpacity>
           )}
@@ -151,7 +153,7 @@ export default function AccountScreen() {
           >
             <MaterialIcons name="restore" size={20} color={Colors.light.textSecondary} />
             <ThemedText style={styles.outlineButtonText}>
-              Restore Purchases
+              {t('restorePurchases')}
             </ThemedText>
           </TouchableOpacity>
         </View>
@@ -162,7 +164,7 @@ export default function AccountScreen() {
         {/* Sign Out */}
         <TouchableOpacity style={[styles.actionButton, styles.dangerButton]} onPress={handleLogout}>
           <MaterialIcons name="logout" size={20} color={Colors.light.danger} />
-          <ThemedText style={styles.dangerButtonText}>Sign Out</ThemedText>
+          <ThemedText style={styles.dangerButtonText}>{t('signOut')}</ThemedText>
         </TouchableOpacity>
 
       </ScrollView>

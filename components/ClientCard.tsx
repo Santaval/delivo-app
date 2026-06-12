@@ -23,7 +23,7 @@ export function ClientCard({
   name,
   phone,
   profileImage,
-  onPress = () => console.log(`${name} pressed`),
+  onPress = () => {},
 }: ClientCardProps) {
   const colors = useThemeColor();
 
@@ -32,6 +32,8 @@ export function ClientCard({
       style={styles.container}
       onPress={onPress}
       activeOpacity={0.7}
+      accessibilityRole="button"
+      accessibilityLabel={phone ? `${name}, ${phone}` : name}
     >
       <ThemedView style={styles.content}>
         {/* Profile Image */}

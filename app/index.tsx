@@ -9,10 +9,13 @@ import { useCompanies } from "@/context/CompaniesContext";
 import { useAppleAuth } from "@/hooks/useAppleAuth";
 import { useThemeColor } from "@/hooks/useColorScheme";
 import { useGoogleAuth } from "@/hooks/useGoogleAuh";
+import config from "@/config/env";
 import { router } from "expo-router";
+import { StatusBar } from "expo-status-bar";
+import * as WebBrowser from "expo-web-browser";
 import { useEffect } from "react";
 import { useTranslation } from "react-i18next";
-import { StatusBar, StyleSheet, View } from "react-native";
+import { StyleSheet, View } from "react-native";
 
 export default function Index() {
   const colors = useThemeColor();
@@ -35,7 +38,7 @@ export default function Index() {
 
   return (
     <ThemedView style={styles.container}>
-      <StatusBar barStyle="dark-content" backgroundColor={colors.background} />
+      <StatusBar style="auto" />
 
       {/* Logo Section */}
       <View style={styles.logoSection}>
@@ -61,12 +64,6 @@ export default function Index() {
         <AppleSignInButton
           onPress={onAppleSignIn}
         />
-
-
-        {/* <SocialButton
-          provider="apple"
-          onPress={() => console.log('Apple login pressed')}
-        /> */}
       </View>
 
       {/* Footer Links */}
@@ -75,7 +72,8 @@ export default function Index() {
           <ThemedText
             variant="link"
             style={styles.footerLink}
-            onPress={() => console.log('Terms pressed')}
+            onPress={() => WebBrowser.openBrowserAsync(config.termsUrl)}
+            accessibilityRole="link"
           >
             {t("termsOfService")}
           </ThemedText>
@@ -85,7 +83,8 @@ export default function Index() {
           <ThemedText
             variant="link"
             style={styles.footerLink}
-            onPress={() => console.log('Privacy pressed')}
+            onPress={() => WebBrowser.openBrowserAsync(config.privacyUrl)}
+            accessibilityRole="link"
           >
             {t("privacyPolicy")}
           </ThemedText>

@@ -2,7 +2,9 @@ import { FormField } from '@/components/FormField';
 import { PrimaryButton } from '@/components/PrimaryButton';
 import { ThemedText } from '@/components/ThemedText';
 import { BorderRadius, Colors, Spacing, Typography } from '@/constants';
+import { useToast } from '@/context/ToastContext';
 import { useThemeColor } from '@/hooks/useColorScheme';
+import i18n from '@/i18n';
 import RoutesService from '@/services/routes/Routes.service';
 import { MaterialIcons } from '@expo/vector-icons';
 import { router } from 'expo-router';
@@ -10,7 +12,6 @@ import moment from 'moment';
 import React, { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
-  Alert,
   KeyboardAvoidingView,
   Platform,
   ScrollView,
@@ -24,12 +25,13 @@ import { z } from 'zod';
 
 // Zod validation schema
 const routeSchema = z.object({
-  name: z.string().min(1, 'Route name is required').max(50, 'Route name too long'),
+  name: z.string().min(1, i18n.t('routeNameIsRequired')).max(50, i18n.t('nameTooLong')),
 });
 
 
 export default function CreateRoute() {
   const colors = useThemeColor();
+  const toast = useToast();
   const [isLoading, setIsLoading] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
   const { t } = useTranslation();
@@ -66,7 +68,7 @@ export default function CreateRoute() {
 
   const handleSubmit = async () => {
     if (!validateForm()) {
-      Alert.alert(t('validationError'), t('pleaseCheckTheFormAndTryAgain'));
+      toast.show({ message: t('pleaseCheckTheFormAndTryAgain'), type: 'error' });
       return;
     }
 
@@ -76,12 +78,11 @@ export default function CreateRoute() {
         name: name.trim(),
       };
 
-      
       const route = await RoutesService.create(routeData);
 
       router.replace(`/routes/view/${route.id}`);
     } catch (error) {
-      Alert.alert(t('error'), t('failedToCreateRoute'));
+      toast.show({ message: t('failedToCreateRoute'), type: 'error' });
     } finally {
       setIsLoading(false);
     }

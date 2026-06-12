@@ -8,8 +8,8 @@ import { useTranslation } from 'react-i18next';
 import { StyleSheet } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
-export default function Clients() {
-  const { routes, loading, refresh } = useRoutes();
+export default function Routes() {
+  const { routes, loading, error, refresh } = useRoutes();
   const { t } = useTranslation();
 
   const handleAddRoute = () => {
@@ -28,14 +28,17 @@ export default function Clients() {
         showClearButton
       /> */}
 
-      <RoutesList 
+      <RoutesList
         routes={routes}
         onRoutePress={(routeId) => {
           router.push(`/routes/view/${routeId}`);
         }}
 
-        isRefreshing={loading}
+        isRefreshing={loading && routes.length > 0}
+        loading={loading && routes.length === 0}
+        error={error}
         onRefresh={refresh}
+        onCreateFirst={handleAddRoute}
       />
       
       <FloatingActionButton

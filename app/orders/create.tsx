@@ -1,5 +1,6 @@
 import { ClientSelect, OrderItem, PrimaryButton, ProductSelect, TopBar } from '@/components';
 import { Spacing } from '@/constants';
+import { useToast } from '@/context/ToastContext';
 import OrdersService from '@/services/orders/Orders.service';
 import { router, useLocalSearchParams } from 'expo-router';
 import React, { useEffect } from 'react';
@@ -12,6 +13,7 @@ export default function CreateOrder() {
   const [clientId, setClientId] = React.useState<string | undefined>(undefined);
   const [isSaving, setIsSaving] = React.useState<boolean>(false);
   const { t } = useTranslation();
+  const toast = useToast();
   const { clientId: defaultClientId } = useLocalSearchParams<{ clientId?: string }>();
 
   useEffect(() => {
@@ -38,6 +40,7 @@ export default function CreateOrder() {
 
     } catch (error) {
       console.error('Error saving order:', error);
+      toast.show({ message: t('failedToCreateOrder'), type: 'error' });
     } finally {
       setIsSaving(false);
     }

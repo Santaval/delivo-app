@@ -1,10 +1,12 @@
+import { ErrorState } from '@/components/feedback/ErrorState';
 import Map from '@/components/maps/Map';
 import { PrimaryButton } from '@/components/PrimaryButton';
 import { BorderRadius, Colors, Spacing, Typography } from '@/constants';
+import { useToast } from '@/context/ToastContext';
 import useUserLocation from '@/hooks/useUserLocation';
 import React, { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Alert, StyleSheet, Text, View } from 'react-native';
+import { StyleSheet, Text, View } from 'react-native';
 
 interface ClientLocationViewProps {
   client: Client;
@@ -12,9 +14,10 @@ interface ClientLocationViewProps {
 }
 
 export default function ClientLocationView({ client, onUpdateLocation }: ClientLocationViewProps) {
-  const { location } = useUserLocation();
+  const { location, permissionDenied, openSettings } = useUserLocation();
   const [isUpdating, setIsUpdating] = useState(false);
   const { t } = useTranslation();
+  const toast = useToast();
 
   const clientLocation = {
     lat: client.location.lat || 37.7749,
@@ -23,7 +26,7 @@ export default function ClientLocationView({ client, onUpdateLocation }: ClientL
 
   const handleUpdateToCurrentLocation = async () => {
     if (!location) {
-      Alert.alert(t('locationError'), t('unableToAccessLocation'));
+      toast.show({ message: t('unableToAccessLocation'), type: 'error' });
       return;
     }
 
@@ -39,10 +42,10 @@ export default function ClientLocationView({ client, onUpdateLocation }: ClientL
         await onUpdateLocation(newLocation);
       }
 
-      Alert.alert(t('success'), t('clientLocationUpdated'));
+      toast.show({ message: t('clientLocationUpdated'), type: 'success' });
     } catch (error) {
       console.error('Error updating location:', error);
-      Alert.alert(t('error'), t('failedToUpdateLocation'));
+      toast.show({ message: t('failedToUpdateLocation'), type: 'error' });
     } finally {
       setIsUpdating(false);
     }
@@ -94,13 +97,24 @@ export default function ClientLocationView({ client, onUpdateLocation }: ClientL
           {t('useCurrentToSetClientLocation')}
         </Text>
 
-        {/* Update Button */}
-        <PrimaryButton
-          title={isUpdating ? t('updating') : t('updateToCurrentLocation')}
-          onPress={handleUpdateToCurrentLocation}
-          disabled={!location || isUpdating}
-          style={styles.updateButton}
-        />
+        {permissionDenied ? (
+          <>
+            <ErrorState compact message={t('locationDeniedMessage')} />
+            <PrimaryButton
+              title={t('openSettings')}
+              variant="outline"
+              onPress={openSettings}
+              style={styles.updateButton}
+            />
+          </>
+        ) : (
+          <PrimaryButton
+            title={isUpdating ? t('updating') : t('updateToCurrentLocation')}
+            onPress={handleUpdateToCurrentLocation}
+            disabled={!location || isUpdating}
+            style={styles.updateButton}
+          />
+        )}
       </View>
     </View>
   );

@@ -1,15 +1,17 @@
+import { LoadingState } from '@/components/feedback/LoadingState';
 import { FormField } from '@/components/FormField';
 import { PrimaryButton } from '@/components/PrimaryButton';
 import { ThemedText } from '@/components/ThemedText';
 import { BorderRadius, Colors, Spacing, Typography } from '@/constants';
+import { useToast } from '@/context/ToastContext';
 import { useThemeColor } from '@/hooks/useColorScheme';
 import useProduct from '@/hooks/useProduct';
+import i18n from '@/i18n';
 import { MaterialIcons } from '@expo/vector-icons';
 import { router, useLocalSearchParams } from 'expo-router';
 import React, { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
-  Alert,
   KeyboardAvoidingView,
   Platform,
   ScrollView,
@@ -23,15 +25,16 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { z } from 'zod';
 
 const productSchema = z.object({
-  name: z.string().min(1, 'Product name is required').max(100, 'Product name too long'),
-  grossPrice: z.number().min(0.01, 'Gross price must be greater than 0'),
-  ivaRate: z.number().min(0, 'IVA rate cannot be negative').max(100, 'IVA rate cannot exceed 100%'),
+  name: z.string().min(1, i18n.t('productNameRequired')).max(100, i18n.t('nameTooLong')),
+  grossPrice: z.number().min(0.01, i18n.t('priceMustBeGreaterThanZero')),
+  ivaRate: z.number().min(0).max(100),
 });
 
 export default function ProductEditScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const colors = useThemeColor();
   const { t } = useTranslation();
+  const toast = useToast();
   const { product, loading, error, update } = useProduct(id);
 
   const [isLoading, setIsLoading] = useState(false);
@@ -93,7 +96,7 @@ export default function ProductEditScreen() {
 
   const handleSubmit = async () => {
     if (!validateForm()) {
-      Alert.alert(t('validationError'), t('pleaseCheckTheFormAndTryAgain'));
+      toast.show({ message: t('pleaseCheckTheFormAndTryAgain'), type: 'error' });
       return;
     }
 
@@ -108,13 +111,10 @@ export default function ProductEditScreen() {
 
       await update(productData);
 
-      Alert.alert(
-        t('success'),
-        t('productUpdatedSuccessfully'),
-        [{ text: t('ok'), onPress: () => router.back() }]
-      );
+      toast.show({ message: t('productUpdatedSuccessfully'), type: 'success' });
+      router.back();
     } catch {
-      Alert.alert(t('error'), t('failedToUpdateProduct'));
+      toast.show({ message: t('failedToUpdateProduct'), type: 'error' });
     } finally {
       setIsLoading(false);
     }
@@ -136,7 +136,7 @@ export default function ProductEditScreen() {
           <View style={styles.placeholder} />
         </View>
         <View style={styles.loadingContainer}>
-          <ThemedText>{t("loading")}...</ThemedText>
+          <LoadingState message={t('loading')} />
         </View>
       </SafeAreaView>
     );

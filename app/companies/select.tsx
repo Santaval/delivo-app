@@ -4,7 +4,6 @@ import React from 'react';
 import { useTranslation } from 'react-i18next';
 import {
   ActivityIndicator,
-  Alert,
   StatusBar,
   StyleSheet,
   TouchableOpacity,
@@ -12,6 +11,7 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { PrimaryButton, ThemedText, ThemedView } from '../../components';
+import { toast } from '../../context/ToastContext';
 import { BorderRadius, Colors, Shadows, Spacing, Typography } from '../../constants';
 import { useCompanies } from '../../context/CompaniesContext';
 
@@ -24,7 +24,7 @@ export default function CompanySelectPage() {
       await selectCompany(companyId);
       router.replace('/');
     } catch (error) {
-      Alert.alert(t('error'), t('failedToSelectCompany'));
+      toast.error(t('failedToSelectCompany'));
     }
   };
 

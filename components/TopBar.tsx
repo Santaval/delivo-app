@@ -1,10 +1,12 @@
 import { Spacing, Typography } from '@/constants';
 import { useAuth } from '@/context/AuthContext';
 import { useThemeColor } from '@/hooks/useColorScheme';
+import { confirmDestructive } from '@/utils/confirm';
 import { MaterialCommunityIcons, MaterialIcons } from '@expo/vector-icons';
 import { Link, RelativePathString } from 'expo-router';
 import React from 'react';
 import { Image, StyleSheet, TouchableOpacity, View } from 'react-native';
+import { useTranslation } from 'react-i18next';
 import { ThemedText } from './ThemedText';
 import { ThemedView } from './ThemedView';
 
@@ -25,27 +27,37 @@ export function TopBar({
   userImage,
   showNotification = true,
   notificationCount,
-  onNotificationPress = () => console.log('Notification pressed'),
-  onUserPress = () => console.log('User profile pressed'),
+  onNotificationPress,
+  onUserPress = () => {},
   goBackTo
 }: TopBarProps) {
   const colors = useThemeColor();
   const { logout } = useAuth();
+  const { t } = useTranslation();
+
+  const handleLogoutPress = () => {
+    confirmDestructive({
+      title: t('signOut'),
+      message: t('signOutConfirmMessage'),
+      confirmLabel: t('signOut'),
+      onConfirm: logout,
+    });
+  };
 
   return (
     <ThemedView style={styles.container}>
       {/* Left side - User info */}
-      <TouchableOpacity 
+      <TouchableOpacity
         style={styles.userSection}
         onPress={onUserPress}
         activeOpacity={0.7}
       >
-        {!goBackTo ? <Image 
+        {!goBackTo ? <Image
           source={userImage || require('@/assets/images/user-placeholder.png')}
           style={styles.userImage}
           resizeMode="cover"
-        /> : 
-        <Link href={goBackTo as RelativePathString}>
+        /> :
+        <Link href={goBackTo as RelativePathString} accessibilityRole="link" accessibilityLabel={t('back')}>
           <MaterialIcons name="arrow-back-ios" size={28} color={colors.primary}  />
         </Link>
         }
@@ -61,12 +73,14 @@ export function TopBar({
         </View>
       </TouchableOpacity>
 
-      {/* Right side - Notification */}
-      {showNotification && (
-        <TouchableOpacity 
+      {/* Right side - Notification (only rendered when a handler exists) */}
+      {showNotification && onNotificationPress && (
+        <TouchableOpacity
           style={styles.notificationContainer}
           onPress={onNotificationPress}
           activeOpacity={0.7}
+          accessibilityRole="button"
+          accessibilityLabel={t('notifications')}
         >
           <View style={styles.notificationIcon}>
             <MaterialCommunityIcons 
@@ -85,7 +99,11 @@ export function TopBar({
         </TouchableOpacity>
       )}
 
-      <TouchableOpacity onPress={logout}>
+      <TouchableOpacity
+        onPress={handleLogoutPress}
+        accessibilityRole="button"
+        accessibilityLabel={t('signOut')}
+      >
         <MaterialIcons key="logout" name="logout" size={24} color={colors.text} />
       </TouchableOpacity>
     </ThemedView>

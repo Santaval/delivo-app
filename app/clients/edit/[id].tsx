@@ -1,15 +1,17 @@
+import { LoadingState } from '@/components/feedback/LoadingState';
 import { FormField } from '@/components/FormField';
 import { PrimaryButton } from '@/components/PrimaryButton';
 import { ThemedText } from '@/components/ThemedText';
 import { BorderRadius, Colors, Spacing, Typography } from '@/constants';
+import { useToast } from '@/context/ToastContext';
 import { useThemeColor } from '@/hooks/useColorScheme';
 import useClient from '@/hooks/useClient';
+import i18n from '@/i18n';
 import { MaterialIcons } from '@expo/vector-icons';
 import { router, useLocalSearchParams } from 'expo-router';
 import React, { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
-  Alert,
   KeyboardAvoidingView,
   Platform,
   ScrollView,
@@ -22,15 +24,16 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { z } from 'zod';
 
 const clientSchema = z.object({
-  name: z.string().min(2, 'Name must be at least 2 characters'),
-  phoneNumber: z.string().min(2, 'Phone number must be at least 2 characters').optional().or(z.literal('')),
-  email: z.string().email('Invalid email address').optional().or(z.literal('')),
+  name: z.string().min(2, i18n.t('minTwoCharacters')),
+  phoneNumber: z.string().min(2, i18n.t('minTwoCharacters')).optional().or(z.literal('')),
+  email: z.string().email(i18n.t('invalidEmail')).optional().or(z.literal('')),
 });
 
 export default function ClientEditScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const colors = useThemeColor();
   const { t } = useTranslation();
+  const toast = useToast();
   const { client, loading, error, updateClient } = useClient(id);
 
   const [isLoading, setIsLoading] = useState(false);
@@ -69,7 +72,7 @@ export default function ClientEditScreen() {
 
   const handleSubmit = async () => {
     if (!validateForm()) {
-      Alert.alert(t('validationError'), t('pleaseCheckTheFormAndTryAgain'));
+      toast.show({ message: t('pleaseCheckTheFormAndTryAgain'), type: 'error' });
       return;
     }
 
@@ -80,11 +83,10 @@ export default function ClientEditScreen() {
         phoneNumber: phoneNumber.trim() || undefined,
         email: email.trim() || undefined,
       });
-      Alert.alert(t('success'), t('clientUpdatedSuccessfully'), [
-        { text: t('ok'), onPress: () => router.back() },
-      ]);
+      toast.show({ message: t('clientUpdatedSuccessfully'), type: 'success' });
+      router.back();
     } catch {
-      Alert.alert(t('error'), t('failedToUpdateClient'));
+      toast.show({ message: t('failedToUpdateClient'), type: 'error' });
     } finally {
       setIsLoading(false);
     }
@@ -102,7 +104,7 @@ export default function ClientEditScreen() {
           <View style={styles.placeholder} />
         </View>
         <View style={styles.loadingContainer}>
-          <ThemedText>{t('loading')}...</ThemedText>
+          <LoadingState message={t('loading')} />
         </View>
       </SafeAreaView>
     );

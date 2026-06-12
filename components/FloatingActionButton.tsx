@@ -1,7 +1,9 @@
+import { Spacing } from '@/constants';
 import { useThemeColor } from '@/hooks/useColorScheme';
 import { MaterialIcons } from '@expo/vector-icons';
-import React from 'react';
-import { Dimensions, StyleSheet, TouchableOpacity, View } from 'react-native';
+import { useTranslation } from 'react-i18next';
+import { StyleSheet, TouchableOpacity, View } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 export type FloatingActionButtonProps = {
   onPress: () => void;
@@ -13,6 +15,7 @@ export type FloatingActionButtonProps = {
   bottom?: number;
   right?: number;
   left?: number;
+  accessibilityLabel?: string;
 };
 
 export function FloatingActionButton({
@@ -22,12 +25,15 @@ export function FloatingActionButton({
   size = 56,
   backgroundColor,
   iconColor,
+  bottom,
+  right,
+  left,
+  accessibilityLabel,
 }: FloatingActionButtonProps) {
   const colors = useThemeColor();
+  const insets = useSafeAreaInsets();
+  const { t } = useTranslation();
 
-  const DEVICE_WIDTH = Dimensions.get('window').width;
-  const DEVICE_HEIGHT = Dimensions.get('window').height;
-  console.log(DEVICE_WIDTH, DEVICE_HEIGHT);
   return (
     <TouchableOpacity
       style={[
@@ -38,12 +44,14 @@ export function FloatingActionButton({
           borderRadius: size / 2,
           backgroundColor: backgroundColor || colors.primary,
           position: 'absolute',
-          top: DEVICE_HEIGHT * 0.8,
-          left: DEVICE_WIDTH * 0.8,
+          bottom: bottom ?? 100,
+          ...(left !== undefined ? { left } : { right: right ?? Spacing.xl }),
         }
       ]}
       onPress={onPress}
       activeOpacity={0.8}
+      accessibilityRole="button"
+      accessibilityLabel={accessibilityLabel ?? t('add')}
     >
       <View style={styles.content}>
         <MaterialIcons

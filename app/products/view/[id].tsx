@@ -1,4 +1,4 @@
-import { PrimaryButton, ThemedText, ThemedView, TopBar } from "@/components";
+import { LoadingState, PrimaryButton, ThemedText, ThemedView, TopBar } from "@/components";
 import {
     ProductDetailActions,
     ProductDetailHeader,
@@ -7,6 +7,7 @@ import {
 } from "@/components/products";
 import { Spacing, Typography } from "@/constants";
 import { Colors } from "@/constants/Colors";
+import { useToast } from "@/context/ToastContext";
 import { useThemeColor } from "@/hooks/useColorScheme";
 import useProduct from "@/hooks/useProduct";
 import { MaterialIcons } from "@expo/vector-icons";
@@ -14,7 +15,6 @@ import { router, useLocalSearchParams } from "expo-router";
 import React from "react";
 import { useTranslation } from "react-i18next";
 import {
-    Alert,
     RefreshControl,
     ScrollView,
     StyleSheet,
@@ -26,6 +26,7 @@ export default function ProductDetail() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const colors = useThemeColor();
   const { t } = useTranslation();
+  const toast = useToast();
   const { product, loading, error, refresh, remove } = useProduct(id);
 
   const handleEdit = () => {
@@ -35,9 +36,10 @@ export default function ProductDetail() {
   const handleDelete = async () => {
     try {
       await remove();
+      toast.show({ message: t('productDeletedSuccessfully'), type: 'success' });
       router.back();
     } catch (err) {
-      Alert.alert(t("error"), t("failedToDeleteProduct"));
+      toast.show({ message: t("failedToDeleteProduct"), type: 'error' });
     }
   };
 
@@ -45,9 +47,7 @@ export default function ProductDetail() {
     return (
       <ThemedView style={styles.container}>
         <TopBar title={t("productDetail")} />
-        <View style={styles.centerContent}>
-          <ThemedText>{t("loading")}...</ThemedText>
-        </View>
+        <LoadingState message={t('loading')} />
       </ThemedView>
     );
   }

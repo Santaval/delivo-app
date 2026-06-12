@@ -1,4 +1,6 @@
 import { RouteStatus } from "@/components/RouteCard";
+import { toast } from "@/context/ToastContext";
+import i18n from "@/i18n";
 import RoutesService from "@/services/routes/Routes.service";
 import { useEffect, useState } from "react";
 
@@ -9,11 +11,13 @@ const useRoutes = () => {
 
   const fetchRoutes = async () => {
     setLoading(true);
+    setError(null);
     try {
       const response = await RoutesService.all();
       setRoutes(response.data);
     } catch (err) {
-      setError('Failed to fetch routes');
+      setError(i18n.t('loadFailedError'));
+      if (routes.length > 0) toast.error(i18n.t('loadFailedError'));
     } finally {
       setLoading(false);
     }

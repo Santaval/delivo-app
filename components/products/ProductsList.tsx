@@ -1,10 +1,11 @@
-import { ThemedText } from '@/components/ThemedText';
 import { ThemedView } from '@/components/ThemedView';
 import { BorderRadius, Colors, Spacing, Typography } from '@/constants';
-import { useThemeColor } from '@/hooks/useColorScheme';
 import React from 'react';
 import { useTranslation } from 'react-i18next';
-import { RefreshControl, ScrollView, StyleSheet, View } from 'react-native';
+import { RefreshControl, ScrollView, StyleSheet } from 'react-native';
+import { EmptyState } from '../feedback/EmptyState';
+import { ErrorState } from '../feedback/ErrorState';
+import { ListSkeleton } from '../feedback/Skeleton';
 import ProductCard from '../ProductCard';
 
 
@@ -14,24 +15,23 @@ export type ProductsListProps = {
   onProductPress?: (productId: string) => void;
   onRefresh: () => void;
   isRefreshing: boolean;
+  loading?: boolean;
+  error?: string | null;
+  onCreateFirst?: () => void;
 };
 
-export function ProductsList({ products, onProductPress, onRefresh, isRefreshing }: ProductsListProps) {
-  const colors = useThemeColor();
+export function ProductsList({ products, onProductPress, onRefresh, isRefreshing, loading, error, onCreateFirst }: ProductsListProps) {
   const { t } = useTranslation();
 
-
-  const renderEmptyState = () => {
-
-
-    return (
-      <View style={styles.emptyState}>
-        <ThemedText style={styles.emptyTitle}>
-          {'No products yet'}
-        </ThemedText>
-      </View>
-    );
-  };
+  const renderEmptyState = () => (
+    <EmptyState
+      icon="inventory"
+      title={t('noProductsYet')}
+      subtitle={t('noProductsYetSubtitle')}
+      actionLabel={onCreateFirst ? t('addProduct') : undefined}
+      onAction={onCreateFirst}
+    />
+  );
 
   return (
     <ThemedView style={styles.container}>
@@ -43,7 +43,11 @@ export function ProductsList({ products, onProductPress, onRefresh, isRefreshing
           <RefreshControl refreshing={isRefreshing} onRefresh={onRefresh} />
         }
       >
-        {products.length > 0 ? (
+        {loading ? (
+          <ListSkeleton />
+        ) : error && products.length === 0 ? (
+          <ErrorState message={error} onRetry={onRefresh} />
+        ) : products.length > 0 ? (
           products.map((product) => (
             <ProductCard
               key={product.id}
