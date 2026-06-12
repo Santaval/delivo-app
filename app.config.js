@@ -8,7 +8,7 @@ module.exports = ({ config }) => ({
     [
       "@rnmapbox/maps",
       {
-        RNMapboxMapsVersion: "11.8.0",
+        RNMapboxMapsVersion: "~> 11.20.1",
         RNMapboxMapsDownloadToken: process.env.MAPBOX_DOWNLOADS_TOKEN,
       },
     ],
