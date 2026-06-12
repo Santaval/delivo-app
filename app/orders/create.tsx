@@ -1,8 +1,7 @@
 import { ClientSelect, OrderItem, PrimaryButton, ProductSelect, TopBar } from '@/components';
 import { Spacing } from '@/constants';
 import OrdersService from '@/services/orders/Orders.service';
-import { useRoute } from '@react-navigation/native';
-import { router } from 'expo-router';
+import { router, useLocalSearchParams } from 'expo-router';
 import React, { useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { StyleSheet } from 'react-native';
@@ -13,9 +12,7 @@ export default function CreateOrder() {
   const [clientId, setClientId] = React.useState<string | undefined>(undefined);
   const [isSaving, setIsSaving] = React.useState<boolean>(false);
   const { t } = useTranslation();
-  // load client id param from route params
-  const route = useRoute();
-  const { clientId: defaultClientId } = route.params as { clientId?: string };
+  const { clientId: defaultClientId } = useLocalSearchParams<{ clientId?: string }>();
 
   useEffect(() => {
     setClientId(defaultClientId);
