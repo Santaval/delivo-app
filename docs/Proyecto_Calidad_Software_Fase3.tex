@@ -1,0 +1,408 @@
+\documentclass[11pt,a4paper]{article}
+
+% ============================================================
+% Paquetes
+% ============================================================
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[spanish]{babel}
+\usepackage[margin=2.5cm]{geometry}
+\usepackage{xcolor}
+\usepackage{booktabs}
+\usepackage{array}
+\usepackage{longtable}
+\usepackage{amsmath}
+\usepackage{enumitem}
+\usepackage{fancyhdr}
+\usepackage{listings}
+\usepackage[colorlinks=true,linkcolor=blue!50!black,urlcolor=blue!50!black]{hyperref}
+\usepackage{titlesec}
+
+% ============================================================
+% Colores y estilos
+% ============================================================
+\definecolor{verde}{RGB}{46,125,50}
+\definecolor{codebg}{RGB}{245,245,245}
+\definecolor{codekeyword}{RGB}{0,0,150}
+\definecolor{codestring}{RGB}{0,120,0}
+\definecolor{codecomment}{RGB}{120,120,120}
+
+\pagestyle{fancy}
+\fancyhf{}
+\fancyhead[R]{\footnotesize CI-0140\\Calidad de software\\I ciclo 2026}
+\renewcommand{\headrulewidth}{0pt}
+\fancyfoot[C]{\thepage}
+
+\lstdefinestyle{code}{
+  backgroundcolor=\color{codebg},
+  basicstyle=\ttfamily\footnotesize,
+  keywordstyle=\color{codekeyword}\bfseries,
+  stringstyle=\color{codestring},
+  commentstyle=\color{codecomment}\itshape,
+  breaklines=true,
+  frame=single,
+  rulecolor=\color{gray!50},
+  numbers=left,
+  numberstyle=\tiny\color{gray},
+  numbersep=6pt,
+  showstringspaces=false,
+  language=JavaScript,
+  columns=fullflexible,
+}
+\lstset{style=code}
+
+\newcommand{\campo}[2]{\par\noindent\textbf{#1:} #2\par\vspace{2pt}}
+\newcommand{\campopar}[2]{\par\noindent\textbf{#1:}\par\begin{quote}\noindent #2\end{quote}}
+
+\titleformat{\section}{\Large\bfseries}{\thesection}{1em}{}
+\titleformat{\subsection}{\large\bfseries}{\thesubsection}{1em}{}
+\titleformat{\subsubsection}{\normalsize\bfseries}{\thesubsubsection}{1em}{}
+
+\title{\vspace{-2cm}Proyecto de Calidad de Software\\[0.3cm]\Huge\textbf{Fase 3}\\[0.3cm]\large Sistema POS de entregas para PYMEs -- Delivo}
+\author{Aaron Santana Valdeloamr \\ Diego Cerdas Delgado}
+\date{2 de julio de 2026}
+
+\begin{document}
+
+\maketitle
+\thispagestyle{fancy}
+\begin{center}
+\textit{Repositorio: \texttt{tributocr-mobile} (aplicación móvil ``Delivo'')}
+\end{center}
+\vfill
+\begin{center}
+\small Universidad de Costa Rica -- Escuela de Ciencias de la Computación e Informática\\
+CI-0140 Calidad de Software -- I ciclo 2026
+\end{center}
+
+\newpage
+\tableofcontents
+\newpage
+
+% ============================================================
+\section{Introducción}
+% ============================================================
+
+Continuando el plan de calidad definido en las Fases 1 y 2 para \textbf{Delivo}, en esta
+iteración se seleccionaron dos casos de uso del \textit{product backlog} para programarlos y
+verificarlos de forma completa:
+
+\begin{enumerate}
+  \item \textbf{PBI-003 -- Registro y Gestión de Órdenes de Pedido.}
+  \item \textbf{PBI-004 -- Inteligencia Logística y Optimización de Rutas de Entrega.}
+\end{enumerate}
+
+Ambos ya contaban con una implementación funcional heredada del desarrollo incremental del
+producto. El trabajo de esta fase se concentró en dotarlos de pruebas automatizadas reales
+(no existían antes en el repositorio) y en ejecutar dos herramientas de análisis de código
+sobre el proyecto completo. Las métricas de GQM que se reportan con evidencia real son las
+del \textbf{Objetivo 3 (mantenibilidad)}, por ser el que corresponde directamente a los dos
+casos de uso trabajados; los objetivos 1, 2 y 4 dependen de módulos que no se tocaron en
+esta iteración y quedan pendientes de medir cuando se desarrollen.
+
+% ============================================================
+\section{Marco metodológico}
+% ============================================================
+
+\subsection{Características del proyecto}
+
+\begin{longtable}{p{4.2cm} p{10.3cm}}
+\toprule
+\textbf{Atributo} & \textbf{Valor} \\
+\midrule
+\endhead
+Nombre del producto & Delivo (repositorio \texttt{tributocr-mobile}) \\
+Framework & Expo SDK \textasciitilde 56, React Native 0.85.3 \\
+Lenguaje & TypeScript \textasciitilde 5.9.2, modo \texttt{strict} \\
+Enrutamiento & \texttt{expo-router} (basado en archivos) \\
+Mapas / ruteo & \texttt{@rnmapbox/maps} + \texttt{@mapbox/polyline} \\
+Persistencia & Sin base de datos embebida; backend REST remoto consumido vía \texttt{axios} (el cliente móvil es un \emph{thin client}) \\
+Monitoreo & \texttt{@sentry/react-native} y \texttt{expo-observe} \\
+Tamaño del código & 153 archivos \texttt{.ts}/\texttt{.tsx}, 17\,712 líneas de código \\
+Modelos de dominio & 9 interfaces en \texttt{types/*.d.ts}: \texttt{Order}, \texttt{Route}, \texttt{Client}, \texttt{Company}, \texttt{Product}, \texttt{PaymentMethod}, \texttt{User}, \texttt{FinancialSummary}, \texttt{Location} \\
+\bottomrule
+\end{longtable}
+
+\subsection{Arquitectura}
+
+El proyecto usa una arquitectura en capas organizada por dominio: pantallas y componentes
+de UI (\texttt{app/}, \texttt{components/}), estado con Context API y \textit{hooks} de
+dominio (\texttt{context/}, \texttt{hooks/}) que encapsulan \textit{fetch} + estado de
+carga/error, y una capa de servicios (\texttt{services/}) donde cada dominio hereda de una
+clase base común (\texttt{BaseApiService}) que envuelve los verbos HTTP. No es Redux ni
+Clean Architecture formal, pero separa responsabilidades de forma clara y hace que los
+servicios sean fácilmente sustituibles por \textit{mocks} en pruebas, como se aprovechó en
+la Sección~\ref{sec:pruebas}.
+
+\subsection{Proceso de desarrollo en esta iteración}
+
+De las diez actividades de V\&V definidas en la Fase 2, las que se ejecutaron concretamente
+sobre los dos casos de uso de esta fase fueron:
+
+\begin{itemize}[leftmargin=1.3cm]
+  \item \textbf{Análisis estático y \textit{code review}} (Desarrollador Principal): se
+  ejecutó ESLint sobre las 153 archivos del proyecto -- resultados en la
+  Sección~\ref{sec:analisis-estatico}.
+  \item \textbf{Pruebas unitarias del módulo \textit{core}} (Desarrollador de Software): se
+  configuró por primera vez la infraestructura de pruebas (Jest) y se escribieron 35 pruebas
+  para los dos casos de uso -- resultados en la Sección~\ref{sec:pruebas}.
+\end{itemize}
+
+Al ser un equipo de dos personas, la revisión de pares se hizo directamente sobre el código
+y las pruebas producidas, cada una trazable a un criterio de aceptación por su
+identificador (\texttt{CP-ORD-XX} / \texttt{CP-RUT-XX}). Esta revisión tuvo un efecto
+concreto: escribir las pruebas de rutas encontró un defecto real en producción, documentado
+en la Sección~\ref{sec:hallazgo-bug}.
+
+% ============================================================
+\section{Calidad general del producto}
+% ============================================================
+
+\subsection{Repositorio y versionamiento}
+
+\begin{itemize}[leftmargin=1.3cm]
+  \item \textbf{Ramas:} \texttt{main}, \texttt{development}, \texttt{production}, con flujo
+  \emph{feature branch} $\rightarrow$ \textit{Pull Request} $\rightarrow$ \textit{merge}.
+  \item \textbf{Convención de commits:} Conventional Commits en la mayoría de los 126
+  commits de \texttt{development} (72 \texttt{feat}, 6 \texttt{fix}, 3 \texttt{chore}, 1
+  \texttt{style}, más los \textit{merges} de PR).
+  \item \textbf{Contribuciones:} 124 commits de Aaron Santana (desarrollo incremental del
+  producto en fases previas) y 2 commits de Diego Cerdas correspondientes al trabajo de esta
+  iteración (infraestructura de pruebas y suite de pruebas con la corrección del defecto
+  encontrado).
+  \item \texttt{coverage/} se agregó a \texttt{.gitignore} para no versionar artefactos
+  generados por Jest.
+\end{itemize}
+
+\subsection{Casos de uso seleccionados}
+
+\subsubsection{PBI-003: Registro y Gestión de Órdenes de Pedido}
+
+\campopar{Descripción}{Como Repartidor o Administrador, quiero registrar nuevas órdenes
+ingresando el cliente, producto, cantidad y dirección, para mantener el control digitalizado
+de los pedidos pendientes de entrega.}
+
+\textbf{Implementación:} pantalla \texttt{app/orders/create.tsx}, servicio
+\texttt{services/orders/Orders.service.ts} (\texttt{create}, \texttt{addItemToOrder},
+\texttt{getOrderById}, \texttt{all}, entre otros), estado con \texttt{hooks/useOrders.ts} y
+modelo \texttt{types/Order.d.ts} (\texttt{OrderStatus}: \texttt{PENDING}/\texttt{PAID}/\texttt{CANCELLED}).
+
+\subsubsection{PBI-004: Inteligencia Logística y Optimización de Rutas de Entrega}
+
+\campopar{Descripción}{Como Administrador, quiero crear, organizar y optimizar las rutas de
+entrega basándome en la ubicación geográfica de los clientes, para minimizar la distancia
+recorrida y eliminar la planificación empírica.}
+
+\textbf{Implementación:} pantallas en \texttt{app/routes/}, servicio
+\texttt{services/routes/Routes.service.ts} (\texttt{create}, \texttt{find},
+\texttt{addPoint}, \texttt{startNavigation}, \texttt{completeDelivery}), estado con
+\texttt{context/RouteContext.tsx} (ordena las paradas y rastrea la entrega activa) y modelo
+\texttt{types/Route.d.ts}. La optimización de la secuencia de paradas y la polilínea se
+calculan en el backend; el cliente móvil solo decodifica y renderiza el resultado.
+
+\subsection{Casos de prueba}
+\label{sec:casos-prueba}
+
+Se automatizaron 22 casos de prueba entre los dos casos de uso; los más representativos:
+
+\begin{longtable}{p{1.7cm} p{4.6cm} p{4.1cm} p{4.1cm}}
+\toprule
+\textbf{ID} & \textbf{Descripción} & \textbf{Entrada} & \textbf{Resultado esperado} \\
+\midrule
+\endhead
+CP-ORD-01 & Crear una orden asociada a un cliente & \texttt{clientId: 'client-1'} & Orden creada con \texttt{status = PENDING} \\
+CP-ORD-08 & Buscar órdenes por cliente o número & texto \texttt{"esquina"} / \texttt{"202"} & Listado filtrado correctamente, sin distinguir mayúsculas \\
+CP-RUT-01 & Crear una ruta nueva & \texttt{\{ name: 'Ruta Centro' \}} & Ruta creada con \texttt{status = CREATED} \\
+CP-RUT-09 & Ordenar las paradas al obtener la ruta & \texttt{points} con índices desordenados & Puntos ordenados ascendentemente por \texttt{index} \\
+CP-RUT-11 & Completar la última parada pendiente & Ruta de una parada, entrega completada & \texttt{status} pasa a \texttt{COMPLETED} \\
+\bottomrule
+\end{longtable}
+
+\subsection{Pruebas automatizadas y cobertura}
+\label{sec:pruebas}
+
+El repositorio no tenía ninguna prueba automatizada antes de esta fase. Se configuró
+\texttt{jest-expo 56.0.5}, \texttt{@testing-library/react-native 13.3.3} y \texttt{jest
+29.7.0}, con la cobertura acotada a los cinco módulos donde vive la lógica de negocio de
+los dos casos de uso (medir el 100\,\% de la aplicación, incluyendo pantallas de módulos no
+tocados en esta iteración, habría diluido la métrica sin aportar evidencia real).
+
+\begin{longtable}{p{6.5cm} p{2.2cm} p{2.2cm} p{2.2cm}}
+\toprule
+\textbf{Archivo} & \textbf{\% Sentencias} & \textbf{\% Funciones} & \textbf{\% Líneas} \\
+\midrule
+\endhead
+\texttt{Orders.service.ts} & 100\,\% & 100\,\% & 100\,\% \\
+\texttt{Routes.service.ts} & 100\,\% & 100\,\% & 100\,\% \\
+\texttt{useOrders.ts} & 96.29\,\% & 100\,\% & 100\,\% \\
+\texttt{useRoutes.ts} & 95.00\,\% & 100\,\% & 100\,\% \\
+\texttt{RouteContext.tsx} & 93.82\,\% & 100\,\% & 98.59\,\% \\
+\midrule
+\textbf{Total (392 LOC, 35 pruebas)} & \textbf{95.42\,\%} & \textbf{100\,\%} & \textbf{99.28\,\%} \\
+\bottomrule
+\end{longtable}
+
+La cobertura por sentencias, funciones y líneas supera el 90\,\% exigido (la cobertura de
+ramas quedó en 70.45\,\%, menor, porque algunas combinaciones de manejo de error se
+priorizaron menos frente al tiempo disponible).
+
+\subsubsection{Hallazgo: defecto encontrado y corregido}
+\label{sec:hallazgo-bug}
+
+Al escribir las pruebas de \texttt{RouteContext.tsx} se detectó que la ruta nunca se
+marcaba como \texttt{COMPLETED} cuando la primera parada pendiente estaba en el índice
+\texttt{0} (el caso más común, toda ruta recién creada). La causa: usar \texttt{||} para un
+valor que puede ser legítimamente \texttt{0}, que en JavaScript es \textit{falsy}.
+
+\begin{lstlisting}[caption={\texttt{context/RouteContext.tsx}: antes y después de la corrección}]
+// Antes: "findIndex(...) || null" convierte el indice 0 en null
+setCurrentPointIndex(orderedPoints.findIndex(p => p.status === 'CREATED') || null);
+
+// Despues: comparacion explicita en vez de coercion implicita
+const pendingIndex = orderedPoints.findIndex(p => p.status === 'CREATED');
+setCurrentPointIndex(pendingIndex === -1 ? null : pendingIndex);
+\end{lstlisting}
+
+Sin esta corrección, un repartidor que completaba la última parada de una ruta nunca veía la
+ruta transicionar a \texttt{COMPLETED}. Es la evidencia más concreta de que las pruebas
+automatizadas de esta iteración tuvieron valor real más allá de una cifra de cobertura.
+
+\subsection{Métricas de GQM ejecutadas}
+
+Del marco GQM de la Fase 2, el Objetivo 3 (mantenibilidad) es el medible con la evidencia de
+esta iteración:
+
+\begin{longtable}{p{7.5cm} p{2.2cm} p{2.5cm}}
+\toprule
+\textbf{Métrica M3.2 -- Complejidad Ciclomática} & \textbf{Valor} & \textbf{Rango (Fase 2)} \\
+\midrule
+\endhead
+Promedio (20 funciones medidas con ESLint, regla \texttt{complexity}) & 3.05 & \textcolor{verde}{Óptimo (1--10)} \\
+Máxima & 5 & \textcolor{verde}{Óptimo} \\
+\bottomrule
+\end{longtable}
+
+El objetivo se cumple para el código de esta iteración: ninguna función supera 5, muy por
+debajo del umbral crítico de 20. La métrica M3.1 (Índice de Mantenibilidad) no pudo
+calcularse: requiere el Volumen de Halstead, y las herramientas disponibles para eso
+(\texttt{complexity-report}, \texttt{escomplex}) no soportan \texttt{async}/\texttt{await} ni
+sintaxis moderna de TypeScript --- se documenta como limitación real en vez de reportar un
+número sin respaldo. Los objetivos 1, 2 y 4 (facturación, visibilidad en exteriores, datos
+sensibles) dependen de módulos fuera del alcance de esta iteración y quedan pendientes de
+medir.
+
+% ============================================================
+\section{Análisis estático}
+\label{sec:analisis-estatico}
+% ============================================================
+
+El análisis estático examina el código fuente sin ejecutarlo, para detectar errores,
+malas prácticas o patrones riesgosos antes de llegar a producción; se complementa con el
+análisis dinámico, que observa el sistema en ejecución. Para esta entrega se usaron
+\textbf{ESLint} (estático) y \textbf{Sentry} (monitoreo dinámico de errores en producción),
+ya integrado y usado activamente en el producto real. Se incluye pese a no ser una
+herramienta estática porque permite comparar dos filosofías de calidad complementarias, como
+se muestra en la Sección~\ref{sec:comparacion}.
+
+\subsection{ESLint}
+
+Creado por Nicholas C.\ Zakas en 2013, ESLint es el \textit{linter} estándar del ecosistema
+JavaScript/TypeScript: construye un árbol de sintaxis (AST) y lo evalúa contra reglas
+configurables de estilo, buenas prácticas y errores probables. El proyecto usa
+\texttt{eslint 9.25.0} (\textit{flat config}) con el preset \texttt{eslint-config-expo
+10.0.0}, ejecutado con \texttt{npm run lint}.
+
+\subsection{Sentry}
+
+Originada en 2008 como herramienta interna de Disqus y luego liberada como proyecto de
+código abierto, Sentry captura excepciones y \textit{crashes} de una aplicación en
+ejecución, con contexto de dispositivo/usuario y repetición visual de la sesión
+(\textit{session replay}). El proyecto usa \texttt{@sentry/react-native \textasciitilde
+7.11.0}, inicializado en \texttt{app/\_layout.tsx}:
+
+\begin{lstlisting}[caption={Inicialización de Sentry (\texttt{app/\_layout.tsx})}]
+Sentry.init({
+  dsn: 'https://...@o4511549122084864.ingest.us.sentry.io/...',
+  replaysSessionSampleRate: 0.1,
+  replaysOnErrorSampleRate: 1,
+  integrations: [Sentry.mobileReplayIntegration(), Sentry.feedbackIntegration()],
+});
+export default Sentry.wrap(ObserveRoot.wrap(RootLayout));
+\end{lstlisting}
+
+Además del \textit{wrap} global, \texttt{components/feedback/ErrorBoundary.tsx} captura
+explícitamente los errores de renderizado de React vía \texttt{Sentry.captureException}.
+
+\subsection{Resultados}
+
+\begin{longtable}{p{6.5cm} p{3cm} p{3cm}}
+\toprule
+\textbf{Regla de ESLint} & \textbf{Categoría} & \textbf{Ocurrencias} \\
+\midrule
+\endhead
+\texttt{@typescript-eslint/no-unused-vars} & Código muerto & 35 \\
+\texttt{react-hooks/exhaustive-deps} & \textit{Hooks} & 17 \\
+\texttt{@typescript-eslint/array-type} & Estilo & 2 \\
+\texttt{import/no-named-as-default-member} & Importaciones & 2 \\
+\midrule
+\textbf{Total} & \textbf{0 errores, 56 advertencias} & (165 archivos, 37 con alguna advertencia) \\
+\bottomrule
+\end{longtable}
+
+Cero errores en todo el proyecto es una señal fuerte de calidad; las advertencias son deuda
+técnica localizable, sin bloquear el \textit{build}.
+
+Sobre Sentry: solo dos archivos de todo el proyecto lo invocan (\texttt{app/\_layout.tsx} y
+\texttt{ErrorBoundary.tsx}). Ningún \texttt{catch} de \texttt{services/} o \texttt{hooks/}
+--- incluyendo los de Órdenes y Rutas --- reporta a Sentry; todos usan solo
+\texttt{console.error}. En producción, un fallo de red al crear una orden no genera ningún
+evento en Sentry, solo un \textit{toast} para el usuario.
+
+\subsection{Comparación}
+\label{sec:comparacion}
+
+\begin{longtable}{p{3cm} p{5.7cm} p{5.7cm}}
+\toprule
+ & \textbf{ESLint} & \textbf{Sentry} \\
+\midrule
+\endhead
+Tipo & Estático, sin ejecución & Dinámico, en producción \\
+Cuándo detecta & En cada \textit{commit}/PR & Solo si el código defectuoso se ejecuta y falla \\
+Qué detecta & Código muerto, malas prácticas, complejidad & Excepciones y \textit{crashes} reales, con contexto de sesión \\
+Falsos negativos & No detectó el bug de la Sección~\ref{sec:hallazgo-bug} (sintaxis válida) & Ciego a errores que solo se registran con \texttt{console.error} \\
+Costo & Gratuito, sin infraestructura & Cuota de eventos/\textit{replays} en el plan pagado \\
+\bottomrule
+\end{longtable}
+
+Ambas herramientas son factibles en proyectos grandes: ESLint escala sin costo adicional y
+es el estándar de facto del ecosistema; Sentry gana valor con el tráfico real, pero su
+utilidad depende de que el equipo instrumente el código de negocio, no solo el nivel
+superior de la aplicación.
+
+% ============================================================
+\section{Conclusiones}
+% ============================================================
+
+La calidad de los dos casos de uso trabajados se sustenta en evidencia verificable: pruebas
+automatizadas reales que antes no existían (35 casos, cobertura de sentencias/funciones/líneas
+sobre el 90\,\% exigido), análisis estático limpio (0 errores de ESLint, complejidad
+ciclomática baja) y un defecto funcional real detectado y corregido gracias a las pruebas.
+
+\textbf{Lecciones aprendidas:}
+
+\begin{itemize}[leftmargin=1.3cm]
+  \item El análisis estático y las pruebas dinámicas no son intercambiables: el bug de
+  \texttt{RouteContext.tsx} era sintácticamente válido y solo una prueba de comportamiento
+  lo reveló.
+  \item Adoptar pruebas en un proyecto que nunca las tuvo tiene un costo de arranque
+  (versión correcta de \texttt{jest-expo}, resolución de dependencias nativas), pero la capa
+  de servicios y \textit{hooks}, al estar desacoplada de la UI, fue rápida de probar.
+  \item Tener Sentry integrado no garantiza observabilidad si no se instrumenta en todas las
+  capas; instrumentar los \texttt{catch} de la capa de servicios queda como mejora para la
+  siguiente iteración.
+  \item Medir solo lo que hay evidencia real para medir --- en vez de reportar los cuatro
+  objetivos de GQM cuando solo dos casos de uso se trabajaron --- es en sí una práctica de
+  calidad.
+\end{itemize}
+
+\end{document}
