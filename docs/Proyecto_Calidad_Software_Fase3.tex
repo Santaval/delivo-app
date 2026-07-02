@@ -6,7 +6,8 @@
 \usepackage[utf8]{inputenc}
 \usepackage[T1]{fontenc}
 \usepackage[spanish]{babel}
-\usepackage[margin=2.5cm]{geometry}
+\usepackage[margin=2.5cm,headheight=32pt]{geometry}
+\usepackage[expansion=false]{microtype}
 \usepackage{xcolor}
 \usepackage{booktabs}
 \usepackage{array}
@@ -27,6 +28,7 @@
 \definecolor{codestring}{RGB}{0,120,0}
 \definecolor{codecomment}{RGB}{120,120,120}
 
+\sloppy
 \pagestyle{fancy}
 \fancyhf{}
 \fancyhead[R]{\footnotesize CI-0140\\Calidad de software\\I ciclo 2026}
@@ -46,7 +48,9 @@
   numberstyle=\tiny\color{gray},
   numbersep=6pt,
   showstringspaces=false,
-  language=JavaScript,
+  morekeywords={const,let,var,await,async,return,if,else,throw,new,export,
+    default,function,class,import,from,null,true,false,static,try,catch,
+    finally,extends,this},
   columns=fullflexible,
 }
 \lstset{style=code}
