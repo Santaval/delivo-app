@@ -15,9 +15,9 @@ export default class AuthService extends BaseApiService {
    * @returns A promise that resolves to a `User` object upon successful login.
    * @throws An error if the login request fails, with the error message from the API response.
    */
-  static async googleAuth(token: string): Promise<{token: string, user: User}> {
+  static async googleAuth(token: string): Promise<{ token: string, user: User }> {
     try {
-      const { data } = await this.post<{token: string, user: User}>(`/auth/google`, {
+      const { data } = await this.post<{ token: string, user: User }>(`/auth/google`, {
         token,
       });
       return data;
@@ -35,10 +35,10 @@ export default class AuthService extends BaseApiService {
    * @returns A promise that resolves to a `User` object upon successful login.
    * @throws An error if the login request fails, with the error message from the API response.
    */
-  static async appleAuth(token: string): Promise<{token: string, user: User}> {
+  static async appleAuth(token: string): Promise<{ token: string, user: User }> {
     try {
-      const { data } = await this.post<{token: string, user: User}>(`/auth/apple`, {
-        token,
+      const { data } = await this.post<{ token: string, user: User }>(`/auth/apple`, {
+        identityToken: token,
       });
       return data;
     } catch (error) {
@@ -47,7 +47,7 @@ export default class AuthService extends BaseApiService {
     }
   }
 
-  
+
 
   static async getUser(): Promise<User> {
     try {

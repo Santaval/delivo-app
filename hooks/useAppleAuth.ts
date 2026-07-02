@@ -7,7 +7,6 @@ export function useAppleAuth() {
 
   const onAppleSignIn = async () => {
     try {
-      // Check if Apple authentication is available
       if (Platform.OS !== 'ios') {
         throw new Error('Apple Sign In is only available on iOS');
       }
@@ -23,7 +22,7 @@ export function useAppleAuth() {
           AppleAuthentication.AppleAuthenticationScope.EMAIL,
         ],
       });
-      
+
       if (credential.identityToken) {
         await appleAuth(credential.identityToken);
       } else {
