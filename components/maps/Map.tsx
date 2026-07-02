@@ -1,8 +1,8 @@
-import MapboxGL from "@rnmapbox/maps";
+import useUserLocation from "@/hooks/useUserLocation";
 import polyline from "@mapbox/polyline";
+import MapboxGL from "@rnmapbox/maps";
 import { Component, ReactNode } from "react";
 import { StyleSheet, Text, View } from "react-native";
-import useUserLocation from "@/hooks/useUserLocation";
 import { CustomMarker } from "./CustomMarker";
 
 type MarkerProps = {
@@ -51,17 +51,17 @@ function MapContent({ markers, polylines }: Props) {
 
   const routeShape: GeoJSON.Feature<GeoJSON.LineString> | null = polylines
     ? {
-        type: "Feature",
-        geometry: {
-          type: "LineString",
-          coordinates: polyline.decode(polylines).map(([lat, lng]) => [lng, lat]),
-        },
-        properties: {},
-      }
+      type: "Feature",
+      geometry: {
+        type: "LineString",
+        coordinates: polyline.decode(polylines).map(([lat, lng]) => [lng, lat]),
+      },
+      properties: {},
+    }
     : null;
 
   return (
-    <MapboxGL.MapView style={styles.map}>
+    <MapboxGL.MapView style={styles.map} styleURL="mapbox://styles/savaldev/cm15n4dn1001l01qk10xtb9lh">
       <MapboxGL.Camera
         centerCoordinate={centerCoordinate}
         zoomLevel={12}
@@ -81,7 +81,7 @@ function MapContent({ markers, polylines }: Props) {
         <MapboxGL.ShapeSource id="routeSource" shape={routeShape}>
           <MapboxGL.LineLayer
             id="routeLine"
-            style={{ lineColor: "#000", lineWidth: 6 }}
+            style={{ lineColor: "#0077ffff", lineWidth: 6 }}
           />
         </MapboxGL.ShapeSource>
       )}
