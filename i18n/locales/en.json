@@ -301,5 +301,17 @@
   "manageSubscription": "Manage Subscription",
   "restorePurchases": "Restore Purchases",
   "failedToCreateOrder": "Failed to create order. Please try again.",
-  "swipeToConfirmHint": "Swipe right to confirm, or double tap to activate"
+  "swipeToConfirmHint": "Swipe right to confirm, or double tap to activate",
+  "planLimitTitle": "Limit reached",
+  "planLimitMessage": "You've used {{used}} of {{limit}} {{resource}} on your {{tier}} plan.",
+  "planLimitMessageGeneric": "You've reached the limit of your {{tier}} plan.",
+  "planUpgradedRetry": "You're all set — try that again.",
+  "notNow": "Not now",
+  "planResource_orders": "orders",
+  "planResource_products": "products",
+  "planResource_clients": "clients",
+  "planResource_routes": "routes",
+  "planResource_bills": "bills",
+  "planResource_companies": "companies",
+  "planForCompany": "Plan for: {{company}}"
 }

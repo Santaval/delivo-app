@@ -2,6 +2,7 @@ import { ThemedText } from '@/components/ThemedText';
 import { ThemedView } from '@/components/ThemedView';
 import { Colors, Spacing, Typography } from '@/constants';
 import { useAuth } from '@/context/AuthContext';
+import { useCompanies } from '@/context/CompaniesContext';
 import { usePurchases } from '@/context/PurchasesContext';
 import { useToast } from '@/context/ToastContext';
 import { confirmDestructive } from '@/utils/confirm';
@@ -17,6 +18,7 @@ import {
 
 export default function AccountScreen() {
   const { user, logout } = useAuth();
+  const { activeCompany } = useCompanies();
   const { t } = useTranslation();
   const toast = useToast();
   const {
@@ -84,6 +86,13 @@ export default function AccountScreen() {
             </ThemedText>
             {isLoading && <ActivityIndicator size="small" color={Colors.light.primary} />}
           </View>
+
+          {/* The plan is scoped to the company, not the account */}
+          {activeCompany && (
+            <ThemedText variant="caption" style={styles.cardCompany}>
+              {t('planForCompany', { company: activeCompany.name })}
+            </ThemedText>
+          )}
 
           {isPro ? (
             <ThemedText variant="caption" style={styles.cardDescription}>
@@ -223,6 +232,10 @@ const styles = StyleSheet.create({
     flex: 1,
     fontSize: Typography.fontSize.lg,
     fontWeight: Typography.fontWeight.semibold,
+  },
+  cardCompany: {
+    color: Colors.light.textSecondary,
+    marginBottom: Spacing.xs,
   },
   cardDescription: {
     color: Colors.light.textSecondary,

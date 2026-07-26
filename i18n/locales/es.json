@@ -302,5 +302,17 @@
   "manageSubscription": "Administrar suscripción",
   "restorePurchases": "Restaurar compras",
   "failedToCreateOrder": "Error al crear el pedido. Intenta de nuevo.",
-  "swipeToConfirmHint": "Desliza hacia la derecha para confirmar, o toca dos veces para activar"
+  "swipeToConfirmHint": "Desliza hacia la derecha para confirmar, o toca dos veces para activar",
+  "planLimitTitle": "Límite alcanzado",
+  "planLimitMessage": "Has usado {{used}} de {{limit}} {{resource}} en tu plan {{tier}}.",
+  "planLimitMessageGeneric": "Has alcanzado el límite de tu plan {{tier}}.",
+  "planUpgradedRetry": "¡Todo listo! Vuelve a intentarlo.",
+  "notNow": "Ahora no",
+  "planResource_orders": "pedidos",
+  "planResource_products": "productos",
+  "planResource_clients": "clientes",
+  "planResource_routes": "rutas",
+  "planResource_bills": "facturas",
+  "planResource_companies": "empresas",
+  "planForCompany": "Plan para: {{company}}"
 }

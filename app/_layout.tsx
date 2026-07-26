@@ -3,6 +3,7 @@ import { OfflineBanner } from "@/components/feedback/OfflineBanner";
 import config from "@/config/env";
 import { AuthProvider } from "@/context/AuthContext";
 import { CompaniesProvider } from "@/context/CompaniesContext";
+import { PlanLimitProvider } from "@/context/PlanLimitContext";
 import { PurchasesProvider } from "@/context/PurchasesContext";
 import { ToastProvider } from "@/context/ToastContext";
 import RevenueCatService from "@/services/purchases/RevenueCat.service";
@@ -34,10 +35,12 @@ function RootLayout() {
         <PurchasesProvider>
           <GestureHandlerRootView>
             <ToastProvider>
-              <ErrorBoundary>
-                <Stack screenOptions={{ headerShown: false }} />
-                <OfflineBanner />
-              </ErrorBoundary>
+              <PlanLimitProvider>
+                <ErrorBoundary>
+                  <Stack screenOptions={{ headerShown: false }} />
+                  <OfflineBanner />
+                </ErrorBoundary>
+              </PlanLimitProvider>
             </ToastProvider>
           </GestureHandlerRootView>
         </PurchasesProvider>

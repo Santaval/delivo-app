@@ -77,7 +77,8 @@ export const RouteProvider = ({ children, routeId }: RouteProviderProps) => {
       const orderedPoints = routeData.points.sort((a, b) => a.index - b.index);
       routeData.points = orderedPoints;
       setRoute(routeData);
-      setCurrentPointIndex(orderedPoints.findIndex(point => point.status === 'CREATED') || null);
+      const pendingIndex = orderedPoints.findIndex(point => point.status === 'CREATED');
+      setCurrentPointIndex(pendingIndex === -1 ? null : pendingIndex);
     } catch (err) {
       setError('Failed to load route');
       console.error('Failed to fetch route:', err);
@@ -122,8 +123,8 @@ export const RouteProvider = ({ children, routeId }: RouteProviderProps) => {
   };
 
   const getCurrentPoint = () => {
-    if (!route) return null;
-    return route.points[currentPointIndex || 0] || null;
+    if (!route || currentPointIndex === null) return null;
+    return route.points[currentPointIndex] || null;
   };
 
   const getNextPoint = () => {
