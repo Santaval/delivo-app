@@ -8,11 +8,11 @@ import Purchases, {
 import { Platform } from 'react-native';
 
 export const ENTITLEMENTS = {
-  PRO: 'Delivo Pro',
+  PRO: 'arranque',
 } as const;
 
 export const OFFERING_IDENTIFIERS = {
-  DEFAULT: 'default',
+  DEFAULT: 'delivo_arranque',
 } as const;
 
 class RevenueCatService {
@@ -28,11 +28,15 @@ class RevenueCatService {
     Purchases.configure({ apiKey });
   }
 
-  async logIn(userId: string): Promise<void> {
-    await Purchases.logIn(userId);
+  /** `appUserId` is the active company id — subscriptions belong to a company, not a user. */
+  async logIn(appUserId: string): Promise<void> {
+    await Purchases.logIn(appUserId);
   }
 
   async logOut(): Promise<void> {
+    // logOut rejects if the current app user id is already anonymous, which is
+    // a normal state here (fresh install, or logging out twice)
+    if (await Purchases.isAnonymous()) return;
     await Purchases.logOut();
   }
 

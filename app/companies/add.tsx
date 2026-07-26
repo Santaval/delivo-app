@@ -37,8 +37,11 @@ export default function AddCompanyPage() {
     setIsLoading(true);
     try {
       const company = await CompaniesService.create(name);
-      selectCompany(company.id);
-      refreshUser();
+      // Persist the id + header first, then refresh so `companies` picks up the
+      // new company and CompaniesContext can resolve it into activeCompany —
+      // which is what triggers the RevenueCat login for it.
+      await selectCompany(company.id);
+      await refreshUser();
       router.replace('/companies/select');
 
     } catch (error) {

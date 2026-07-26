@@ -11,6 +11,7 @@ module.exports = {
   collectCoverageFrom: [
     'services/orders/Orders.service.ts',
     'services/routes/Routes.service.ts',
+    'services/errors/PlanLimit.ts',
     'hooks/useOrders.ts',
     'hooks/useRoutes.ts',
     'context/RouteContext.tsx',
