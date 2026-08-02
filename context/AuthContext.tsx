@@ -52,7 +52,7 @@ interface AuthContextType {
 const initialState: AuthState = {
   token: null,
   authenticated: false,
-  isLoading: false,
+  isLoading: true,
   error: null,
 };
 
@@ -150,7 +150,6 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   useEffect(() => {
     const loadToken = async () => {
       try {
-        setLoading(true);
         const token = await SecureStore.getItemAsync("token");
         
         if (token) {

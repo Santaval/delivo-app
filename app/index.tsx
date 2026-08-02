@@ -15,7 +15,7 @@ import { StatusBar } from "expo-status-bar";
 import * as WebBrowser from "expo-web-browser";
 import { useEffect } from "react";
 import { useTranslation } from "react-i18next";
-import { StyleSheet, View } from "react-native";
+import { ActivityIndicator, StyleSheet, View } from "react-native";
 
 export default function Index() {
   const colors = useThemeColor();
@@ -30,11 +30,20 @@ export default function Index() {
   };
 
   useEffect(() => {
-    if (authState.isLoading) return; // Still loading
-    if (authState.authenticated && activeCompany) {
-      router.replace(Routes.home);
-    }
+    if (authState.isLoading) return;
+    if (authState.authenticated && activeCompany) router.replace(Routes.home);
   }, [authState, activeCompany]);
+
+  if (authState.isLoading || authState.authenticated) {
+    return (
+      <ThemedView style={styles.container}>
+        <StatusBar style="auto" />
+        <View style={styles.centerContent}>
+          <ActivityIndicator size="large" color={colors.primary} />
+        </View>
+      </ThemedView>
+    );
+  }
 
   return (
     <ThemedView style={styles.container}>
@@ -98,6 +107,11 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     paddingHorizontal: Spacing.xl,
+  },
+  centerContent: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   logoSection: {
     flex: 0.3,
