@@ -11,7 +11,6 @@ import ClientCompactCard from "@/components/clients/ClientCompactCard";
 import ClientLocationView from "@/components/clients/ClientLocationView";
 import ClientOrders from "@/components/clients/ClientOrders";
 import { BorderRadius, ClientsProfileParams, Routes, Shadows, Spacing, Typography } from "@/constants";
-import { Colors } from "@/constants/Colors";
 import useClient from "@/hooks/useClient";
 import { useThemeColor } from "@/hooks/useColorScheme";
 import useCustomerOrders from "@/hooks/useCustomerOrders";
@@ -106,7 +105,7 @@ export default function ClientProfile() {
 
   if (isInitialLoading) {
     return (
-      <ThemedView style={styles.container}>
+      <ThemedView style={[styles.container, { backgroundColor: colors.backgroundSecondary }]}>
         <TopBar title={t("clientProfile")} showBack backTo={Routes.tabClients} />
         <LoadingState message={t('loading')} />
       </ThemedView>
@@ -115,7 +114,7 @@ export default function ClientProfile() {
 
   if (!client) {
     return (
-      <ThemedView style={styles.container}>
+      <ThemedView style={[styles.container, { backgroundColor: colors.backgroundSecondary }]}>
         <TopBar title={t("clientProfile")} showBack backTo={Routes.tabClients} />
         <View style={styles.centerContent}>
           <MaterialIcons name="error-outline" size={48} color={colors.danger} />
@@ -133,7 +132,7 @@ export default function ClientProfile() {
   }
 
   return (
-    <SafeAreaView style={styles.container}>
+    <SafeAreaView style={[styles.container, { backgroundColor: colors.backgroundSecondary }]}>
       <TopBar title={t("clientProfile")} showBack backTo={Routes.tabClients} />
 
       <View style={styles.contentWrapper}>
@@ -156,7 +155,7 @@ export default function ClientProfile() {
           {/* Edit / Delete actions */}
           <View style={styles.actionsRow}>
             <TouchableOpacity
-              style={[styles.actionButton, { borderColor: colors.border }]}
+              style={[styles.actionButton, { backgroundColor: colors.background, borderColor: colors.border }]}
               onPress={handleEdit}
               activeOpacity={0.7}
             >
@@ -166,7 +165,7 @@ export default function ClientProfile() {
               </Text>
             </TouchableOpacity>
             <TouchableOpacity
-              style={[styles.actionButton, { borderColor: colors.danger + "55" }]}
+              style={[styles.actionButton, { backgroundColor: colors.background, borderColor: colors.danger + "55" }]}
               onPress={handleDelete}
               activeOpacity={0.7}
               disabled={isMutating}
@@ -181,26 +180,38 @@ export default function ClientProfile() {
           {/* Tabs */}
           <View style={styles.tabsContainer}>
             <TouchableOpacity
-              style={[styles.tab, activeTab === "orders" && styles.activeTab]}
+              style={[
+                styles.tab,
+                activeTab === "orders" && styles.activeTab,
+                activeTab === "orders" && { borderBottomColor: colors.primary },
+              ]}
               onPress={() => setActiveTab("orders")}
             >
               <Text
                 style={[
                   styles.tabText,
+                  { color: colors.textSecondary },
                   activeTab === "orders" && styles.activeTabText,
+                  activeTab === "orders" && { color: colors.primary },
                 ]}
               >
                 {t("orders")}
               </Text>
             </TouchableOpacity>
             <TouchableOpacity
-              style={[styles.tab, activeTab === "bills" && styles.activeTab]}
+              style={[
+                styles.tab,
+                activeTab === "bills" && styles.activeTab,
+                activeTab === "bills" && { borderBottomColor: colors.primary },
+              ]}
               onPress={() => setActiveTab("bills")}
             >
               <Text
                 style={[
                   styles.tabText,
+                  { color: colors.textSecondary },
                   activeTab === "bills" && styles.activeTabText,
+                  activeTab === "bills" && { color: colors.primary },
                 ]}
               >
                 {t("bills")}
@@ -208,13 +219,19 @@ export default function ClientProfile() {
             </TouchableOpacity>
 
             <TouchableOpacity
-              style={[styles.tab, activeTab === "location" && styles.activeTab]}
+              style={[
+                styles.tab,
+                activeTab === "location" && styles.activeTab,
+                activeTab === "location" && { borderBottomColor: colors.primary },
+              ]}
               onPress={() => setActiveTab("location")}
             >
               <Text
                 style={[
                   styles.tabText,
+                  { color: colors.textSecondary },
                   activeTab === "location" && styles.activeTabText,
+                  activeTab === "location" && { color: colors.primary },
                 ]}
               >
                 {t("location")}
@@ -261,7 +278,6 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     padding: Spacing.lg,
-    backgroundColor: Colors.light.backgroundSecondary,
   },
   scrollView: {
     flex: 1,
@@ -288,7 +304,6 @@ const styles = StyleSheet.create({
     marginTop: Spacing.md,
     fontSize: Typography.fontSize.base,
     textAlign: "center",
-    color: Colors.light.textSecondary,
   },
   errorText: {
     fontSize: Typography.fontSize.lg,
@@ -301,7 +316,6 @@ const styles = StyleSheet.create({
     paddingHorizontal: Spacing.xl,
   },
   clientInfoCard: {
-    backgroundColor: Colors.light.background,
     padding: Spacing.lg,
     marginHorizontal: Spacing.lg,
     marginTop: Spacing.lg,
@@ -315,7 +329,6 @@ const styles = StyleSheet.create({
     width: 60,
     height: 60,
     borderRadius: 30,
-    backgroundColor: Colors.light.primary,
     justifyContent: "center",
     alignItems: "center",
     marginRight: Spacing.md,
@@ -323,7 +336,6 @@ const styles = StyleSheet.create({
   clientAvatarText: {
     fontSize: Typography.fontSize["2xl"],
     fontWeight: Typography.fontWeight.bold,
-    color: Colors.light.textInverse,
   },
   clientInfo: {
     flex: 1,
@@ -331,20 +343,16 @@ const styles = StyleSheet.create({
   clientName: {
     fontSize: Typography.fontSize.lg,
     fontWeight: Typography.fontWeight.bold,
-    color: Colors.light.text,
     marginBottom: Spacing.xs / 2,
   },
   clientPhone: {
     fontSize: Typography.fontSize.sm,
-    color: Colors.light.textSecondary,
     marginBottom: Spacing.xs / 2,
   },
   clientEmail: {
     fontSize: Typography.fontSize.sm,
-    color: Colors.light.textSecondary,
   },
   balanceCard: {
-    backgroundColor: Colors.light.background,
     padding: Spacing.xl,
     marginHorizontal: Spacing.lg,
     marginBottom: Spacing.md,
@@ -355,14 +363,12 @@ const styles = StyleSheet.create({
   balanceLabel: {
     fontSize: Typography.fontSize.xs,
     fontWeight: Typography.fontWeight.semibold,
-    color: Colors.light.textSecondary,
     letterSpacing: 1,
     marginBottom: Spacing.xs,
   },
   balanceAmount: {
     fontSize: Typography.fontSize["4xl"],
     fontWeight: Typography.fontWeight.bold,
-    color: Colors.light.text,
   },
   tabsContainer: {
     flexDirection: "row",
@@ -377,16 +383,12 @@ const styles = StyleSheet.create({
     borderBottomWidth: 2,
     borderBottomColor: "transparent",
   },
-  activeTab: {
-    borderBottomColor: Colors.light.primary,
-  },
+  activeTab: {},
   tabText: {
     fontSize: Typography.fontSize.base,
     fontWeight: Typography.fontWeight.medium,
-    color: Colors.light.textSecondary,
   },
   activeTabText: {
-    color: Colors.light.primary,
     fontWeight: Typography.fontWeight.semibold,
   },
   tabContent: {
@@ -403,27 +405,19 @@ const styles = StyleSheet.create({
     paddingHorizontal: Spacing.md,
     paddingVertical: Spacing.sm,
     borderRadius: BorderRadius.full,
-    backgroundColor: Colors.light.background,
     borderWidth: 1,
-    borderColor: Colors.light.border,
     gap: Spacing.xs,
   },
-  allChip: {
-    backgroundColor: Colors.light.primary + "15",
-    borderColor: Colors.light.primary,
-  },
+  allChip: {},
   chipText: {
     fontSize: Typography.fontSize.sm,
-    color: Colors.light.textSecondary,
     fontWeight: Typography.fontWeight.medium,
   },
   allChipText: {
     fontSize: Typography.fontSize.sm,
-    color: Colors.light.primary,
     fontWeight: Typography.fontWeight.semibold,
   },
   chipBadge: {
-    backgroundColor: Colors.light.primary,
     borderRadius: BorderRadius.full,
     minWidth: 20,
     height: 20,
@@ -431,12 +425,9 @@ const styles = StyleSheet.create({
     alignItems: "center",
     paddingHorizontal: Spacing.xs,
   },
-  pendingBadge: {
-    backgroundColor: Colors.light.backgroundSecondary,
-  },
+  pendingBadge: {},
   chipBadgeText: {
     fontSize: Typography.fontSize.xs,
-    color: Colors.light.textInverse,
     fontWeight: Typography.fontWeight.bold,
   },
   loadingContainer: {
@@ -447,7 +438,6 @@ const styles = StyleSheet.create({
     gap: Spacing.md,
   },
   orderItem: {
-    backgroundColor: Colors.light.background,
     padding: Spacing.lg,
     borderRadius: BorderRadius.lg,
     ...Shadows.small,
@@ -462,34 +452,25 @@ const styles = StyleSheet.create({
     paddingHorizontal: Spacing.sm,
     paddingVertical: Spacing.xs / 2,
     borderRadius: BorderRadius.sm,
-    backgroundColor: Colors.light.backgroundSecondary,
   },
   orderStatusText: {
     fontSize: Typography.fontSize.xs,
     fontWeight: Typography.fontWeight.bold,
-    color: Colors.light.textSecondary,
     textTransform: "uppercase",
   },
-  paidStatus: {
-    color: Colors.light.success,
-  },
-  pendingStatus: {
-    color: Colors.light.warning,
-  },
+  paidStatus: {},
+  pendingStatus: {},
   orderAmount: {
     fontSize: Typography.fontSize.lg,
     fontWeight: Typography.fontWeight.bold,
-    color: Colors.light.text,
   },
   orderNumber: {
     fontSize: Typography.fontSize.base,
     fontWeight: Typography.fontWeight.semibold,
-    color: Colors.light.text,
     marginBottom: Spacing.xs / 2,
   },
   orderDate: {
     fontSize: Typography.fontSize.sm,
-    color: Colors.light.textSecondary,
   },
   emptyContainer: {
     paddingVertical: Spacing.xl * 2,
@@ -498,7 +479,6 @@ const styles = StyleSheet.create({
   emptyText: {
     marginTop: Spacing.md,
     fontSize: Typography.fontSize.base,
-    color: Colors.light.textSecondary,
   },
   contactButtonsContainer: {
     position: "absolute",
@@ -512,7 +492,6 @@ const styles = StyleSheet.create({
     width: 48,
     height: 48,
     borderRadius: 24,
-    backgroundColor: Colors.light.background,
     justifyContent: "center",
     alignItems: "center",
     ...Shadows.small,
@@ -532,7 +511,6 @@ const styles = StyleSheet.create({
     paddingVertical: Spacing.sm,
     borderRadius: BorderRadius.md,
     borderWidth: 1,
-    backgroundColor: Colors.light.background,
     ...Shadows.small,
   },
   actionButtonText: {

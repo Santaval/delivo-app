@@ -6,7 +6,6 @@ import {
     ProductPricingCard,
 } from "@/components/products";
 import { ProductsViewParams, Routes, Spacing, Typography } from "@/constants";
-import { Colors } from "@/constants/Colors";
 import { useToast } from "@/context/ToastContext";
 import { useThemeColor } from "@/hooks/useColorScheme";
 import useProduct from "@/hooks/useProduct";
@@ -45,7 +44,7 @@ export default function ProductDetail() {
 
   if (loading) {
     return (
-      <ThemedView style={styles.container}>
+      <ThemedView style={[styles.container, { backgroundColor: colors.backgroundSecondary }]}>
         <TopBar title={t("productDetail")} showBack backTo={Routes.tabProducts} />
         <LoadingState message={t('loading')} />
       </ThemedView>
@@ -54,7 +53,7 @@ export default function ProductDetail() {
 
   if (error || !product) {
     return (
-      <ThemedView style={styles.container}>
+      <ThemedView style={[styles.container, { backgroundColor: colors.backgroundSecondary }]}>
         <TopBar title={t("productDetail")} showBack backTo={Routes.tabProducts} />
         <View style={styles.centerContent}>
           <MaterialIcons name="error-outline" size={48} color={colors.danger} />
@@ -72,7 +71,7 @@ export default function ProductDetail() {
   }
 
   return (
-    <SafeAreaView style={styles.container}>
+    <SafeAreaView style={[styles.container, { backgroundColor: colors.backgroundSecondary }]}>
       <TopBar title={t("productDetail")} showBack backTo={Routes.tabProducts} />
 
       <ScrollView
@@ -118,7 +117,6 @@ export default function ProductDetail() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: Colors.light.backgroundSecondary,
   },
   scrollView: {
     flex: 1,

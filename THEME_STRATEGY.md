@@ -71,20 +71,33 @@ This document outlines the theme strategy for a small business expenses and inco
 - **Danger**: `#ef4444` - Errors, overbudget, critical issues
 - **Info**: `#3b82f6` - General information, tips, help
 
-## Dark Mode Strategy (Ready for Implementation)
+## Dark Mode Strategy (Enabled)
 
 ### Current Implementation
-- Light mode is **forced** in `useColorScheme` hook
-- Dark mode colors are **pre-defined** in Colors.ts
-- Easy toggle: Change one line in `useColorScheme.ts`
+- `useColorScheme` follows the device setting (`app.json` declares `userInterfaceStyle: "automatic"`)
+- Both palettes are defined in `Colors.ts` with identical keys
+- `useThemeColor()` is the **only** supported way to read a color in the UI
 
-### To Enable Dark Mode Later
+### The One Rule
+Colors must be resolved at render time, never baked into a module-level `StyleSheet.create`.
+An ESLint rule (`no-restricted-syntax` in `eslint.config.js`) fails the build on any
+direct `Colors.light.*` / `Colors.dark.*` outside the theme system.
+
 ```typescript
-// In hooks/useColorScheme.ts - Change this line:
-const colorScheme = 'light';
-// To this:
-const colorScheme = useNativeColorScheme();
+// ❌ breaks dark mode — the palette is frozen at module load
+const styles = StyleSheet.create({
+  card: { padding: Spacing.lg, backgroundColor: Colors.light.surface },
+});
+
+// ✅ layout in the StyleSheet, color at the usage site
+const colors = useThemeColor();
+<View style={[styles.card, { backgroundColor: colors.surface }]} />
+const styles = StyleSheet.create({ card: { padding: Spacing.lg } });
 ```
+
+For `react-native`'s `StatusBar`, derive the bar style from the scheme
+(`barStyle={scheme === 'dark' ? 'light-content' : 'dark-content'}`);
+`expo-status-bar`'s `<StatusBar style="auto" />` already does this.
 
 ### Dark Mode Considerations
 - **Contrast**: All text maintains proper contrast ratios

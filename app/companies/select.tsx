@@ -12,12 +12,15 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { PrimaryButton, ThemedText, ThemedView } from '../../components';
 import { toast } from '../../context/ToastContext';
-import { BorderRadius, Colors, Routes, Shadows, Spacing, Typography } from '../../constants';
+import { BorderRadius, Routes, Shadows, Spacing, Typography } from '../../constants';
 import { useCompanies } from '../../context/CompaniesContext';
+import { useColorScheme, useThemeColor } from '../../hooks/useColorScheme';
 
 export default function CompanySelectPage() {
   const { t } = useTranslation();
   const { companies, selectCompany, activeCompany } = useCompanies();
+  const colors = useThemeColor();
+  const scheme = useColorScheme();
 
   const handleSelectCompany = async (companyId: string) => {
     try {
@@ -49,23 +52,23 @@ export default function CompanySelectPage() {
 
   if (!companies || companies.length === 0) {
     return (
-      <SafeAreaView style={styles.container}>
-        <StatusBar barStyle="dark-content" backgroundColor={Colors.light.background} />
+      <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]}>
+        <StatusBar barStyle={scheme === 'dark' ? 'light-content' : 'dark-content'} backgroundColor={colors.background} />
         <ThemedView style={styles.centerContent}>
-          <ActivityIndicator size="large" color={Colors.light.primary} />
-          <ThemedText style={styles.loadingText}>{t('loadingCompanies')}</ThemedText>
+          <ActivityIndicator size="large" color={colors.primary} />
+          <ThemedText style={[styles.loadingText, { color: colors.textSecondary }]}>{t('loadingCompanies')}</ThemedText>
         </ThemedView>
       </SafeAreaView>
     );
   }
 
   return (
-    <SafeAreaView style={styles.container}>
-      <StatusBar barStyle="dark-content" backgroundColor={Colors.light.background} />
+    <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]}>
+      <StatusBar barStyle={scheme === 'dark' ? 'light-content' : 'dark-content'} backgroundColor={colors.background} />
       <ThemedView style={styles.container}>
         <View style={styles.header}>
-          <ThemedText style={styles.title}>{t('selectCompany')}</ThemedText>
-          <ThemedText style={styles.subtitle}>{t('chooseCompanyToWorkWith')}</ThemedText>
+          <ThemedText style={[styles.title, { color: colors.text }]}>{t('selectCompany')}</ThemedText>
+          <ThemedText style={[styles.subtitle, { color: colors.textSecondary }]}>{t('chooseCompanyToWorkWith')}</ThemedText>
         </View>
 
         <View style={styles.companiesList}>
@@ -76,7 +79,8 @@ export default function CompanySelectPage() {
                 key={company.id}
                 style={[
                   styles.companyCard,
-                  isSelected && styles.selectedCompanyCard
+                  { backgroundColor: colors.surface, borderColor: colors.border },
+                  isSelected && { borderColor: colors.primary, backgroundColor: colors.surface }
                 ]}
                 onPress={() => handleSelectCompany(company.id)}
                 activeOpacity={0.8}
@@ -84,33 +88,33 @@ export default function CompanySelectPage() {
                 <View style={styles.companyContent}>
                   <View style={[
                     styles.companyAvatar,
-                    { backgroundColor: isSelected ? Colors.light.primary : Colors.light.backgroundTertiary }
+                    { backgroundColor: isSelected ? colors.primary : colors.backgroundTertiary }
                   ]}>
                     <ThemedText style={[
                       styles.companyAvatarText,
-                      { color: isSelected ? Colors.light.textInverse : Colors.light.text }
+                      { color: isSelected ? colors.textInverse : colors.text }
                     ]}>
                       {getCompanyInitials(company.name)}
                     </ThemedText>
                   </View>
-                  
+
                   <View style={styles.companyInfo}>
-                    <ThemedText style={styles.companyName}>
+                    <ThemedText style={[styles.companyName, { color: colors.text }]}>
                       {company.name}
                     </ThemedText>
-                    <ThemedText style={styles.companyId}>
+                    <ThemedText style={[styles.companyId, { color: colors.textSecondary }]}>
                       {getCompanyId(company)}
                     </ThemedText>
                   </View>
 
                   <View style={styles.selectionIndicator}>
                     {isSelected ? (
-                      <View style={styles.selectedDot} />
+                      <View style={[styles.selectedDot, { backgroundColor: colors.success }]} />
                     ) : (
-                      <MaterialIcons 
-                        name="check" 
-                        size={20} 
-                        color={Colors.light.textTertiary} 
+                      <MaterialIcons
+                        name="check"
+                        size={20}
+                        color={colors.textTertiary}
                       />
                     )}
                   </View>
@@ -135,7 +139,6 @@ export default function CompanySelectPage() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: Colors.light.background,
   },
   centerContent: {
     flex: 1,
@@ -146,7 +149,6 @@ const styles = StyleSheet.create({
   loadingText: {
     marginTop: Spacing.md,
     fontSize: Typography.fontSize.base,
-    color: Colors.light.textSecondary,
   },
   header: {
     padding: Spacing.xl,
@@ -156,11 +158,9 @@ const styles = StyleSheet.create({
     fontSize: Typography.fontSize['2xl'],
     fontWeight: Typography.fontWeight.bold,
     marginBottom: Spacing.xs,
-    color: Colors.light.text,
   },
   subtitle: {
     fontSize: Typography.fontSize.base,
-    color: Colors.light.textSecondary,
     lineHeight: 22,
   },
   companiesList: {
@@ -168,16 +168,10 @@ const styles = StyleSheet.create({
     paddingHorizontal: Spacing.xl,
   },
   companyCard: {
-    backgroundColor: Colors.light.surface,
     borderRadius: BorderRadius.lg,
     marginBottom: Spacing.md,
     borderWidth: 1.5,
-    borderColor: Colors.light.border,
     ...Shadows.small,
-  },
-  selectedCompanyCard: {
-    borderColor: Colors.light.primary,
-    backgroundColor: Colors.light.surface,
   },
   companyContent: {
     flexDirection: 'row',
@@ -203,11 +197,9 @@ const styles = StyleSheet.create({
     fontSize: Typography.fontSize.base,
     fontWeight: Typography.fontWeight.semibold,
     marginBottom: 2,
-    color: Colors.light.text,
   },
   companyId: {
     fontSize: Typography.fontSize.sm,
-    color: Colors.light.textSecondary,
   },
   selectionIndicator: {
     width: 24,
@@ -219,7 +211,6 @@ const styles = StyleSheet.create({
     width: 8,
     height: 8,
     borderRadius: 4,
-    backgroundColor: Colors.light.success,
   },
   addButtonContainer: {
     padding: Spacing.xl,

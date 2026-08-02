@@ -2,7 +2,8 @@ import { FloatingActionButton, TopBar } from "@/components";
 import { ProductsList } from "@/components/products/ProductsList";
 import { SearchBar } from "@/components/SearchBar";
 import { ThemedView } from "@/components/ThemedView";
-import { Colors, Routes, Spacing, Typography } from "@/constants";
+import { Routes, Spacing, Typography } from "@/constants";
+import { useThemeColor } from "@/hooks/useColorScheme";
 import useProducts from "@/hooks/useProducts";
 import { router } from "expo-router";
 import React, { useState } from "react";
@@ -15,6 +16,7 @@ import { SafeAreaView } from "react-native-safe-area-context";
 
 export default function Products() {
   const { products, loading, error, refresh } = useProducts();
+  const colors = useThemeColor();
   const [searchQuery, setSearchQuery] = useState("");
   const { t } = useTranslation();
 
@@ -28,12 +30,12 @@ export default function Products() {
   };
 
   return (
-    <SafeAreaView style={styles.container}>
+    <SafeAreaView style={[styles.container, { backgroundColor: colors.backgroundSecondary }]}>
       <TopBar title={t('products')} />
 
       <ThemedView style={{ flex: 1 }}>
         {/* Search Section */}
-        <View style={styles.searchContainer}>
+        <View style={[styles.searchContainer, { borderBottomColor: colors.border }]}>
           <SearchBar
             placeholder={t("searchProducts")}
             onSearch={setSearchQuery}
@@ -64,11 +66,9 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     padding: Spacing.lg,
-    backgroundColor: Colors.light.backgroundSecondary,
   },
   searchContainer: {
     borderBottomWidth: 1,
-    borderBottomColor: Colors.light.border,
   },
   scrollView: {
     flex: 1,
@@ -82,16 +82,13 @@ const styles = StyleSheet.create({
     alignItems: "center",
     paddingHorizontal: Spacing.lg,
     paddingVertical: Spacing.md,
-    backgroundColor: Colors.light.backgroundSecondary,
   },
   sectionTitle: {
     fontSize: Typography.fontSize.xs,
     fontWeight: Typography.fontWeight.bold,
-    color: Colors.light.textSecondary,
     letterSpacing: 0.5,
   },
   totalContainer: {
-    backgroundColor: Colors.light.background,
     paddingHorizontal: Spacing.sm,
     paddingVertical: Spacing.xs,
     borderRadius: 12,
@@ -99,7 +96,6 @@ const styles = StyleSheet.create({
   totalText: {
     fontSize: Typography.fontSize.xs,
     fontWeight: Typography.fontWeight.medium,
-    color: Colors.light.textSecondary,
   },
   productsList: {
     paddingHorizontal: Spacing.lg,
@@ -120,7 +116,6 @@ const styles = StyleSheet.create({
   },
   emptySubtitle: {
     fontSize: Typography.fontSize.sm,
-    color: Colors.light.textSecondary,
     textAlign: "center",
     lineHeight: 20,
   },

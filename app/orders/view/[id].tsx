@@ -9,7 +9,6 @@ import CurrencyText from '@/components/currency/CurrencyText';
 import AddProductsModal from '@/components/orders/AddProductsModal';
 import OrderStatusBadge from '@/components/orders/OrderStatusBadge';
 import { BorderRadius, OrdersViewParams, Routes, Shadows, Spacing, Typography } from '@/constants';
-import { Colors } from '@/constants/Colors';
 import { useThemeColor } from '@/hooks/useColorScheme';
 import useOrder from '@/hooks/useOrder';
 import { confirmDestructive } from '@/utils/confirm';
@@ -111,7 +110,7 @@ export default function OrderDetailsPage() {
 
   if (isInitialLoading) {
     return (
-      <ThemedView style={styles.container}>
+      <ThemedView style={[styles.container, { backgroundColor: colors.backgroundSecondary }]}>
         <TopBar
           title={t('invoiceDetails')}
           showBack
@@ -129,7 +128,7 @@ export default function OrderDetailsPage() {
 
   if (!order) {
     return (
-      <ThemedView style={styles.container}>
+      <ThemedView style={[styles.container, { backgroundColor: colors.backgroundSecondary }]}>
         <TopBar
           title={t('invoiceDetails')}
           showBack
@@ -152,7 +151,7 @@ export default function OrderDetailsPage() {
 
   return (
     <SafeAreaView
-      style={styles.container}>
+      style={[styles.container, { backgroundColor: colors.backgroundSecondary }]}>
       <TopBar
         title={t('invoiceDetails')}
         showBack
@@ -320,7 +319,6 @@ export default function OrderDetailsPage() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: Colors.light.backgroundSecondary,
   },
   scrollView: {
     flex: 1,
@@ -411,7 +409,6 @@ const styles = StyleSheet.create({
   addButtonText: {
     fontSize: Typography.fontSize.sm,
     fontWeight: Typography.fontWeight.medium,
-    color: Colors.light.primary,
   },
   headerLeft: {
     flex: 1,

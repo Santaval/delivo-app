@@ -1,6 +1,7 @@
 import { SwipeButton, TopBar } from '@/components';
-import { BorderRadius, Colors, RouteAddOrdersParams, Routes, Spacing, Typography } from '@/constants';
+import { BorderRadius, RouteAddOrdersParams, Routes, Spacing, Typography } from '@/constants';
 import { useToast } from '@/context/ToastContext';
+import { useThemeColor } from '@/hooks/useColorScheme';
 import useOrders from '@/hooks/useOrders';
 import RoutesService from '@/services/routes/Routes.service';
 import { Ionicons } from '@expo/vector-icons';
@@ -21,6 +22,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 
 export default function AddOrders() {
   const { t } = useTranslation();
+  const colors = useThemeColor();
   const toast = useToast();
   const { orders, loading, error } = useOrders();
   const [searchQuery, setSearchQuery] = useState('');
@@ -107,7 +109,8 @@ export default function AddOrders() {
       <TouchableOpacity
         style={[
           styles.orderItem,
-          isSelected && styles.orderItemSelected
+          { backgroundColor: colors.background, borderColor: colors.border },
+          isSelected && { borderColor: colors.primary, backgroundColor: colors.primary + '08' }
         ]}
         onPress={() => toggleOrderSelection(item.id)}
         activeOpacity={0.7}
@@ -116,34 +119,35 @@ export default function AddOrders() {
           <View style={styles.checkboxContainer}>
             <View style={[
               styles.checkbox,
-              isSelected && styles.checkboxSelected
+              { borderColor: colors.border, backgroundColor: colors.background },
+              isSelected && { backgroundColor: colors.primary, borderColor: colors.primary }
             ]}>
               {isSelected && (
-                <Ionicons name="checkmark" size={16} color={Colors.light.textInverse} />
+                <Ionicons name="checkmark" size={16} color={colors.textInverse} />
               )}
             </View>
           </View>
 
           <View style={styles.orderInfo}>
             <View style={styles.orderHeader}>
-              <Text style={styles.invoiceNumber}>
+              <Text style={[styles.invoiceNumber, { color: colors.text }]}>
                 {generateInvoiceNumber(item.number)} | {item.client.name}
               </Text>
-              <Text style={styles.orderAmount}>
+              <Text style={[styles.orderAmount, { color: colors.primary }]}>
                 {formatPrice(item.pricing.total)}
               </Text>
             </View>
-            
-      
-            
+
+
+
             <View style={styles.orderFooter}>
               <View style={styles.statusContainer}>
-                <View style={styles.statusDot} />
-                <Text style={styles.statusText}>
+                <View style={[styles.statusDot, { backgroundColor: colors.success }]} />
+                <Text style={[styles.statusText, { color: colors.textSecondary }]}>
                   {item.status === 'PENDING' ? t('readyForPickup') : item.status}
                 </Text>
               </View>
-            
+
             </View>
           </View>
         </View>
@@ -153,9 +157,9 @@ export default function AddOrders() {
 
   const renderEmptyState = () => (
     <View style={styles.emptyState}>
-      <Ionicons name="document-text-outline" size={64} color={Colors.light.textTertiary} />
-      <Text style={styles.emptyTitle}>{t('noOrdersAvailable')}</Text>
-      <Text style={styles.emptyMessage}>
+      <Ionicons name="document-text-outline" size={64} color={colors.textTertiary} />
+      <Text style={[styles.emptyTitle, { color: colors.text }]}>{t('noOrdersAvailable')}</Text>
+      <Text style={[styles.emptyMessage, { color: colors.textSecondary }]}>
         {searchQuery ? t('noOrdersMatchSearch') : t('allOrdersAssigned')}
       </Text>
     </View>
@@ -163,11 +167,11 @@ export default function AddOrders() {
 
   if (loading) {
     return (
-      <SafeAreaView style={styles.container}>
+      <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]}>
         <TopBar title={t('addOrdersToRoute')} showBack backTo={Routes.tabRoutes} />
         <View style={styles.centerContent}>
-          <ActivityIndicator size="large" color={Colors.light.primary} />
-          <Text style={styles.loadingText}>{t('loadingOrders')}</Text>
+          <ActivityIndicator size="large" color={colors.primary} />
+          <Text style={[styles.loadingText, { color: colors.textSecondary }]}>{t('loadingOrders')}</Text>
         </View>
       </SafeAreaView>
     );
@@ -175,47 +179,47 @@ export default function AddOrders() {
 
   if (error) {
     return (
-      <SafeAreaView style={styles.container}>
+      <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]}>
         <TopBar title={t('addOrdersToRoute')} showBack backTo={Routes.tabRoutes} />
         <View style={styles.centerContent}>
-          <Text style={styles.errorText}>{error}</Text>
+          <Text style={[styles.errorText, { color: colors.danger }]}>{error}</Text>
         </View>
       </SafeAreaView>
     );
   }
 
   return (
-    <SafeAreaView style={styles.container}>
+    <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]}>
       <TopBar title={t('addOrdersToRoute')} showBack backTo={Routes.tabRoutes} />
 
       <View style={styles.content}>
         {/* Search Bar */}
-        <View style={styles.searchContainer}>
-          <View style={styles.searchInputContainer}>
-            <Ionicons name="search" size={20} color={Colors.light.textSecondary} />
+        <View style={[styles.searchContainer, { backgroundColor: colors.background }]}>
+          <View style={[styles.searchInputContainer, { backgroundColor: colors.backgroundSecondary }]}>
+            <Ionicons name="search" size={20} color={colors.textSecondary} />
             <TextInput
-              style={styles.searchInput}
+              style={[styles.searchInput, { color: colors.text }]}
               placeholder={t('searchByNameOrNumber')}
               value={searchQuery}
               onChangeText={setSearchQuery}
-              placeholderTextColor={Colors.light.textSecondary}
+              placeholderTextColor={colors.textSecondary}
             />
             {searchQuery.length > 0 && (
               <TouchableOpacity onPress={() => setSearchQuery('')}>
-                <Ionicons name="close" size={20} color={Colors.light.textSecondary} />
+                <Ionicons name="close" size={20} color={colors.textSecondary} />
               </TouchableOpacity>
             )}
           </View>
         </View>
 
         {/* Section Header */}
-        <View style={styles.sectionHeader}>
-          <Text style={styles.sectionTitle}>
+        <View style={[styles.sectionHeader, { borderBottomColor: colors.border }]}>
+          <Text style={[styles.sectionTitle, { color: colors.textSecondary }]}>
             {t('pendingOrders')} ({pendingOrders.length})
           </Text>
           {selectedOrders.size > 0 && (
             <TouchableOpacity onPress={clearSelection}>
-              <Text style={styles.clearButton}>{t('clearSelection')}</Text>
+              <Text style={[styles.clearButton, { color: colors.primary }]}>{t('clearSelection')}</Text>
             </TouchableOpacity>
           )}
         </View>
@@ -233,12 +237,12 @@ export default function AddOrders() {
 
         {/* Selection Summary & Add Button */}
         {selectedOrders.size > 0 && (
-          <View style={styles.selectionSummary}>
+          <View style={[styles.selectionSummary, { backgroundColor: colors.background, borderTopColor: colors.border }]}>
             <View style={styles.summaryInfo}>
-              <Text style={styles.selectionCount}>
+              <Text style={[styles.selectionCount, { color: colors.text }]}>
                 {selectedOrders.size} {selectedOrders.size !== 1 ? t('orders') : t('order')} {t('ordersSelected')}
               </Text>
-              <Text style={styles.selectionTotal}>
+              <Text style={[styles.selectionTotal, { color: colors.primary }]}>
                 {t('totalValue')}: {formatPrice(calculateTotalValue())}
               </Text>
             </View>
@@ -261,7 +265,6 @@ export default function AddOrders() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: Colors.light.background,
   },
   content: {
     flex: 1,
@@ -275,24 +278,20 @@ const styles = StyleSheet.create({
   loadingText: {
     marginTop: Spacing.md,
     fontSize: Typography.fontSize.base,
-    color: Colors.light.textSecondary,
     textAlign: 'center',
   },
   errorText: {
     fontSize: Typography.fontSize.lg,
-    color: Colors.light.danger,
     textAlign: 'center',
   },
   searchContainer: {
     paddingHorizontal: Spacing.lg,
     paddingTop: Spacing.md,
     paddingBottom: Spacing.lg,
-    backgroundColor: Colors.light.background,
   },
   searchInputContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: Colors.light.backgroundSecondary,
     borderRadius: BorderRadius.lg,
     paddingHorizontal: Spacing.md,
     paddingVertical: Spacing.sm,
@@ -301,7 +300,6 @@ const styles = StyleSheet.create({
   searchInput: {
     flex: 1,
     fontSize: Typography.fontSize.base,
-    color: Colors.light.text,
     paddingVertical: Spacing.xs,
   },
   sectionHeader: {
@@ -311,18 +309,15 @@ const styles = StyleSheet.create({
     paddingHorizontal: Spacing.lg,
     paddingBottom: Spacing.md,
     borderBottomWidth: 1,
-    borderBottomColor: Colors.light.border,
   },
   sectionTitle: {
     fontSize: Typography.fontSize.sm,
     fontWeight: Typography.fontWeight.semibold,
-    color: Colors.light.textSecondary,
     letterSpacing: 0.5,
   },
   clearButton: {
     fontSize: Typography.fontSize.sm,
     fontWeight: Typography.fontWeight.medium,
-    color: Colors.light.primary,
   },
   ordersList: {
     flex: 1,
@@ -331,16 +326,10 @@ const styles = StyleSheet.create({
     flexGrow: 1,
   },
   orderItem: {
-    backgroundColor: Colors.light.background,
     marginHorizontal: Spacing.lg,
     marginBottom: Spacing.sm,
     borderRadius: BorderRadius.lg,
     borderWidth: 1,
-    borderColor: Colors.light.border,
-  },
-  orderItemSelected: {
-    borderColor: Colors.light.primary,
-    backgroundColor: Colors.light.primary + '08',
   },
   orderContent: {
     flexDirection: 'row',
@@ -355,14 +344,8 @@ const styles = StyleSheet.create({
     height: 24,
     borderRadius: 12,
     borderWidth: 2,
-    borderColor: Colors.light.border,
-    backgroundColor: Colors.light.background,
     justifyContent: 'center',
     alignItems: 'center',
-  },
-  checkboxSelected: {
-    backgroundColor: Colors.light.primary,
-    borderColor: Colors.light.primary,
   },
   orderInfo: {
     flex: 1,
@@ -377,17 +360,14 @@ const styles = StyleSheet.create({
     flex: 1,
     fontSize: Typography.fontSize.base,
     fontWeight: Typography.fontWeight.semibold,
-    color: Colors.light.text,
     marginRight: Spacing.sm,
   },
   orderAmount: {
     fontSize: Typography.fontSize.base,
     fontWeight: Typography.fontWeight.bold,
-    color: Colors.light.primary,
   },
   clientAddress: {
     fontSize: Typography.fontSize.sm,
-    color: Colors.light.textSecondary,
     marginBottom: Spacing.sm,
   },
   orderFooter: {
@@ -404,11 +384,9 @@ const styles = StyleSheet.create({
     width: 8,
     height: 8,
     borderRadius: 4,
-    backgroundColor: Colors.light.success,
   },
   statusText: {
     fontSize: Typography.fontSize.sm,
-    color: Colors.light.textSecondary,
   },
   priorityContainer: {
     flexDirection: 'row',
@@ -420,7 +398,6 @@ const styles = StyleSheet.create({
   },
   priorityText: {
     fontSize: Typography.fontSize.xs,
-    color: Colors.light.warning,
     fontWeight: Typography.fontWeight.medium,
   },
   emptyState: {
@@ -432,20 +409,16 @@ const styles = StyleSheet.create({
   emptyTitle: {
     fontSize: Typography.fontSize.lg,
     fontWeight: Typography.fontWeight.semibold,
-    color: Colors.light.text,
     marginTop: Spacing.lg,
     marginBottom: Spacing.sm,
   },
   emptyMessage: {
     fontSize: Typography.fontSize.base,
-    color: Colors.light.textSecondary,
     textAlign: 'center',
     lineHeight: 22,
   },
   selectionSummary: {
-    backgroundColor: Colors.light.background,
     borderTopWidth: 1,
-    borderTopColor: Colors.light.border,
     padding: Spacing.lg,
     gap: Spacing.md,
   },
@@ -457,12 +430,10 @@ const styles = StyleSheet.create({
   selectionCount: {
     fontSize: Typography.fontSize.base,
     fontWeight: Typography.fontWeight.semibold,
-    color: Colors.light.text,
   },
   selectionTotal: {
     fontSize: Typography.fontSize.base,
     fontWeight: Typography.fontWeight.bold,
-    color: Colors.light.primary,
   },
   addButton: {
     marginBottom: 0,

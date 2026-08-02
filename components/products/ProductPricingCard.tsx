@@ -1,4 +1,4 @@
-import { BorderRadius, Colors, Shadows, Spacing, Typography } from "@/constants";
+import { BorderRadius, Shadows, Spacing, Typography } from "@/constants";
 import { useThemeColor } from "@/hooks/useColorScheme";
 import React from "react";
 import { useTranslation } from "react-i18next";
@@ -41,9 +41,9 @@ export default function ProductPricingCard({
         <CurrencyText style={styles.value} amount={ivaAmount} />
       </View>
 
-      <View style={[styles.row, styles.divider]}>
+      <View style={[styles.row, styles.divider, { borderTopColor: colors.border }]}>
         <ThemedText style={styles.totalLabel}>{t("totalUpper")}</ThemedText>
-        <CurrencyText style={styles.totalValue} amount={totalPrice} />
+        <CurrencyText style={[styles.totalValue, { color: colors.primary }]} amount={totalPrice} />
       </View>
     </ThemedView>
   );
@@ -71,11 +71,9 @@ const styles = StyleSheet.create({
     marginTop: Spacing.sm,
     paddingTop: Spacing.md,
     borderTopWidth: 1,
-    borderTopColor: Colors.light.border,
   },
   label: {
     fontSize: Typography.fontSize.sm,
-    color: Colors.light.textSecondary,
   },
   value: {
     fontSize: Typography.fontSize.base,
@@ -88,6 +86,5 @@ const styles = StyleSheet.create({
   totalValue: {
     fontSize: Typography.fontSize.lg,
     fontWeight: Typography.fontWeight.bold,
-    color: Colors.light.primary,
   },
 });

@@ -15,7 +15,8 @@ import {
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { FormField, PrimaryButton, ThemedText } from "../../components";
-import { BorderRadius, Colors, Spacing, Typography } from "../../constants";
+import { BorderRadius, Spacing, Typography } from "../../constants";
+import { useColorScheme, useThemeColor } from "../../hooks/useColorScheme";
 
 export default function AddCompanyPage() {
   const { t } = useTranslation();
@@ -24,6 +25,8 @@ export default function AddCompanyPage() {
   const { selectCompany } = useCompanies();
   const { refreshUser } = useAuth();
   const toast = useToast();
+  const colors = useThemeColor();
+  const scheme = useColorScheme();
 
   const handleSubmit = async () => {
     if (!name.trim()) {
@@ -49,10 +52,10 @@ export default function AddCompanyPage() {
   };
 
   return (
-    <SafeAreaView style={styles.container}>
+    <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]}>
       <StatusBar
-        barStyle="dark-content"
-        backgroundColor={Colors.light.background}
+        barStyle={scheme === "dark" ? "light-content" : "dark-content"}
+        backgroundColor={colors.background}
       />
       <KeyboardAvoidingView
         behavior={Platform.OS === "ios" ? "padding" : "height"}
@@ -63,17 +66,17 @@ export default function AddCompanyPage() {
           contentContainerStyle={styles.content}
         >
           <View style={styles.welcome}>
-            <View style={styles.iconBadge}>
+            <View style={[styles.iconBadge, { backgroundColor: colors.backgroundSecondary }]}>
               <MaterialIcons
                 name="business"
                 size={32}
-                color={Colors.light.primary}
+                color={colors.primary}
               />
             </View>
-            <ThemedText style={styles.title}>
+            <ThemedText style={[styles.title, { color: colors.text }]}>
               {t("createCompanyWelcomeTitle")}
             </ThemedText>
-            <ThemedText style={styles.subtitle}>
+            <ThemedText style={[styles.subtitle, { color: colors.textSecondary }]}>
               {t("createCompanyWelcomeSubtitle")}
             </ThemedText>
           </View>
@@ -105,7 +108,6 @@ export default function AddCompanyPage() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: Colors.light.background,
   },
   flex: {
     flex: 1,
@@ -125,7 +127,6 @@ const styles = StyleSheet.create({
     width: 64,
     height: 64,
     borderRadius: BorderRadius.full,
-    backgroundColor: Colors.light.backgroundSecondary,
     justifyContent: "center",
     alignItems: "center",
     marginBottom: Spacing.lg,
@@ -133,13 +134,11 @@ const styles = StyleSheet.create({
   title: {
     fontSize: Typography.fontSize["2xl"],
     fontWeight: Typography.fontWeight.bold,
-    color: Colors.light.text,
     textAlign: "center",
     marginBottom: Spacing.xs,
   },
   subtitle: {
     fontSize: Typography.fontSize.base,
-    color: Colors.light.textSecondary,
     textAlign: "center",
     lineHeight: 22,
     paddingHorizontal: Spacing.md,

@@ -1,4 +1,5 @@
-import { BorderRadius, Colors, Spacing, Typography } from '@/constants';
+import { BorderRadius, Spacing, Typography } from '@/constants';
+import { useThemeColor } from '@/hooks/useColorScheme';
 import { Ionicons } from '@expo/vector-icons';
 import React from 'react';
 import { useTranslation } from 'react-i18next';
@@ -16,6 +17,7 @@ const AllStopsList: React.FC<AllStopsListProps> = ({
   onStopPress,
 }) => {
   const { t } = useTranslation();
+  const colors = useThemeColor();
   const pendingStops = stops.filter(stop => stop.status === 'CREATED');
   const completedStops = stops.filter(stop => stop.status === 'VISITED');
 
@@ -34,37 +36,70 @@ const AllStopsList: React.FC<AllStopsListProps> = ({
         {/* Stop Number & Status Indicator */}
         <View style={styles.stopNumberContainer}>
           {isCompleted ? (
-            <View style={[styles.stopNumber, styles.completedNumber]}>
-              <Ionicons name="checkmark" size={16} color={Colors.light.success} />
+            <View
+              style={[
+                styles.stopNumber,
+                { backgroundColor: colors.success + '20', borderColor: colors.success },
+              ]}
+            >
+              <Ionicons name="checkmark" size={16} color={colors.success} />
             </View>
           ) : (
-            <View style={[styles.stopNumber, isCurrent && styles.currentNumber]}>
-              <Text style={[styles.stopNumberText, isCurrent && styles.currentNumberText]}>
+            <View
+              style={[
+                styles.stopNumber,
+                { backgroundColor: colors.backgroundSecondary, borderColor: colors.border },
+                isCurrent && { backgroundColor: colors.primary + '20', borderColor: colors.primary },
+              ]}
+            >
+              <Text
+                style={[
+                  styles.stopNumberText,
+                  { color: colors.textSecondary },
+                  isCurrent && { color: colors.primary },
+                ]}
+              >
                 {stop.index + 1}
               </Text>
             </View>
           )}
-          
+
           {/* Connecting Line */}
           {index < stops.length - 1 && (
-            <View style={[styles.connectingLine, isCompleted && styles.completedLine]} />
+            <View
+              style={[
+                styles.connectingLine,
+                { backgroundColor: isCompleted ? colors.success + '40' : colors.border },
+              ]}
+            />
           )}
         </View>
 
         {/* Stop Details */}
-        <View style={styles.stopDetails}>
+        <View style={[styles.stopDetails, { backgroundColor: colors.surface }]}>
           <View style={styles.stopHeader}>
-            <Text style={[styles.stopClientName, isCompleted && styles.completedText]}>
+            <Text
+              style={[
+                styles.stopClientName,
+                { color: colors.text },
+                isCompleted && { color: colors.textSecondary },
+              ]}
+            >
               {stop.order.client.name}
             </Text>
             {isCurrent && (
-              <View style={styles.currentBadge}>
-                <Text style={styles.currentBadgeText}>{t('currentStop')}</Text>
+              <View style={[styles.currentBadge, { backgroundColor: colors.primary }]}>
+                <Text style={[styles.currentBadgeText, { color: colors.textInverse }]}>{t('currentStop')}</Text>
               </View>
             )}
           </View>
-          
-          <Text style={[styles.stopAddress, isCompleted && styles.completedText]}>
+
+          <Text
+            style={[
+              styles.stopAddress,
+              { color: colors.textSecondary },
+            ]}
+          >
             {/* Address not available in current structure */}
             Order #{stop.order.number}
           </Text>
@@ -72,22 +107,34 @@ const AllStopsList: React.FC<AllStopsListProps> = ({
           {/* Order Info */}
           <View style={styles.orderInfo}>
             <View style={styles.orderInfoItem}>
-              <Ionicons 
-                name="cube-outline" 
-                size={14} 
-                color={isCompleted ? Colors.light.textSecondary : Colors.light.primary} 
+              <Ionicons
+                name="cube-outline"
+                size={14}
+                color={isCompleted ? colors.textSecondary : colors.primary}
               />
-              <Text style={[styles.orderInfoText, isCompleted && styles.completedText]}>
+              <Text
+                style={[
+                  styles.orderInfoText,
+                  { color: colors.text },
+                  isCompleted && { color: colors.textSecondary },
+                ]}
+              >
                 {stop.order.items.length} {stop.order.items.length === 1 ? t('item') : t('items')}
               </Text>
             </View>
             <View style={styles.orderInfoItem}>
-              <Ionicons 
-                name="cash-outline" 
-                size={14} 
-                color={isCompleted ? Colors.light.textSecondary : Colors.light.primary} 
+              <Ionicons
+                name="cash-outline"
+                size={14}
+                color={isCompleted ? colors.textSecondary : colors.primary}
               />
-              <Text style={[styles.orderInfoText, isCompleted && styles.completedText]}>
+              <Text
+                style={[
+                  styles.orderInfoText,
+                  { color: colors.text },
+                  isCompleted && { color: colors.textSecondary },
+                ]}
+              >
                 ${stop.order.pricing.total.toFixed(2)}
               </Text>
             </View>
@@ -98,30 +145,35 @@ const AllStopsList: React.FC<AllStopsListProps> = ({
   };
 
   return (
-    <ScrollView 
+    <ScrollView
       style={styles.container}
       contentContainerStyle={styles.contentContainer}
       showsVerticalScrollIndicator={false}
     >
       {/* Summary Header */}
-      <View style={styles.summaryHeader}>
+      <View style={[styles.summaryHeader, { backgroundColor: colors.surface }]}>
         <View style={styles.summaryItem}>
-          <Text style={styles.summaryNumber}>{pendingStops.length}</Text>
-          <Text style={styles.summaryLabel}>{t('pending')}</Text>
+          <Text style={[styles.summaryNumber, { color: colors.primary }]}>{pendingStops.length}</Text>
+          <Text style={[styles.summaryLabel, { color: colors.textSecondary }]}>{t('pending')}</Text>
         </View>
-        <View style={styles.summaryDivider} />
+        <View style={[styles.summaryDivider, { backgroundColor: colors.border }]} />
         <View style={styles.summaryItem}>
-          <Text style={[styles.summaryNumber, styles.completedNumber]}>
+          <Text
+            style={[
+              styles.summaryNumber,
+              { color: colors.primary, backgroundColor: colors.success + '20', borderColor: colors.success },
+            ]}
+          >
             {completedStops.length}
           </Text>
-          <Text style={styles.summaryLabel}>{t('completed')}</Text>
+          <Text style={[styles.summaryLabel, { color: colors.textSecondary }]}>{t('completed')}</Text>
         </View>
       </View>
 
       {/* Pending Stops */}
       {pendingStops.length > 0 && (
         <View style={styles.section}>
-          <Text style={styles.sectionTitle}>{t('pending')} {t('stops')}</Text>
+          <Text style={[styles.sectionTitle, { color: colors.text }]}>{t('pending')} {t('stops')}</Text>
           {pendingStops.map((stop, index) => renderStop(stop, index))}
         </View>
       )}
@@ -129,7 +181,7 @@ const AllStopsList: React.FC<AllStopsListProps> = ({
       {/* Completed Stops */}
       {completedStops.length > 0 && (
         <View style={styles.section}>
-          <Text style={styles.sectionTitle}>{t('completed')} {t('stops')}</Text>
+          <Text style={[styles.sectionTitle, { color: colors.text }]}>{t('completed')} {t('stops')}</Text>
           {completedStops.map((stop, index) => renderStop(stop, index))}
         </View>
       )}
@@ -146,7 +198,6 @@ const styles = StyleSheet.create({
   },
   summaryHeader: {
     flexDirection: 'row',
-    backgroundColor: Colors.light.surface,
     borderRadius: BorderRadius.lg,
     padding: Spacing.md,
     marginBottom: Spacing.lg,
@@ -159,17 +210,14 @@ const styles = StyleSheet.create({
   summaryNumber: {
     fontSize: Typography.fontSize['2xl'],
     fontWeight: Typography.fontWeight.bold,
-    color: Colors.light.primary,
     marginBottom: Spacing.xs,
   },
   summaryLabel: {
     fontSize: Typography.fontSize.sm,
-    color: Colors.light.textSecondary,
   },
   summaryDivider: {
     width: 1,
     height: 40,
-    backgroundColor: Colors.light.border,
   },
   section: {
     marginBottom: Spacing.lg,
@@ -177,7 +225,6 @@ const styles = StyleSheet.create({
   sectionTitle: {
     fontSize: Typography.fontSize.base,
     fontWeight: Typography.fontWeight.semibold,
-    color: Colors.light.text,
     marginBottom: Spacing.md,
   },
   stopItem: {
@@ -198,41 +245,22 @@ const styles = StyleSheet.create({
     width: 32,
     height: 32,
     borderRadius: 16,
-    backgroundColor: Colors.light.backgroundSecondary,
     borderWidth: 2,
-    borderColor: Colors.light.border,
     alignItems: 'center',
     justifyContent: 'center',
-  },
-  currentNumber: {
-    backgroundColor: Colors.light.primary + '20',
-    borderColor: Colors.light.primary,
-  },
-  completedNumber: {
-    backgroundColor: Colors.light.success + '20',
-    borderColor: Colors.light.success,
   },
   stopNumberText: {
     fontSize: Typography.fontSize.sm,
     fontWeight: Typography.fontWeight.bold,
-    color: Colors.light.textSecondary,
-  },
-  currentNumberText: {
-    color: Colors.light.primary,
   },
   connectingLine: {
     width: 2,
     flex: 1,
-    backgroundColor: Colors.light.border,
     marginTop: Spacing.xs,
     minHeight: 20,
   },
-  completedLine: {
-    backgroundColor: Colors.light.success + '40',
-  },
   stopDetails: {
     flex: 1,
-    backgroundColor: Colors.light.surface,
     borderRadius: BorderRadius.md,
     padding: Spacing.md,
   },
@@ -245,11 +273,9 @@ const styles = StyleSheet.create({
   stopClientName: {
     fontSize: Typography.fontSize.base,
     fontWeight: Typography.fontWeight.semibold,
-    color: Colors.light.text,
     flex: 1,
   },
   currentBadge: {
-    backgroundColor: Colors.light.primary,
     paddingHorizontal: Spacing.sm,
     paddingVertical: 2,
     borderRadius: BorderRadius.sm,
@@ -257,16 +283,11 @@ const styles = StyleSheet.create({
   currentBadgeText: {
     fontSize: Typography.fontSize.xs,
     fontWeight: Typography.fontWeight.bold,
-    color: Colors.light.textInverse,
     textTransform: 'uppercase',
   },
   stopAddress: {
     fontSize: Typography.fontSize.sm,
-    color: Colors.light.textSecondary,
     marginBottom: Spacing.sm,
-  },
-  completedText: {
-    color: Colors.light.textSecondary,
   },
   orderInfo: {
     flexDirection: 'row',
@@ -279,7 +300,6 @@ const styles = StyleSheet.create({
   },
   orderInfoText: {
     fontSize: Typography.fontSize.xs,
-    color: Colors.light.text,
   },
 });
 

@@ -1,6 +1,5 @@
 import {
   BorderRadius,
-  Colors,
   Shadows,
   Spacing,
   Typography,
@@ -35,7 +34,7 @@ export function ClientCard({
       accessibilityRole="button"
       accessibilityLabel={phone ? `${name}, ${phone}` : name}
     >
-      <ThemedView style={styles.content}>
+      <ThemedView style={[styles.content, { backgroundColor: colors.background }]}>
         {/* Profile Image */}
         <View style={styles.imageContainer}>
           <Image
@@ -68,7 +67,6 @@ const styles = StyleSheet.create({
     alignItems: "center",
     padding: Spacing.lg,
     borderRadius: BorderRadius.lg,
-    backgroundColor: Colors.light.background,
     ...Shadows.small,
   },
   imageContainer: {

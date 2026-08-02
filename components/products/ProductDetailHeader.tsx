@@ -1,5 +1,4 @@
 import { BorderRadius, Shadows, Spacing, Typography } from "@/constants";
-import { Colors } from "@/constants/Colors";
 import { useThemeColor } from "@/hooks/useColorScheme";
 import React from "react";
 import { StyleSheet, View } from "react-native";
@@ -23,7 +22,7 @@ export default function ProductDetailHeader({ name, totalPrice }: Props) {
           <ThemedText variant="caption" style={styles.priceLabel}>
             TOTAL
           </ThemedText>
-          <CurrencyText style={styles.priceValue} amount={totalPrice} />
+          <CurrencyText style={[styles.priceValue, { color: colors.primary }]} amount={totalPrice} />
         </View>
       </View>
     </ThemedView>
@@ -50,13 +49,11 @@ const styles = StyleSheet.create({
   },
   priceLabel: {
     fontSize: Typography.fontSize.xs,
-    color: Colors.light.textSecondary,
     letterSpacing: 1,
     marginBottom: Spacing.xs,
   },
   priceValue: {
     fontSize: Typography.fontSize["3xl"],
     fontWeight: Typography.fontWeight.bold,
-    color: Colors.light.primary,
   },
 });

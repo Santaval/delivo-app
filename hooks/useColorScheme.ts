@@ -1,23 +1,25 @@
 import { Colors, type ColorScheme } from '@/constants/Colors';
+import { useColorScheme as useSystemColorScheme } from 'react-native';
 
 /**
- * Hook to get the current color scheme and theme colors
- * For now returns 'light' by default, but ready for dark mode implementation
+ * Hook to get the current color scheme, following the device setting
+ * (`app.json` declares `userInterfaceStyle: "automatic"`).
  */
 export function useColorScheme(): ColorScheme {
-  // For now, force light mode. Later, uncomment the line below for system theme detection
-  // const colorScheme = useNativeColorScheme();
-  
-  // Force light mode for now
-  const colorScheme = 'light';
-  
-  return colorScheme ?? 'light';
+  const colorScheme = useSystemColorScheme();
+
+  // Anything other than an explicit 'dark' (null, undefined, 'unspecified')
+  // falls back to the light palette.
+  return colorScheme === 'dark' ? 'dark' : 'light';
 }
 
 /**
- * Hook to get theme colors based on current color scheme
+ * Hook to get theme colors based on current color scheme.
+ * This is the only supported way to read colors in the UI — reaching into
+ * `Colors.light` / `Colors.dark` directly is what breaks dark mode, and is
+ * blocked by an ESLint rule outside of the theme system itself.
  */
 export function useThemeColor() {
   const colorScheme = useColorScheme();
-  return Colors[colorScheme as keyof typeof Colors];
+  return Colors[colorScheme];
 }

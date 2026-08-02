@@ -1,10 +1,11 @@
 import { ThemedText } from '@/components/ThemedText';
 import { ThemedView } from '@/components/ThemedView';
-import { Colors, Spacing, Typography } from '@/constants';
+import { Spacing, Typography } from '@/constants';
 import { useAuth } from '@/context/AuthContext';
 import { useCompanies } from '@/context/CompaniesContext';
 import { usePurchases } from '@/context/PurchasesContext';
 import { useToast } from '@/context/ToastContext';
+import { useThemeColor } from '@/hooks/useColorScheme';
 import { confirmDestructive } from '@/utils/confirm';
 import { MaterialIcons } from '@expo/vector-icons';
 import { useTranslation } from 'react-i18next';
@@ -21,6 +22,7 @@ export default function AccountScreen() {
   const { activeCompany } = useCompanies();
   const { t } = useTranslation();
   const toast = useToast();
+  const colors = useThemeColor();
   const {
     isPro,
     isLoading,
@@ -62,44 +64,49 @@ export default function AccountScreen() {
 
         {/* Header */}
         <View style={styles.header}>
-          <View style={styles.avatarContainer}>
-            <MaterialIcons name="person" size={40} color={Colors.light.primary} />
+          <View style={[styles.avatarContainer, { backgroundColor: colors.backgroundTertiary }]}>
+            <MaterialIcons name="person" size={40} color={colors.primary} />
           </View>
           <ThemedText variant="title" style={styles.userName}>
             {user?.name} {user?.surnames}
           </ThemedText>
-          <ThemedText variant="caption" style={styles.userEmail}>
+          <ThemedText variant="caption" style={[styles.userEmail, { color: colors.textSecondary }]}>
             {user?.email}
           </ThemedText>
         </View>
 
         {/* Subscription Status */}
-        <View style={[styles.card, isPro && styles.proCard]}>
+        <View style={[
+          styles.card,
+          { backgroundColor: colors.surface, borderColor: colors.border },
+          // Tinted from the warning colour so the "pro" highlight reads in both schemes
+          isPro && { backgroundColor: colors.warning + '1A', borderColor: colors.warning },
+        ]}>
           <View style={styles.cardHeader}>
             <MaterialIcons
               name={isPro ? 'star' : 'star-border'}
               size={24}
-              color={isPro ? Colors.light.warning : Colors.light.textSecondary}
+              color={isPro ? colors.warning : colors.textSecondary}
             />
             <ThemedText variant="subtitle" style={styles.cardTitle}>
               {isPro ? 'Delivo Pro' : t('freePlan')}
             </ThemedText>
-            {isLoading && <ActivityIndicator size="small" color={Colors.light.primary} />}
+            {isLoading && <ActivityIndicator size="small" color={colors.primary} />}
           </View>
 
           {/* The plan is scoped to the company, not the account */}
           {activeCompany && (
-            <ThemedText variant="caption" style={styles.cardCompany}>
+            <ThemedText variant="caption" style={[styles.cardCompany, { color: colors.textSecondary }]}>
               {t('planForCompany', { company: activeCompany.name })}
             </ThemedText>
           )}
 
           {isPro ? (
-            <ThemedText variant="caption" style={styles.cardDescription}>
+            <ThemedText variant="caption" style={[styles.cardDescription, { color: colors.textSecondary }]}>
               {t('proFullAccess')}
             </ThemedText>
           ) : (
-            <ThemedText variant="caption" style={styles.cardDescription}>
+            <ThemedText variant="caption" style={[styles.cardDescription, { color: colors.textSecondary }]}>
               {t('upgradeToUnlock')}
             </ThemedText>
           )}
@@ -108,11 +115,11 @@ export default function AccountScreen() {
           {!isPro && offerings && (
             <View style={styles.packagesContainer}>
               {offerings.availablePackages.map((pkg) => (
-                <View key={pkg.identifier} style={styles.packageRow}>
+                <View key={pkg.identifier} style={[styles.packageRow, { borderTopColor: colors.border }]}>
                   <ThemedText variant="default" style={styles.packageTitle}>
                     {pkg.product.title}
                   </ThemedText>
-                  <ThemedText variant="caption" style={styles.packagePrice}>
+                  <ThemedText variant="caption" style={[styles.packagePrice, { color: colors.primary }]}>
                     {pkg.product.priceString}
                   </ThemedText>
                 </View>
@@ -122,7 +129,7 @@ export default function AccountScreen() {
         </View>
 
         {error && (
-          <ThemedText variant="caption" style={styles.errorText}>
+          <ThemedText variant="caption" style={[styles.errorText, { color: colors.danger }]}>
             {error}
           </ThemedText>
         )}
@@ -131,7 +138,7 @@ export default function AccountScreen() {
         <View style={styles.actionsSection}>
           {!isPro && (
             <TouchableOpacity
-              style={[styles.actionButton, styles.primaryButton]}
+              style={[styles.actionButton, styles.primaryButton, { backgroundColor: colors.primary }]}
               onPress={handleUpgrade}
               disabled={isLoading}
             >
@@ -144,36 +151,36 @@ export default function AccountScreen() {
 
           {isPro && (
             <TouchableOpacity
-              style={[styles.actionButton, styles.secondaryButton]}
+              style={[styles.actionButton, styles.secondaryButton, { backgroundColor: colors.backgroundTertiary, borderColor: colors.primary }]}
               onPress={handleManageSubscription}
               disabled={isLoading}
             >
-              <MaterialIcons name="manage-accounts" size={20} color={Colors.light.primary} />
-              <ThemedText style={styles.secondaryButtonText}>
+              <MaterialIcons name="manage-accounts" size={20} color={colors.primary} />
+              <ThemedText style={[styles.secondaryButtonText, { color: colors.primary }]}>
                 {t('manageSubscription')}
               </ThemedText>
             </TouchableOpacity>
           )}
 
           <TouchableOpacity
-            style={[styles.actionButton, styles.outlineButton]}
+            style={[styles.actionButton, styles.outlineButton, { borderColor: colors.border }]}
             onPress={handleRestorePurchases}
             disabled={isLoading}
           >
-            <MaterialIcons name="restore" size={20} color={Colors.light.textSecondary} />
-            <ThemedText style={styles.outlineButtonText}>
+            <MaterialIcons name="restore" size={20} color={colors.textSecondary} />
+            <ThemedText style={[styles.outlineButtonText, { color: colors.textSecondary }]}>
               {t('restorePurchases')}
             </ThemedText>
           </TouchableOpacity>
         </View>
 
         {/* Divider */}
-        <View style={styles.divider} />
+        <View style={[styles.divider, { backgroundColor: colors.border }]} />
 
         {/* Sign Out */}
         <TouchableOpacity style={[styles.actionButton, styles.dangerButton]} onPress={handleLogout}>
-          <MaterialIcons name="logout" size={20} color={Colors.light.danger} />
-          <ThemedText style={styles.dangerButtonText}>{t('signOut')}</ThemedText>
+          <MaterialIcons name="logout" size={20} color={colors.danger} />
+          <ThemedText style={[styles.dangerButtonText, { color: colors.danger }]}>{t('signOut')}</ThemedText>
         </TouchableOpacity>
 
       </ScrollView>
@@ -199,7 +206,6 @@ const styles = StyleSheet.create({
     width: 80,
     height: 80,
     borderRadius: 40,
-    backgroundColor: Colors.light.backgroundTertiary,
     justifyContent: 'center',
     alignItems: 'center',
     marginBottom: Spacing.sm,
@@ -208,20 +214,12 @@ const styles = StyleSheet.create({
     fontSize: Typography.fontSize.xl,
     fontWeight: Typography.fontWeight.bold,
   },
-  userEmail: {
-    color: Colors.light.textSecondary,
-  },
+  userEmail: {},
   card: {
-    backgroundColor: Colors.light.surface,
     borderRadius: 16,
     padding: Spacing.xl,
     borderWidth: 1,
-    borderColor: Colors.light.border,
     gap: Spacing.sm,
-  },
-  proCard: {
-    borderColor: Colors.light.warning,
-    backgroundColor: '#fffbeb',
   },
   cardHeader: {
     flexDirection: 'row',
@@ -234,11 +232,9 @@ const styles = StyleSheet.create({
     fontWeight: Typography.fontWeight.semibold,
   },
   cardCompany: {
-    color: Colors.light.textSecondary,
     marginBottom: Spacing.xs,
   },
   cardDescription: {
-    color: Colors.light.textSecondary,
     lineHeight: 20,
   },
   packagesContainer: {
@@ -251,17 +247,14 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     paddingVertical: Spacing.xs,
     borderTopWidth: 1,
-    borderTopColor: Colors.light.border,
   },
   packageTitle: {
     fontWeight: Typography.fontWeight.medium,
   },
   packagePrice: {
-    color: Colors.light.primary,
     fontWeight: Typography.fontWeight.semibold,
   },
   errorText: {
-    color: Colors.light.danger,
     textAlign: 'center',
   },
   actionsSection: {
@@ -276,44 +269,35 @@ const styles = StyleSheet.create({
     borderRadius: 12,
     gap: Spacing.sm,
   },
-  primaryButton: {
-    backgroundColor: Colors.light.primary,
-  },
+  primaryButton: {},
   primaryButtonText: {
     color: '#fff',
     fontWeight: Typography.fontWeight.semibold,
     fontSize: Typography.fontSize.base,
   },
   secondaryButton: {
-    backgroundColor: Colors.light.backgroundTertiary,
     borderWidth: 1,
-    borderColor: Colors.light.primary,
   },
   secondaryButtonText: {
-    color: Colors.light.primary,
     fontWeight: Typography.fontWeight.semibold,
     fontSize: Typography.fontSize.base,
   },
   outlineButton: {
     backgroundColor: 'transparent',
     borderWidth: 1,
-    borderColor: Colors.light.border,
   },
   outlineButtonText: {
-    color: Colors.light.textSecondary,
     fontWeight: Typography.fontWeight.medium,
     fontSize: Typography.fontSize.base,
   },
   divider: {
     height: 1,
-    backgroundColor: Colors.light.border,
     marginVertical: Spacing.sm,
   },
   dangerButton: {
     backgroundColor: 'transparent',
   },
   dangerButtonText: {
-    color: Colors.light.danger,
     fontWeight: Typography.fontWeight.medium,
     fontSize: Typography.fontSize.base,
   },

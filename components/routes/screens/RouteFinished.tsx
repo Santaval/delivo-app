@@ -1,7 +1,8 @@
 import { PrimaryButton, TopBar } from '@/components';
 import Map from '@/components/maps/Map';
-import { BorderRadius, Colors, Routes, Spacing, Typography } from '@/constants';
+import { BorderRadius, Routes, Spacing, Typography } from '@/constants';
 import { useRoute } from '@/context/RouteContext';
+import { useThemeColor } from '@/hooks/useColorScheme';
 import { Ionicons } from '@expo/vector-icons';
 import { router } from 'expo-router';
 import moment from 'moment';
@@ -13,6 +14,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 export default function RouteFinishedScreen() {
   const { t } = useTranslation();
   const { route, isLoading, error } = useRoute();
+  const colors = useThemeColor();
 
   // Calculate route statistics
   const totalDistance = React.useMemo(() => {
@@ -44,11 +46,11 @@ export default function RouteFinishedScreen() {
 
   if (isLoading) {
     return (
-      <SafeAreaView style={styles.container}>
+      <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]}>
         <TopBar title={t('routeFinished')} showBack backTo={Routes.tabRoutes} />
         <View style={styles.centerContent}>
-          <ActivityIndicator size="large" color={Colors.light.primary} />
-          <Text style={styles.loadingText}>{t('loadingRouteSummary')}</Text>
+          <ActivityIndicator size="large" color={colors.primary} />
+          <Text style={[styles.loadingText, { color: colors.textSecondary }]}>{t('loadingRouteSummary')}</Text>
         </View>
       </SafeAreaView>
     );
@@ -56,47 +58,47 @@ export default function RouteFinishedScreen() {
 
   if (error || !route) {
     return (
-      <SafeAreaView style={styles.container}>
+      <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]}>
         <TopBar title={t('routeFinished')} showBack backTo={Routes.tabRoutes} />
         <View style={styles.centerContent}>
-          <Text style={styles.errorText}>{error || t('routeNotFound')}</Text>
+          <Text style={[styles.errorText, { color: colors.danger }]}>{error || t('routeNotFound')}</Text>
         </View>
       </SafeAreaView>
     );
   }
 
   return (
-    <SafeAreaView style={styles.container}>
+    <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]}>
       <TopBar title={t('routeSummary')} showBack backTo={Routes.tabRoutes} />
 
       <ScrollView style={styles.content} showsVerticalScrollIndicator={false}>
         {/* Success Header */}
         <View style={styles.successHeader}>
           <View style={styles.successIconContainer}>
-            <View style={styles.successIconCircle}>
-              <Ionicons name="checkmark" size={40} color={Colors.light.success} />
+            <View style={[styles.successIconCircle, { backgroundColor: colors.success + '20' }]}>
+              <Ionicons name="checkmark" size={40} color={colors.success} />
             </View>
           </View>
-          <Text style={styles.successTitle}>{t('routeFinishedExclamation')}</Text>
-          <Text style={styles.successSubtitle}>{t('allDeliveriesCompletedSuccessfully')}</Text>
+          <Text style={[styles.successTitle, { color: colors.text }]}>{t('routeFinishedExclamation')}</Text>
+          <Text style={[styles.successSubtitle, { color: colors.textSecondary }]}>{t('allDeliveriesCompletedSuccessfully')}</Text>
         </View>
 
         {/* Statistics Cards */}
         <View style={styles.statsContainer}>
-          <View style={styles.statCard}>
-            <Text style={styles.statLabel}>{t('distance')}</Text>
-            <Text style={styles.statValue}>{totalDistance}<Text style={styles.statUnit}>{t('mi')}</Text></Text>
+          <View style={[styles.statCard, { backgroundColor: colors.backgroundSecondary }]}>
+            <Text style={[styles.statLabel, { color: colors.textSecondary }]}>{t('distance')}</Text>
+            <Text style={[styles.statValue, { color: colors.text }]}>{totalDistance}<Text style={[styles.statUnit, { color: colors.textSecondary }]}>{t('mi')}</Text></Text>
           </View>
 
-          <View style={styles.statCard}>
-            <Text style={styles.statLabel}>{t('totalTime')}</Text>
-            <Text style={styles.statValue}>{totalTime}</Text>
+          <View style={[styles.statCard, { backgroundColor: colors.backgroundSecondary }]}>
+            <Text style={[styles.statLabel, { color: colors.textSecondary }]}>{t('totalTime')}</Text>
+            <Text style={[styles.statValue, { color: colors.text }]}>{totalTime}</Text>
           </View>
 
-          <View style={styles.statCard}>
-            <Text style={styles.statLabel}>{t('deliveries')}</Text>
-            <Text style={styles.statValue}>
-              {completedDeliveries.completed}<Text style={styles.statUnit}>/{completedDeliveries.total}</Text>
+          <View style={[styles.statCard, { backgroundColor: colors.backgroundSecondary }]}>
+            <Text style={[styles.statLabel, { color: colors.textSecondary }]}>{t('deliveries')}</Text>
+            <Text style={[styles.statValue, { color: colors.text }]}>
+              {completedDeliveries.completed}<Text style={[styles.statUnit, { color: colors.textSecondary }]}>/{completedDeliveries.total}</Text>
             </Text>
           </View>
         </View>
@@ -111,7 +113,7 @@ export default function RouteFinishedScreen() {
               },
               title: point.order.client.name,
               description: point.status === 'VISITED' ? 'Completed' : 'Pending',
-              backgroundColor: point.status === 'VISITED' ? Colors.light.success : Colors.light.primary,
+              backgroundColor: point.status === 'VISITED' ? colors.success : colors.primary,
             }))}
             polylines={route.polyline}
           />
@@ -120,8 +122,8 @@ export default function RouteFinishedScreen() {
         {/* Completed Stops Section */}
         <View style={styles.completedStopsSection}>
           <View style={styles.completedStopsHeader}>
-            <Text style={styles.completedStopsTitle}>{t('completedStops')}</Text>
-            <Text style={styles.completedStopsCount}>
+            <Text style={[styles.completedStopsTitle, { color: colors.text }]}>{t('completedStops')}</Text>
+            <Text style={[styles.completedStopsCount, { color: colors.textSecondary }]}>
               {completedDeliveries.completed} {t('total')}
             </Text>
           </View>
@@ -130,19 +132,19 @@ export default function RouteFinishedScreen() {
             {route.points
               .filter(point => point.status === 'VISITED')
               .map((point, index) => (
-                <View key={point.id} style={styles.completedStopItem}>
-                  <View style={styles.completedStopCheck}>
-                    <Ionicons name="checkmark" size={16} color={Colors.light.success} />
+                <View key={point.id} style={[styles.completedStopItem, { backgroundColor: colors.backgroundSecondary }]}>
+                  <View style={[styles.completedStopCheck, { backgroundColor: colors.success + '20' }]}>
+                    <Ionicons name="checkmark" size={16} color={colors.success} />
                   </View>
 
                   <View style={styles.completedStopContent}>
-                    <Text style={styles.completedStopName}>{point.order.client.name}</Text>
-                    <Text style={styles.completedStopAddress}>
+                    <Text style={[styles.completedStopName, { color: colors.text }]}>{point.order.client.name}</Text>
+                    <Text style={[styles.completedStopAddress, { color: colors.textSecondary }]}>
                       {point.order.client.location.lat || "123 Business Way, Suite 400"}
                     </Text>
                   </View>
 
-                  <Text style={styles.completedStopTime}>{moment(point.updatedAt).format('h:mm A')}</Text>
+                  <Text style={[styles.completedStopTime, { color: colors.textSecondary }]}>{moment(point.updatedAt).format('h:mm A')}</Text>
                 </View>
               ))}
           </View>
@@ -163,7 +165,6 @@ export default function RouteFinishedScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: Colors.light.background,
   },
   content: {
     flex: 1,
@@ -177,12 +178,10 @@ const styles = StyleSheet.create({
   loadingText: {
     marginTop: Spacing.md,
     fontSize: Typography.fontSize.base,
-    color: Colors.light.textSecondary,
     textAlign: 'center',
   },
   errorText: {
     fontSize: Typography.fontSize.lg,
-    color: Colors.light.danger,
     textAlign: 'center',
   },
   successHeader: {
@@ -197,19 +196,16 @@ const styles = StyleSheet.create({
     width: 80,
     height: 80,
     borderRadius: 40,
-    backgroundColor: Colors.light.success + '20',
     justifyContent: 'center',
     alignItems: 'center',
   },
   successTitle: {
     fontSize: Typography.fontSize['3xl'],
     fontWeight: Typography.fontWeight.bold,
-    color: Colors.light.text,
     marginBottom: Spacing.xs,
   },
   successSubtitle: {
     fontSize: Typography.fontSize.base,
-    color: Colors.light.textSecondary,
     textAlign: 'center',
   },
   statsContainer: {
@@ -220,7 +216,6 @@ const styles = StyleSheet.create({
   },
   statCard: {
     flex: 1,
-    backgroundColor: Colors.light.backgroundSecondary,
     paddingVertical: Spacing.md,
     paddingHorizontal: Spacing.sm,
     borderRadius: BorderRadius.md,
@@ -229,19 +224,16 @@ const styles = StyleSheet.create({
   statLabel: {
     fontSize: Typography.fontSize.xs,
     fontWeight: Typography.fontWeight.semibold,
-    color: Colors.light.textSecondary,
     marginBottom: Spacing.xs,
     letterSpacing: 0.5,
   },
   statValue: {
     fontSize: Typography.fontSize.xl,
     fontWeight: Typography.fontWeight.bold,
-    color: Colors.light.text,
   },
   statUnit: {
     fontSize: Typography.fontSize.base,
     fontWeight: Typography.fontWeight.normal,
-    color: Colors.light.textSecondary,
   },
   mapContainer: {
     height: 200,
@@ -263,12 +255,10 @@ const styles = StyleSheet.create({
   completedStopsTitle: {
     fontSize: Typography.fontSize.sm,
     fontWeight: Typography.fontWeight.bold,
-    color: Colors.light.text,
     letterSpacing: 0.5,
   },
   completedStopsCount: {
     fontSize: Typography.fontSize.sm,
-    color: Colors.light.textSecondary,
   },
   completedStopsList: {
     gap: Spacing.xs,
@@ -276,7 +266,6 @@ const styles = StyleSheet.create({
   completedStopItem: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: Colors.light.backgroundSecondary,
     paddingVertical: Spacing.md,
     paddingHorizontal: Spacing.md,
     borderRadius: BorderRadius.md,
@@ -285,7 +274,6 @@ const styles = StyleSheet.create({
     width: 24,
     height: 24,
     borderRadius: 12,
-    backgroundColor: Colors.light.success + '20',
     justifyContent: 'center',
     alignItems: 'center',
     marginRight: Spacing.sm,
@@ -297,16 +285,13 @@ const styles = StyleSheet.create({
   completedStopName: {
     fontSize: Typography.fontSize.base,
     fontWeight: Typography.fontWeight.semibold,
-    color: Colors.light.text,
     marginBottom: 2,
   },
   completedStopAddress: {
     fontSize: Typography.fontSize.sm,
-    color: Colors.light.textSecondary,
   },
   completedStopTime: {
     fontSize: Typography.fontSize.sm,
-    color: Colors.light.textSecondary,
   },
   finishButtonContainer: {
     paddingHorizontal: Spacing.lg,

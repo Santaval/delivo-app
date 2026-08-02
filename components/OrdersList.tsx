@@ -1,4 +1,4 @@
-import { BorderRadius, Colors, Spacing, Typography } from '@/constants';
+import { BorderRadius, Spacing, Typography } from '@/constants';
 import { useThemeColor } from '@/hooks/useColorScheme';
 import React, { useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -73,18 +73,18 @@ export function OrdersList({ orders, onOrderPress, onRefresh, isRefreshing, load
         <ThemedText style={[
           styles.tabText,
           isActive && styles.tabTextActive,
-          { color: isActive ? Colors.light.textInverse : colors.text }
+          { color: isActive ? colors.textInverse : colors.text }
         ]}>
           {tab.label}
         </ThemedText>
         {count > 0 && (
           <View style={[
             styles.tabBadge,
-            { backgroundColor: isActive ? Colors.light.textInverse : colors.textTertiary }
+            { backgroundColor: isActive ? colors.textInverse : colors.textTertiary }
           ]}>
             <ThemedText style={[
               styles.tabBadgeText,
-              { color: isActive ? colors.primary : Colors.light.textInverse }
+              { color: isActive ? colors.primary : colors.textInverse }
             ]}>
               {count}
             </ThemedText>
@@ -115,7 +115,7 @@ export function OrdersList({ orders, onOrderPress, onRefresh, isRefreshing, load
   return (
     <ThemedView style={styles.container}>
       {/* Filter Tabs */}
-      <View style={styles.tabsContainer}>
+      <View style={[styles.tabsContainer, { backgroundColor: colors.background, borderBottomColor: colors.border }]}>
         <ScrollView 
           horizontal 
           showsHorizontalScrollIndicator={false}
@@ -159,11 +159,9 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   tabsContainer: {
-    backgroundColor: Colors.light.background,
     paddingTop: Spacing.md,
     paddingBottom: Spacing.sm,
     borderBottomWidth: 1,
-    borderBottomColor: Colors.light.border,
   },
   tabsContent: {
     gap: Spacing.sm,
@@ -217,11 +215,9 @@ const styles = StyleSheet.create({
     fontWeight: Typography.fontWeight.semibold,
     textAlign: 'center',
     marginBottom: Spacing.xs,
-    color: Colors.light.text,
   },
   emptySubtitle: {
     fontSize: Typography.fontSize.sm,
-    color: Colors.light.textSecondary,
     textAlign: 'center',
     lineHeight: 20,
   },

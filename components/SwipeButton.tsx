@@ -1,5 +1,5 @@
 import { BorderRadius, Spacing, Typography } from '@/constants';
-import { Colors } from '@/constants/Colors';
+import { useThemeColor } from '@/hooks/useColorScheme';
 import { Ionicons } from '@expo/vector-icons';
 import React from 'react';
 import { useTranslation } from 'react-i18next';
@@ -30,13 +30,17 @@ export default function SwipeButton({
   text,
   isLoading = false,
   disabled = false,
-  backgroundColor = Colors.light.primary,
-  textColor = Colors.light.textInverse,
-  thumbColor = Colors.light.background,
+  backgroundColor,
+  textColor,
+  thumbColor,
   iconName = 'chevron-forward',
   style
 }: SwipeButtonProps) {
   const { t } = useTranslation();
+  const colors = useThemeColor();
+  const resolvedBackgroundColor = backgroundColor ?? colors.primary;
+  const resolvedTextColor = textColor ?? colors.textInverse;
+  const resolvedThumbColor = thumbColor ?? colors.background;
   const translateX = React.useRef(new Animated.Value(0)).current;
   const buttonScale = React.useRef(new Animated.Value(1)).current;
   
@@ -118,15 +122,15 @@ export default function SwipeButton({
         style={[
           styles.button,
           {
-            backgroundColor,
+            backgroundColor: resolvedBackgroundColor,
             transform: [{ scale: buttonScale }]
           }
         ]}
       >
-        <Text style={[styles.buttonText, { color: textColor }]}>
+        <Text style={[styles.buttonText, { color: resolvedTextColor }]}>
           {text}
         </Text>
-        
+
         <PanGestureHandler
           onGestureEvent={onPanGestureEvent}
           onHandlerStateChange={onPanHandlerStateChange}
@@ -136,18 +140,18 @@ export default function SwipeButton({
             style={[
               styles.thumb,
               {
-                backgroundColor: thumbColor,
+                backgroundColor: resolvedThumbColor,
                 transform: [{ translateX }]
               }
             ]}
           >
             {isLoading ? (
-              <ActivityIndicator size="small" color={Colors.light.text} />
+              <ActivityIndicator size="small" color={colors.text} />
             ) : (
-              <Ionicons 
-                name={iconName} 
-                size={24} 
-                color={disabled ? Colors.light.textTertiary : Colors.light.text} 
+              <Ionicons
+                name={iconName}
+                size={24}
+                color={disabled ? colors.textTertiary : colors.text}
               />
             )}
           </Animated.View>

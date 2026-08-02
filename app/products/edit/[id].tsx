@@ -2,9 +2,9 @@ import { LoadingState } from '@/components/feedback/LoadingState';
 import { FormField } from '@/components/FormField';
 import { PrimaryButton } from '@/components/PrimaryButton';
 import { ThemedText } from '@/components/ThemedText';
-import { BorderRadius, Colors, ProductsEditParams, Spacing, Typography } from '@/constants';
+import { BorderRadius, ProductsEditParams, Spacing, Typography } from '@/constants';
 import { useToast } from '@/context/ToastContext';
-import { useThemeColor } from '@/hooks/useColorScheme';
+import { useColorScheme, useThemeColor } from '@/hooks/useColorScheme';
 import useProduct from '@/hooks/useProduct';
 import i18n from '@/i18n';
 import { MaterialIcons } from '@expo/vector-icons';
@@ -33,6 +33,7 @@ const productSchema = z.object({
 export default function ProductEditScreen() {
   const { id } = useLocalSearchParams<ProductsEditParams>();
   const colors = useThemeColor();
+  const scheme = useColorScheme();
   const { t } = useTranslation();
   const toast = useToast();
   const { product, loading, error, update } = useProduct(id);
@@ -122,9 +123,9 @@ export default function ProductEditScreen() {
 
   if (loading && !isInitialized) {
     return (
-      <SafeAreaView style={styles.container}>
-        <StatusBar barStyle="dark-content" backgroundColor={colors.background} />
-        <View style={styles.header}>
+      <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]}>
+        <StatusBar barStyle={scheme === 'dark' ? 'light-content' : 'dark-content'} backgroundColor={colors.background} />
+        <View style={[styles.header, { borderBottomColor: colors.border, backgroundColor: colors.background }]}>
           <TouchableOpacity
             onPress={() => router.back()}
             style={styles.backButton}
@@ -132,7 +133,7 @@ export default function ProductEditScreen() {
           >
             <MaterialIcons name="arrow-back" size={24} color={colors.text} />
           </TouchableOpacity>
-          <ThemedText style={styles.headerTitle}>{t("editProduct")}</ThemedText>
+          <ThemedText style={[styles.headerTitle, { color: colors.text }]}>{t("editProduct")}</ThemedText>
           <View style={styles.placeholder} />
         </View>
         <View style={styles.loadingContainer}>
@@ -144,9 +145,9 @@ export default function ProductEditScreen() {
 
   if (error || !product) {
     return (
-      <SafeAreaView style={styles.container}>
-        <StatusBar barStyle="dark-content" backgroundColor={colors.background} />
-        <View style={styles.header}>
+      <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]}>
+        <StatusBar barStyle={scheme === 'dark' ? 'light-content' : 'dark-content'} backgroundColor={colors.background} />
+        <View style={[styles.header, { borderBottomColor: colors.border, backgroundColor: colors.background }]}>
           <TouchableOpacity
             onPress={() => router.back()}
             style={styles.backButton}
@@ -154,7 +155,7 @@ export default function ProductEditScreen() {
           >
             <MaterialIcons name="arrow-back" size={24} color={colors.text} />
           </TouchableOpacity>
-          <ThemedText style={styles.headerTitle}>{t("editProduct")}</ThemedText>
+          <ThemedText style={[styles.headerTitle, { color: colors.text }]}>{t("editProduct")}</ThemedText>
           <View style={styles.placeholder} />
         </View>
         <View style={styles.loadingContainer}>
@@ -168,10 +169,10 @@ export default function ProductEditScreen() {
   }
 
   return (
-    <SafeAreaView style={styles.container}>
-      <StatusBar barStyle="dark-content" backgroundColor={colors.background} />
+    <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]}>
+      <StatusBar barStyle={scheme === 'dark' ? 'light-content' : 'dark-content'} backgroundColor={colors.background} />
 
-      <View style={styles.header}>
+      <View style={[styles.header, { borderBottomColor: colors.border, backgroundColor: colors.background }]}>
         <TouchableOpacity
           onPress={() => router.back()}
           style={styles.backButton}
@@ -179,7 +180,7 @@ export default function ProductEditScreen() {
         >
           <MaterialIcons name="arrow-back" size={24} color={colors.text} />
         </TouchableOpacity>
-        <ThemedText style={styles.headerTitle}>{t("editProduct")}</ThemedText>
+        <ThemedText style={[styles.headerTitle, { color: colors.text }]}>{t("editProduct")}</ThemedText>
         <View style={styles.placeholder} />
       </View>
 
@@ -188,11 +189,11 @@ export default function ProductEditScreen() {
         style={styles.flex}
       >
         <ScrollView
-          style={styles.scrollView}
+          style={[styles.scrollView, { backgroundColor: colors.backgroundSecondary }]}
           contentContainerStyle={styles.content}
           showsVerticalScrollIndicator={false}
         >
-          <View style={styles.section}>
+          <View style={[styles.section, { backgroundColor: colors.background }]}>
             <FormField
               value={name}
               onChangeText={setName}
@@ -203,13 +204,13 @@ export default function ProductEditScreen() {
             />
           </View>
 
-          <View style={styles.section}>
-            <ThemedText style={styles.sectionTitle}>{t("pricingAndTax")}</ThemedText>
+          <View style={[styles.section, { backgroundColor: colors.background }]}>
+            <ThemedText style={[styles.sectionTitle, { color: colors.text }]}>{t("pricingAndTax")}</ThemedText>
 
             <View style={styles.priceField}>
-              <ThemedText style={styles.fieldLabel}>{t("grossPrice")} ({t("priceWithIva")})</ThemedText>
-              <View style={styles.currencyInput}>
-                <ThemedText style={styles.currencySymbol}>₡</ThemedText>
+              <ThemedText style={[styles.fieldLabel, { color: colors.text }]}>{t("grossPrice")} ({t("priceWithIva")})</ThemedText>
+              <View style={[styles.currencyInput, { borderColor: colors.border, backgroundColor: colors.background }]}>
+                <ThemedText style={[styles.currencySymbol, { color: colors.textSecondary }]}>₡</ThemedText>
                 <TextInput
                   style={[styles.priceInput, { color: colors.text }]}
                   value={grossPriceText}
@@ -226,14 +227,15 @@ export default function ProductEditScreen() {
             </View>
 
             <View style={styles.ivaField}>
-              <ThemedText style={styles.fieldLabel}>{t("ivaRate")} (%)</ThemedText>
+              <ThemedText style={[styles.fieldLabel, { color: colors.text }]}>{t("ivaRate")} (%)</ThemedText>
               <View style={styles.ivaSelector}>
                 {ivaOptions.map((rate) => (
                   <TouchableOpacity
                     key={rate}
                     style={[
                       styles.ivaOption,
-                      ivaRate === rate && styles.ivaOptionSelected,
+                      { backgroundColor: colors.background },
+                      ivaRate === rate && [styles.ivaOptionSelected, { backgroundColor: colors.primaryLight + '10' }],
                       { borderColor: ivaRate === rate ? colors.primary : colors.border }
                     ]}
                     onPress={() => setIvaRate(rate)}
@@ -241,6 +243,7 @@ export default function ProductEditScreen() {
                   >
                     <ThemedText style={[
                       styles.ivaOptionText,
+                      { color: colors.text },
                       ivaRate === rate && { color: colors.primary }
                     ]}>
                       {rate}%
@@ -251,30 +254,30 @@ export default function ProductEditScreen() {
             </View>
 
             <View style={styles.calculatedField}>
-              <ThemedText style={styles.fieldLabel}>{t("ivaAmount")}</ThemedText>
-              <View style={styles.currencyInput}>
-                <ThemedText style={styles.currencySymbol}>₡</ThemedText>
-                <ThemedText style={styles.calculatedValue}>
+              <ThemedText style={[styles.fieldLabel, { color: colors.text }]}>{t("ivaAmount")}</ThemedText>
+              <View style={[styles.currencyInput, { borderColor: colors.border, backgroundColor: colors.background }]}>
+                <ThemedText style={[styles.currencySymbol, { color: colors.textSecondary }]}>₡</ThemedText>
+                <ThemedText style={[styles.calculatedValue, { color: colors.textSecondary }]}>
                   {formatCurrency(ivaAmount)}
                 </ThemedText>
               </View>
             </View>
           </View>
 
-          <View style={styles.totalSection}>
+          <View style={[styles.totalSection, { backgroundColor: colors.background, borderTopColor: colors.border }]}>
             <View style={styles.totalRow}>
-              <ThemedText style={styles.totalLabel}>{t("totalPrice")}</ThemedText>
-              <ThemedText style={styles.totalValue}>
+              <ThemedText style={[styles.totalLabel, { color: colors.text }]}>{t("totalPrice")}</ThemedText>
+              <ThemedText style={[styles.totalValue, { color: colors.primary }]}>
                 ₡{formatCurrency(grossPrice)}
               </ThemedText>
             </View>
-            <ThemedText style={styles.totalSubtext}>
+            <ThemedText style={[styles.totalSubtext, { color: colors.textSecondary }]}>
               {t("calculatedAutomaticallyFromNetPriceAndTaxRate")}
             </ThemedText>
           </View>
         </ScrollView>
 
-        <View style={styles.buttonContainer}>
+        <View style={[styles.buttonContainer, { backgroundColor: colors.background, borderTopColor: colors.border }]}>
           <PrimaryButton
             title={isLoading ? t("savingProduct") : t("saveProduct")}
             onPress={handleSubmit}
@@ -291,7 +294,6 @@ export default function ProductEditScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: Colors.light.background,
   },
   header: {
     flexDirection: 'row',
@@ -300,8 +302,6 @@ const styles = StyleSheet.create({
     paddingHorizontal: Spacing.lg,
     paddingVertical: Spacing.md,
     borderBottomWidth: 1,
-    borderBottomColor: Colors.light.border,
-    backgroundColor: Colors.light.background,
   },
   backButton: {
     padding: Spacing.xs,
@@ -310,7 +310,6 @@ const styles = StyleSheet.create({
   headerTitle: {
     fontSize: Typography.fontSize.lg,
     fontWeight: Typography.fontWeight.semibold,
-    color: Colors.light.text,
   },
   placeholder: {
     width: 32,
@@ -320,7 +319,6 @@ const styles = StyleSheet.create({
   },
   scrollView: {
     flex: 1,
-    backgroundColor: Colors.light.backgroundSecondary,
   },
   content: {
     paddingBottom: Spacing.xl,
@@ -338,7 +336,6 @@ const styles = StyleSheet.create({
     marginTop: Spacing.md,
   },
   section: {
-    backgroundColor: Colors.light.background,
     marginBottom: Spacing.md,
     paddingHorizontal: Spacing.lg,
     paddingVertical: Spacing.lg,
@@ -347,7 +344,6 @@ const styles = StyleSheet.create({
   sectionTitle: {
     fontSize: Typography.fontSize.base,
     fontWeight: Typography.fontWeight.semibold,
-    color: Colors.light.text,
     marginBottom: Spacing.md,
   },
   priceField: {
@@ -359,22 +355,18 @@ const styles = StyleSheet.create({
   fieldLabel: {
     fontSize: Typography.fontSize.sm,
     fontWeight: Typography.fontWeight.medium,
-    color: Colors.light.text,
     marginBottom: Spacing.xs,
   },
   currencyInput: {
     flexDirection: 'row',
     alignItems: 'center',
     borderWidth: 1,
-    borderColor: Colors.light.border,
     borderRadius: BorderRadius.md,
     paddingHorizontal: Spacing.md,
     paddingVertical: Spacing.sm,
-    backgroundColor: Colors.light.background,
   },
   currencySymbol: {
     fontSize: Typography.fontSize.base,
-    color: Colors.light.textSecondary,
     marginRight: Spacing.xs,
   },
   priceInput: {
@@ -390,7 +382,6 @@ const styles = StyleSheet.create({
     flex: 1,
     fontSize: Typography.fontSize.base,
     fontWeight: Typography.fontWeight.medium,
-    color: Colors.light.textSecondary,
   },
   ivaSelector: {
     flexDirection: 'row',
@@ -399,27 +390,21 @@ const styles = StyleSheet.create({
   ivaOption: {
     flex: 1,
     borderWidth: 1,
-    borderColor: Colors.light.border,
     borderRadius: BorderRadius.md,
     paddingVertical: Spacing.sm,
     alignItems: 'center',
-    backgroundColor: Colors.light.background,
   },
   ivaOptionSelected: {
     borderWidth: 2,
-    backgroundColor: Colors.light.primaryLight + '10',
   },
   ivaOptionText: {
     fontSize: Typography.fontSize.sm,
     fontWeight: Typography.fontWeight.medium,
-    color: Colors.light.text,
   },
   totalSection: {
-    backgroundColor: Colors.light.background,
     paddingHorizontal: Spacing.lg,
     paddingVertical: Spacing.lg,
     borderTopWidth: 1,
-    borderTopColor: Colors.light.border,
   },
   totalRow: {
     flexDirection: 'row',
@@ -430,22 +415,17 @@ const styles = StyleSheet.create({
   totalLabel: {
     fontSize: Typography.fontSize.lg,
     fontWeight: Typography.fontWeight.semibold,
-    color: Colors.light.text,
   },
   totalValue: {
     fontSize: Typography.fontSize.xl,
     fontWeight: Typography.fontWeight.bold,
-    color: Colors.light.primary,
   },
   totalSubtext: {
     fontSize: Typography.fontSize.xs,
-    color: Colors.light.textSecondary,
     fontStyle: 'italic',
   },
   buttonContainer: {
     padding: Spacing.lg,
-    backgroundColor: Colors.light.background,
     borderTopWidth: 1,
-    borderTopColor: Colors.light.border,
   },
 });

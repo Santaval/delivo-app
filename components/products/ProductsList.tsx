@@ -1,5 +1,5 @@
 import { ThemedView } from '@/components/ThemedView';
-import { BorderRadius, Colors, Spacing, Typography } from '@/constants';
+import { BorderRadius, Spacing, Typography } from '@/constants';
 import React from 'react';
 import { useTranslation } from 'react-i18next';
 import { RefreshControl, ScrollView, StyleSheet } from 'react-native';
@@ -69,11 +69,9 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   tabsContainer: {
-    backgroundColor: Colors.light.background,
     paddingTop: Spacing.md,
     paddingBottom: Spacing.sm,
     borderBottomWidth: 1,
-    borderBottomColor: Colors.light.border,
   },
   tabsContent: {
     gap: Spacing.sm,
@@ -127,11 +125,9 @@ const styles = StyleSheet.create({
     fontWeight: Typography.fontWeight.semibold,
     textAlign: 'center',
     marginBottom: Spacing.xs,
-    color: Colors.light.text,
   },
   emptySubtitle: {
     fontSize: Typography.fontSize.sm,
-    color: Colors.light.textSecondary,
     textAlign: 'center',
     lineHeight: 20,
   },

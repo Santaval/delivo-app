@@ -6,9 +6,10 @@ import CurrentStopHeader from '@/components/routes/CurrentStopHeader';
 import DeliveryActionButtons from '@/components/routes/DeliveryActionButtons';
 import DeliveryMap from '@/components/routes/DeliveryMap';
 import DeliveryTabs, { Tab } from '@/components/routes/DeliveryTabs';
-import { BorderRadius, Colors, Routes, Spacing, Typography } from '@/constants';
+import { BorderRadius, Routes, Spacing, Typography } from '@/constants';
 import { useRoute } from '@/context/RouteContext';
 import { useToast } from '@/context/ToastContext';
+import { useThemeColor } from '@/hooks/useColorScheme';
 import useUserLocation from '@/hooks/useUserLocation';
 import { router } from 'expo-router';
 import React, { useEffect, useState } from 'react';
@@ -21,6 +22,7 @@ export default function RouteDeliveryScreen() {
   const { location, refreshLocation } = useUserLocation();
   const { t } = useTranslation();
   const toast = useToast();
+  const colors = useThemeColor();
 
   const [isCompletingDelivery, setIsCompletingDelivery] = React.useState(false);
   const [activeTab, setActiveTab] = useState<Tab>('current');
@@ -29,7 +31,7 @@ export default function RouteDeliveryScreen() {
 
   const handleCompleteDelivery = async () => {
     if (!currentPoint) return;
-    
+
     setIsCompletingDelivery(true);
     try {
        await completeCurrentDelivery();
@@ -68,11 +70,11 @@ export default function RouteDeliveryScreen() {
 
   if (isLoading) {
     return (
-      <SafeAreaView style={styles.container}>
+      <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]}>
         <TopBar title={t('delivery')} showBack backTo={Routes.tabRoutes} />
         <View style={styles.centerContent}>
-          <ActivityIndicator size="large" color={Colors.light.primary} />
-          <Text style={styles.loadingText}>{t("loadingDelivery")}</Text>
+          <ActivityIndicator size="large" color={colors.primary} />
+          <Text style={[styles.loadingText, { color: colors.textSecondary }]}>{t("loadingDelivery")}</Text>
         </View>
       </SafeAreaView>
     );
@@ -80,10 +82,10 @@ export default function RouteDeliveryScreen() {
 
   if (error || !route || !currentPoint) {
     return (
-      <SafeAreaView style={styles.container}>
+      <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]}>
         <TopBar title={t('delivery')} showBack backTo={Routes.tabRoutes} />
         <View style={styles.centerContent}>
-          <Text style={styles.errorText}>{error || t('noActiveDeliveryFound')}</Text>
+          <Text style={[styles.errorText, { color: colors.danger }]}>{error || t('noActiveDeliveryFound')}</Text>
         </View>
       </SafeAreaView>
     );
@@ -92,7 +94,7 @@ export default function RouteDeliveryScreen() {
   const currentClient = currentPoint.order.client;
 
   return (
-    <SafeAreaView style={styles.container}>
+    <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]}>
       <TopBar title={t('currentDelivery')} showBack backTo={Routes.tabRoutes} />
 
       <View style={styles.content}>
@@ -106,7 +108,7 @@ export default function RouteDeliveryScreen() {
         />
 
         {/* Client Info Section */}
-        <View style={styles.clientInfoContainer}>
+        <View style={[styles.clientInfoContainer, { backgroundColor: colors.background }]}>
           {/* Tabs */}
           <DeliveryTabs activeTab={activeTab} onTabChange={setActiveTab} />
 
@@ -152,7 +154,6 @@ export default function RouteDeliveryScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: Colors.light.background,
   },
   content: {
     flex: 1,
@@ -166,17 +167,14 @@ const styles = StyleSheet.create({
   loadingText: {
     marginTop: Spacing.md,
     fontSize: Typography.fontSize.base,
-    color: Colors.light.textSecondary,
     textAlign: 'center',
   },
   errorText: {
     fontSize: Typography.fontSize.lg,
-    color: Colors.light.danger,
     textAlign: 'center',
   },
   clientInfoContainer: {
     flex: 1,
-    backgroundColor: Colors.light.background,
     borderTopLeftRadius: BorderRadius.xl,
     borderTopRightRadius: BorderRadius.xl,
     marginTop: -BorderRadius.xl,

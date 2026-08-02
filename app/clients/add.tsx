@@ -1,7 +1,7 @@
 import { FormField, LocationSearch, PrimaryButton, ThemedText, ThemedView, TopBar } from '@/components';
 import { Spacing, Typography, Routes } from '@/constants';
-import { Colors } from '@/constants/Colors';
 import { useToast } from '@/context/ToastContext';
+import { useThemeColor } from '@/hooks/useColorScheme';
 import i18n from '@/i18n';
 import ClientsService from '@/services/clients/Clients.service';
 import { useRouter } from 'expo-router';
@@ -26,6 +26,7 @@ export default function AddClient() {
   const router = useRouter();
   const { t } = useTranslation();
   const toast = useToast();
+  const colors = useThemeColor();
 
   const [formData, setFormData] = useState<ClientFormData>({
     name: '',
@@ -89,7 +90,7 @@ export default function AddClient() {
   };
 
   return (
-    <SafeAreaView style={styles.container}>
+    <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]}>
       <KeyboardAvoidingView
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
       >
@@ -100,7 +101,7 @@ export default function AddClient() {
         />
         <ScrollView showsVerticalScrollIndicator={false}>
           <ThemedView style={styles.content}>
-            <ThemedText style={styles.sectionTitle}>{t('contactDetails')}</ThemedText>
+            <ThemedText style={[styles.sectionTitle, { color: colors.text }]}>{t('contactDetails')}</ThemedText>
 
             <FormField
               label={t('clientName')}
@@ -172,9 +173,8 @@ export default function AddClient() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: Colors.light.background,
   },
-  
+
   content: {
     padding: Spacing.lg,
     paddingTop: Spacing.md,
@@ -182,7 +182,6 @@ const styles = StyleSheet.create({
   sectionTitle: {
     fontSize: Typography.fontSize.lg,
     fontWeight: Typography.fontWeight.semibold,
-    color: Colors.light.text,
     marginBottom: Spacing.md,
   },
   sectionSpacing: {

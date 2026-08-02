@@ -1,5 +1,6 @@
 import Map from '@/components/maps/Map';
-import { BorderRadius, Colors, Spacing } from '@/constants';
+import { BorderRadius, Spacing } from '@/constants';
+import { useThemeColor } from '@/hooks/useColorScheme';
 import React from 'react';
 import { StyleSheet, View } from 'react-native';
 
@@ -11,7 +12,7 @@ type DeliveryMapProps = {
     latitude: number;
     longitude: number;
   };
-  
+
   polylines?: string;
 };
 
@@ -25,6 +26,7 @@ const DeliveryMap: React.FC<DeliveryMapProps> = ({
   pendingDeliveries,
   skippedDeliveries
 }) => {
+  const colors = useThemeColor();
   const completedMarkers = completedDeliveries.map(delivery => ({
   coordinate: {
     latitude: delivery.order.client.location.lat || 37.7749,
@@ -56,8 +58,8 @@ const skippedMarkers = skippedDeliveries.map(delivery => ({
 }));
 
   return (
-    <View style={styles.mapContainer}>
-      <Map 
+    <View style={[styles.mapContainer, { backgroundColor: colors.backgroundSecondary }]}>
+      <Map
         markers={[
           ...completedMarkers,
           ...pendingMarkers,
@@ -74,9 +76,9 @@ const skippedMarkers = skippedDeliveries.map(delivery => ({
         ]}
         polylines={polylines}
       />
-      
+
       {/* Distance indicator overlay */}
-      <View style={styles.distanceOverlay}>
+      <View style={[styles.distanceOverlay, { backgroundColor: colors.background }]}>
         {/* <Text style={styles.distanceText}>2.4 mi away</Text> */}
       </View>
     </View>
@@ -86,14 +88,12 @@ const skippedMarkers = skippedDeliveries.map(delivery => ({
 const styles = StyleSheet.create({
   mapContainer: {
     height: 300,
-    backgroundColor: Colors.light.backgroundSecondary,
     position: 'relative',
   },
   distanceOverlay: {
     position: 'absolute',
     top: Spacing.md,
     right: Spacing.md,
-    backgroundColor: Colors.light.background,
     paddingHorizontal: Spacing.sm,
     paddingVertical: Spacing.xs,
     borderRadius: BorderRadius.md,
@@ -109,7 +109,6 @@ const styles = StyleSheet.create({
   distanceText: {
     fontSize: 14,
     fontWeight: '600',
-    color: Colors.light.primary,
   },
 });
 
