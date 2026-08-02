@@ -13,6 +13,8 @@ type MarkerProps = {
   title: string;
   description: string;
   backgroundColor: string;
+  /** Deja el marcador fuera del cálculo del encuadre (p. ej. la posición del usuario, que se mueve). */
+  excludeFromFit?: boolean;
 };
 
 type Props = {
@@ -37,7 +39,10 @@ function getBounds(coordinates: [number, number][]) {
   };
 }
 
-class MapErrorBoundary extends Component<{ children: ReactNode }, { crashed: boolean }> {
+class MapErrorBoundary extends Component<
+  { children: ReactNode },
+  { crashed: boolean }
+> {
   state = { crashed: false };
 
   static getDerivedStateFromError() {
@@ -60,28 +65,35 @@ function MapContent({ markers, polylines, fitToMarkers }: Props) {
   const { location } = useUserLocation();
 
   const routeCoordinates: [number, number][] = polylines
-    ? polyline.decode(polylines).map(([lat, lng]) => [lng, lat] as [number, number])
+    ? polyline
+        .decode(polylines)
+        .map(([lat, lng]) => [lng, lat] as [number, number])
     : [];
 
   const routeShape: GeoJSON.Feature<GeoJSON.LineString> | null = polylines
     ? {
-      type: "Feature",
-      geometry: {
-        type: "LineString",
-        coordinates: routeCoordinates,
-      },
-      properties: {},
-    }
+        type: "Feature",
+        geometry: {
+          type: "LineString",
+          coordinates: routeCoordinates,
+        },
+        properties: {},
+      }
     : null;
 
   const fitCoordinates: [number, number][] = fitToMarkers
     ? [
-      ...(markers ?? []).map(
-        (marker) =>
-          [marker.coordinate.longitude, marker.coordinate.latitude] as [number, number],
-      ),
-      ...routeCoordinates,
-    ]
+        ...(markers ?? [])
+          .filter((marker) => !marker.excludeFromFit)
+          .map(
+            (marker) =>
+              [marker.coordinate.longitude, marker.coordinate.latitude] as [
+                number,
+                number,
+              ],
+          ),
+        ...routeCoordinates,
+      ]
     : [];
 
   const bounds = getBounds(fitCoordinates);
@@ -93,28 +105,28 @@ function MapContent({ markers, polylines, fitToMarkers }: Props) {
     ? bounds.sw[0] === bounds.ne[0] && bounds.sw[1] === bounds.ne[1]
       ? { centerCoordinate: bounds.sw, zoomLevel: SINGLE_POINT_ZOOM }
       : {
-        bounds,
-        padding: {
-          paddingTop: FIT_PADDING,
-          paddingBottom: FIT_PADDING,
-          paddingLeft: FIT_PADDING,
-          paddingRight: FIT_PADDING,
-        },
-      }
+          bounds,
+          padding: {
+            paddingTop: FIT_PADDING,
+            paddingBottom: FIT_PADDING,
+            paddingLeft: FIT_PADDING,
+            paddingRight: FIT_PADDING,
+          },
+        }
     : {
-      centerCoordinate: [
-        location!.coords.longitude || -122.4194,
-        location!.coords.latitude || 37.7749,
-      ] as [number, number],
-      zoomLevel: 12,
-    };
+        centerCoordinate: [
+          location!.coords.longitude || -122.4194,
+          location!.coords.latitude || 37.7749,
+        ] as [number, number],
+        zoomLevel: 12,
+      };
 
   return (
-    <MapboxGL.MapView style={styles.map} styleURL="mapbox://styles/savaldev/cm15n4dn1001l01qk10xtb9lh">
-      <MapboxGL.Camera
-        {...cameraProps}
-        animationDuration={0}
-      />
+    <MapboxGL.MapView
+      style={styles.map}
+      styleURL="mapbox://styles/savaldev/cm15n4dn1001l01qk10xtb9lh"
+    >
+      <MapboxGL.Camera {...cameraProps} animationDuration={0} />
 
       {markers?.map((marker, index) => (
         <CustomMarker

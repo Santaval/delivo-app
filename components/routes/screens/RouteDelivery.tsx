@@ -105,6 +105,7 @@ export default function RouteDeliveryScreen() {
           skippedDeliveries={route.points.filter(point => point.status === 'SKIPPED')}
           userLocation={location?.coords}
           polylines={route.polyline}
+          fitToRoute
         />
 
         {/* Client Info Section */}
