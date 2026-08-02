@@ -1,20 +1,17 @@
-import { MaterialIcons } from '@expo/vector-icons';
-import { router } from 'expo-router';
-import React from 'react';
-import { useTranslation } from 'react-i18next';
+import { useTranslation } from "react-i18next";
 import {
   ActivityIndicator,
   StatusBar,
   StyleSheet,
   TouchableOpacity,
   View,
-} from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
-import { PrimaryButton, ThemedText, ThemedView } from '../../components';
-import { toast } from '../../context/ToastContext';
-import { BorderRadius, Routes, Shadows, Spacing, Typography } from '../../constants';
-import { useCompanies } from '../../context/CompaniesContext';
-import { useColorScheme, useThemeColor } from '../../hooks/useColorScheme';
+} from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
+import { ThemedText, ThemedView } from "../../components";
+import { BorderRadius, Shadows, Spacing, Typography } from "../../constants";
+import { useCompanies } from "../../context/CompaniesContext";
+import { toast } from "../../context/ToastContext";
+import { useColorScheme, useThemeColor } from "../../hooks/useColorScheme";
 
 export default function CompanySelectPage() {
   const { t } = useTranslation();
@@ -28,19 +25,15 @@ export default function CompanySelectPage() {
       // guard in app/_layout.tsx swaps this screen for the app stack.
       await selectCompany(companyId);
     } catch (error) {
-      toast.error(t('failedToSelectCompany'));
+      toast.error(t("failedToSelectCompany"));
     }
-  };
-
-  const handleAddNewCompany = () => {
-    router.push(Routes.companiesAdd);
   };
 
   const getCompanyInitials = (name: string) => {
     return name
-      .split(' ')
-      .map(word => word.charAt(0).toUpperCase())
-      .join('')
+      .split(" ")
+      .map((word) => word.charAt(0).toUpperCase())
+      .join("")
       .substring(0, 2);
   };
 
@@ -52,23 +45,43 @@ export default function CompanySelectPage() {
 
   if (!companies || companies.length === 0) {
     return (
-      <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]}>
-        <StatusBar barStyle={scheme === 'dark' ? 'light-content' : 'dark-content'} backgroundColor={colors.background} />
+      <SafeAreaView
+        style={[styles.container, { backgroundColor: colors.background }]}
+      >
+        <StatusBar
+          barStyle={scheme === "dark" ? "light-content" : "dark-content"}
+          backgroundColor={colors.background}
+        />
         <ThemedView style={styles.centerContent}>
           <ActivityIndicator size="large" color={colors.primary} />
-          <ThemedText style={[styles.loadingText, { color: colors.textSecondary }]}>{t('loadingCompanies')}</ThemedText>
+          <ThemedText
+            style={[styles.loadingText, { color: colors.textSecondary }]}
+          >
+            {t("loadingCompanies")}
+          </ThemedText>
         </ThemedView>
       </SafeAreaView>
     );
   }
 
   return (
-    <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]}>
-      <StatusBar barStyle={scheme === 'dark' ? 'light-content' : 'dark-content'} backgroundColor={colors.background} />
+    <SafeAreaView
+      style={[styles.container, { backgroundColor: colors.background }]}
+    >
+      <StatusBar
+        barStyle={scheme === "dark" ? "light-content" : "dark-content"}
+        backgroundColor={colors.background}
+      />
       <ThemedView style={styles.container}>
         <View style={styles.header}>
-          <ThemedText style={[styles.title, { color: colors.text }]}>{t('selectCompany')}</ThemedText>
-          <ThemedText style={[styles.subtitle, { color: colors.textSecondary }]}>{t('chooseCompanyToWorkWith')}</ThemedText>
+          <ThemedText style={[styles.title, { color: colors.text }]}>
+            {t("selectCompany")}
+          </ThemedText>
+          <ThemedText
+            style={[styles.subtitle, { color: colors.textSecondary }]}
+          >
+            {t("chooseCompanyToWorkWith")}
+          </ThemedText>
         </View>
 
         <View style={styles.companiesList}>
@@ -79,57 +92,60 @@ export default function CompanySelectPage() {
                 key={company.id}
                 style={[
                   styles.companyCard,
-                  { backgroundColor: colors.surface, borderColor: colors.border },
-                  isSelected && { borderColor: colors.primary, backgroundColor: colors.surface }
+                  {
+                    backgroundColor: colors.surface,
+                    borderColor: colors.border,
+                  },
+                  isSelected && {
+                    borderColor: colors.primary,
+                    backgroundColor: colors.surface,
+                  },
                 ]}
                 onPress={() => handleSelectCompany(company.id)}
                 activeOpacity={0.8}
               >
                 <View style={styles.companyContent}>
-                  <View style={[
-                    styles.companyAvatar,
-                    { backgroundColor: isSelected ? colors.primary : colors.backgroundTertiary }
-                  ]}>
-                    <ThemedText style={[
-                      styles.companyAvatarText,
-                      { color: isSelected ? colors.textInverse : colors.text }
-                    ]}>
+                  <View
+                    style={[
+                      styles.companyAvatar,
+                      {
+                        backgroundColor: isSelected
+                          ? colors.primary
+                          : colors.backgroundTertiary,
+                      },
+                    ]}
+                  >
+                    <ThemedText
+                      style={[
+                        styles.companyAvatarText,
+                        {
+                          color: isSelected ? colors.textInverse : colors.text,
+                        },
+                      ]}
+                    >
                       {getCompanyInitials(company.name)}
                     </ThemedText>
                   </View>
 
                   <View style={styles.companyInfo}>
-                    <ThemedText style={[styles.companyName, { color: colors.text }]}>
+                    <ThemedText
+                      style={[styles.companyName, { color: colors.text }]}
+                    >
                       {company.name}
                     </ThemedText>
-                    <ThemedText style={[styles.companyId, { color: colors.textSecondary }]}>
+                    <ThemedText
+                      style={[
+                        styles.companyId,
+                        { color: colors.textSecondary },
+                      ]}
+                    >
                       {getCompanyId(company)}
                     </ThemedText>
-                  </View>
-
-                  <View style={styles.selectionIndicator}>
-                    {isSelected ? (
-                      <View style={[styles.selectedDot, { backgroundColor: colors.success }]} />
-                    ) : (
-                      <MaterialIcons
-                        name="check"
-                        size={20}
-                        color={colors.textTertiary}
-                      />
-                    )}
                   </View>
                 </View>
               </TouchableOpacity>
             );
           })}
-        </View>
-
-        <View style={styles.addButtonContainer}>
-          <PrimaryButton
-            title={t('addNewCompany')}
-            onPress={handleAddNewCompany}
-            style={styles.addButton}
-          />
         </View>
       </ThemedView>
     </SafeAreaView>
@@ -142,8 +158,8 @@ const styles = StyleSheet.create({
   },
   centerContent: {
     flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
+    justifyContent: "center",
+    alignItems: "center",
     padding: Spacing.xl,
   },
   loadingText: {
@@ -155,7 +171,7 @@ const styles = StyleSheet.create({
     paddingBottom: Spacing.lg,
   },
   title: {
-    fontSize: Typography.fontSize['2xl'],
+    fontSize: Typography.fontSize["2xl"],
     fontWeight: Typography.fontWeight.bold,
     marginBottom: Spacing.xs,
   },
@@ -174,16 +190,16 @@ const styles = StyleSheet.create({
     ...Shadows.small,
   },
   companyContent: {
-    flexDirection: 'row',
-    alignItems: 'center',
+    flexDirection: "row",
+    alignItems: "center",
     padding: Spacing.lg,
   },
   companyAvatar: {
     width: 48,
     height: 48,
     borderRadius: 8,
-    justifyContent: 'center',
-    alignItems: 'center',
+    justifyContent: "center",
+    alignItems: "center",
     marginRight: Spacing.md,
   },
   companyAvatarText: {
@@ -204,8 +220,8 @@ const styles = StyleSheet.create({
   selectionIndicator: {
     width: 24,
     height: 24,
-    justifyContent: 'center',
-    alignItems: 'center',
+    justifyContent: "center",
+    alignItems: "center",
   },
   selectedDot: {
     width: 8,
@@ -217,6 +233,6 @@ const styles = StyleSheet.create({
     paddingTop: Spacing.lg,
   },
   addButton: {
-    width: '100%',
+    width: "100%",
   },
 });

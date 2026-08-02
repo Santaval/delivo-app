@@ -2,9 +2,9 @@ import { toast } from "@/context/ToastContext";
 import i18n from "@/i18n";
 import api, { setOnUnauthorized } from "@/services/api";
 import AuthService from "@/services/auth/Auth.service";
+import { Observe } from "expo-observe";
 import * as SecureStore from "expo-secure-store";
 import { createContext, useContext, useEffect, useState } from "react";
-import { Observe } from "expo-observe";
 
 /**
  * Represents the authentication state of the application
@@ -32,6 +32,8 @@ interface AuthContextType {
   googleAuth: (token: string) => Promise<void>;
   /** Function to authenticate user with Apple */
   appleAuth: (token: string) => Promise<void>;
+  /** Function to qa log in */
+  qaLogin: (username: string, password: string) => Promise<void>;
   /** Function to log out the current user */
   logout: () => Promise<void>;
   /** Current authentication state */
@@ -61,6 +63,7 @@ const AuthContext = createContext<AuthContextType>({
   user: null,
   googleAuth: async () => {},
   appleAuth: async () => {},
+  qaLogin: async () => {},
   logout: async () => {},
   authState: initialState,
   clearError: () => {},
@@ -83,7 +86,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
    * @param {boolean} isLoading - Whether an async operation is in progress
    */
   const setLoading = (isLoading: boolean) => {
-    setAuthState(prev => ({ ...prev, isLoading }));
+    setAuthState((prev) => ({ ...prev, isLoading }));
   };
 
   /**
@@ -91,7 +94,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
    * @param {string | null} error - Error message to set
    */
   const setError = (error: string | null) => {
-    setAuthState(prev => ({ ...prev, error }));
+    setAuthState((prev) => ({ ...prev, error }));
   };
 
   /**
@@ -105,7 +108,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
    * @param {boolean} authenticated - Whether the user is authenticated
    */
   const updateAuthState = (token: string | null, authenticated: boolean) => {
-    setAuthState(prev => ({
+    setAuthState((prev) => ({
       ...prev,
       token,
       authenticated,
@@ -126,20 +129,38 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   };
 
   const googleAuth = async (token: string) => {
-    const { token: jwtToken, user } = await AuthService.googleAuth(token)
+    const { token: jwtToken, user } = await AuthService.googleAuth(token);
     await SecureStore.setItemAsync("token", jwtToken);
     setupApiAuth(jwtToken);
     updateAuthState(jwtToken, true);
     setUser(user);
   };
 
-
   const appleAuth = async (token: string) => {
-    const { token: jwtToken, user } = await AuthService.appleAuth(token)
+    const { token: jwtToken, user } = await AuthService.appleAuth(token);
     await SecureStore.setItemAsync("token", jwtToken);
     setupApiAuth(jwtToken);
     updateAuthState(jwtToken, true);
     setUser(user);
+  };
+
+  const qaLogin = async (username: string, password: string) => {
+    try {
+      setLoading(true);
+      const { token: jwtToken, user } = await AuthService.qaLogin(
+        username,
+        password,
+      );
+      await SecureStore.setItemAsync("token", jwtToken);
+      setupApiAuth(jwtToken);
+      updateAuthState(jwtToken, true);
+      setUser(user);
+    } catch (error) {
+      setError(error instanceof Error ? error.message : "QA login failed");
+      throw error;
+    } finally {
+      setLoading(false);
+    }
   };
 
   /**
@@ -149,11 +170,11 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     const loadToken = async () => {
       try {
         const token = await SecureStore.getItemAsync("token");
-        
+
         if (token) {
           setupApiAuth(token);
           const user = await AuthService.getUser();
-          
+
           if (user) {
             updateAuthState(token, true);
             setUser(user);
@@ -163,7 +184,11 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         }
       } catch (error) {
         await handleLogout();
-        setError(error instanceof Error ? error.message : "Failed to load user session");
+        setError(
+          error instanceof Error
+            ? error.message
+            : "Failed to load user session",
+        );
       } finally {
         setLoading(false);
         Observe.markInteractive();
@@ -203,7 +228,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     } catch (error) {
       await handleLogout();
     }
-    }
+  };
 
   /**
    * Handles the logout process by clearing auth state and removing stored token
@@ -214,8 +239,6 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     await SecureStore.deleteItemAsync("token");
     setupApiAuth(null);
   };
-
-
 
   /**
    * Logs out the current user and redirects to login page
@@ -247,14 +270,14 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         setUser({ ...updatedUser, ...userData });
       }
     } catch (error) {
-      setError(error instanceof Error ? error.message : "Failed to update user");
+      setError(
+        error instanceof Error ? error.message : "Failed to update user",
+      );
       throw error;
     } finally {
       setLoading(false);
     }
   };
-
-
 
   return (
     <AuthContext.Provider
@@ -263,6 +286,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         logout,
         googleAuth,
         appleAuth,
+        qaLogin,
         authState,
         clearError,
         updateUser,

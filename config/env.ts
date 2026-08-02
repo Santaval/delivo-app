@@ -12,6 +12,7 @@ interface Config {
   privacyUrl: string;
   isDevelopment: boolean;
   isProduction: boolean;
+  isOnReview: boolean;
 }
 
 const config: Config = {
@@ -30,6 +31,7 @@ const config: Config = {
   env: "development",
   isDevelopment: true,
   isProduction: false,
+  isOnReview: process.env.EXPO_PUBLIC_IS_ON_REVIEW === "true" || false,
 };
 
 export default config;

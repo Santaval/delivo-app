@@ -3,12 +3,13 @@ import Logo from "@/components/Logo";
 import { SocialButton } from "@/components/SocialButton";
 import { ThemedText } from "@/components/ThemedText";
 import { ThemedView } from "@/components/ThemedView";
-import { Spacing, Typography } from "@/constants";
+import config from "@/config/env";
+import { Routes, Spacing, Typography } from "@/constants";
 import { useAuth } from "@/context/AuthContext";
 import { useAppleAuth } from "@/hooks/useAppleAuth";
 import { useThemeColor } from "@/hooks/useColorScheme";
 import { useGoogleAuth } from "@/hooks/useGoogleAuh";
-import config from "@/config/env";
+import { router } from "expo-router";
 import { StatusBar } from "expo-status-bar";
 import * as WebBrowser from "expo-web-browser";
 import { useTranslation } from "react-i18next";
@@ -17,7 +18,7 @@ import { ActivityIndicator, StyleSheet, View } from "react-native";
 export default function Index() {
   const colors = useThemeColor();
   const { authState } = useAuth();
-  const { onGoogleSignIn, isLoading  } = useGoogleAuth();
+  const { onGoogleSignIn, isLoading } = useGoogleAuth();
   const { onAppleSignIn } = useAppleAuth();
   const { t } = useTranslation();
 
@@ -43,7 +44,6 @@ export default function Index() {
       {/* Logo Section */}
       <View style={styles.logoSection}>
         <Logo />
-
       </View>
 
       {/* App Title & Subtitle */}
@@ -61,9 +61,7 @@ export default function Index() {
           disabled={isLoading}
         />
 
-        <AppleSignInButton
-          onPress={onAppleSignIn}
-        />
+        <AppleSignInButton onPress={onAppleSignIn} />
       </View>
 
       {/* Footer Links */}
@@ -88,6 +86,21 @@ export default function Index() {
           >
             {t("privacyPolicy")}
           </ThemedText>
+          {config.isOnReview && (
+            <>
+              <ThemedText variant="caption" style={styles.footerSeparator}>
+                •
+              </ThemedText>
+              <ThemedText
+                variant="link"
+                style={styles.footerLink}
+                onPress={() => router.push(Routes.qa)}
+                accessibilityRole="link"
+              >
+                QA
+              </ThemedText>
+            </>
+          )}
         </View>
       </View>
     </ThemedView>
@@ -101,14 +114,14 @@ const styles = StyleSheet.create({
   },
   centerContent: {
     flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
+    justifyContent: "center",
+    alignItems: "center",
   },
   logoSection: {
     flex: 0.3,
-    justifyContent: 'center',
-    alignItems: 'center',
-    paddingTop: Spacing['6xl'],
+    justifyContent: "center",
+    alignItems: "center",
+    paddingTop: Spacing["6xl"],
   },
   logoSubtext: {
     marginTop: Spacing.md,
@@ -117,28 +130,28 @@ const styles = StyleSheet.create({
   },
   titleSection: {
     flex: 0.2,
-    justifyContent: 'center',
-    alignItems: 'center',
+    justifyContent: "center",
+    alignItems: "center",
     paddingVertical: Spacing.xl,
   },
   appTitle: {
-    fontSize: Typography.fontSize['3xl'],
+    fontSize: Typography.fontSize["3xl"],
     fontWeight: Typography.fontWeight.bold,
     marginBottom: Spacing.xs,
   },
   appSubtitle: {
     fontSize: Typography.fontSize.base,
-    textAlign: 'center',
+    textAlign: "center",
   },
   buttonSection: {
     flex: 0.4,
     gap: Spacing.md,
-    justifyContent: 'center',
+    justifyContent: "center",
     paddingVertical: Spacing.lg,
   },
   dividerSection: {
-    flexDirection: 'row',
-    alignItems: 'center',
+    flexDirection: "row",
+    alignItems: "center",
     marginVertical: Spacing.lg,
   },
   dividerLine: {
@@ -151,13 +164,13 @@ const styles = StyleSheet.create({
   },
   footer: {
     flex: 0.1,
-    justifyContent: 'flex-end',
+    justifyContent: "flex-end",
     paddingBottom: Spacing.xl,
   },
   footerLinks: {
-    flexDirection: 'row',
-    justifyContent: 'center',
-    alignItems: 'center',
+    flexDirection: "row",
+    justifyContent: "center",
+    alignItems: "center",
   },
   footerLink: {
     fontSize: Typography.fontSize.sm,

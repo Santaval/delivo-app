@@ -46,8 +46,12 @@ function PlanLimitNavigator() {
 
 function RootNavigator() {
   const { authState } = useAuth();
-  const { activeCompany, isLoadingActiveCompany, needsCompanySelection } =
-    useCompanies();
+  const {
+    activeCompany,
+    isLoadingActiveCompany,
+    needsCompanyCreation,
+    needsCompanySelection,
+  } = useCompanies();
   // Auth must resolve first; the company only matters once we know there is a session.
   const isBootstrapping = authState.isLoading || (authState.authenticated && isLoadingActiveCompany);
 
@@ -70,20 +74,29 @@ function RootNavigator() {
           first still-available screen in declaration order, so the order below
           determines where each auth/company state lands the user. */}
       <Stack screenOptions={{ headerShown: false }}>
-        {/* Signed out: the login screen and the OAuth callback are the only reachable routes */}
-        <Stack.Protected guard={!isAuthenticated}>
+        {/* `index` also covers the bootstrapping window: it renders a spinner
+            while the session/company resolve, which keeps the stack non-empty
+            without committing to an onboarding destination too early. */}
+        <Stack.Protected guard={!isAuthenticated || isBootstrapping}>
           <Stack.Screen name="index" />
-          <Stack.Screen name="oauthredirect" />
         </Stack.Protected>
 
-        {/* Signed in without an active company: onboarding. `select` is declared
-            first so a user who already has companies lands there instead of `add`.
-            `add` stays available through the whole onboarding state (including
-            while the company is still resolving) so the stack is never empty. */}
+        {/* Signed out: the OAuth callback and the QA login are reachable only here */}
+        <Stack.Protected guard={!isAuthenticated}>
+          <Stack.Screen name="oauthredirect" />
+          <Stack.Screen name="qa" />
+        </Stack.Protected>
+
+        {/* Signed in without an active company: onboarding. Both guards derive
+            from `!isLoadingActiveCompany`, so neither screen mounts until we
+            know which one applies — a user who already has companies must land
+            on `select`, never on `add`. They are mutually exclusive: whichever
+            one mounts is the correct destination, so the router never has to
+            correct itself afterwards. */}
         <Stack.Protected guard={needsCompanySelection}>
           <Stack.Screen name="companies/select" />
         </Stack.Protected>
-        <Stack.Protected guard={isAuthenticated && !hasActiveCompany}>
+        <Stack.Protected guard={needsCompanyCreation}>
           <Stack.Screen name="companies/add" />
         </Stack.Protected>
 
