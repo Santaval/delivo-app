@@ -327,5 +327,9 @@
   "planResource_routes": "routes",
   "planResource_bills": "bills",
   "planResource_companies": "companies",
-  "planForCompany": "Plan for: {{company}}"
+  "planForCompany": "Plan for: {{company}}",
+  "forceUpdateTitle": "Update required",
+  "forceUpdateMessage": "Your app version ({{currentVersion}}) is no longer supported. Update to keep using Delivo.",
+  "forceUpdateAction": "Update",
+  "forceUpdateRetry": "Retry"
 }

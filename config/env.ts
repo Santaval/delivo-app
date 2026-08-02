@@ -10,6 +10,8 @@ interface Config {
   revenueCatAndroidKey: string;
   termsUrl: string;
   privacyUrl: string;
+  appStoreUrl: string;
+  playStoreUrl: string;
   isDevelopment: boolean;
   isProduction: boolean;
   isOnReview: boolean;
@@ -28,6 +30,12 @@ const config: Config = {
   termsUrl: process.env.EXPO_PUBLIC_TERMS_URL || "https://appdelivo.com/terms",
   privacyUrl:
     process.env.EXPO_PUBLIC_PRIVACY_URL || "https://appdelivo.com/privacy",
+  appStoreUrl:
+    process.env.EXPO_PUBLIC_APP_STORE_URL ||
+    "itms-apps://itunes.apple.com/app/idYOUR_APP_ID",
+  playStoreUrl:
+    process.env.EXPO_PUBLIC_PLAY_STORE_URL ||
+    "https://play.google.com/store/apps/details?id=YOUR_PACKAGE_ID",
   env: "development",
   isDevelopment: true,
   isProduction: false,

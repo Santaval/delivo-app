@@ -30,6 +30,7 @@ export const Routes = {
   companiesSelect: "/companies/select" as Href,
   paymentMethodsAdd: "/payment-methods/add" as Href,
   planLimit: "/plan-limit" as Href,
+  forceUpdate: "/force-update" as Href,
   root: "/" as Href,
   qa: "/qa" as Href,
 

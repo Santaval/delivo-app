@@ -61,7 +61,6 @@ class RevenueCatService {
 
   isProActive(customerInfo: CustomerInfo): boolean {
     const entitlement = customerInfo.entitlements.active[ENTITLEMENTS.PRO];
-    console.log("RevenueCatService.isProActive", { entitlement, customerInfo });
     return customerInfo?.activeSubscriptions?.includes("delivo_monthly");
   }
 

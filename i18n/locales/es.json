@@ -329,5 +329,9 @@
   "planResource_companies": "empresas",
   "planForCompany": "Plan para: {{company}}",
   "createProduct": "Crear producto",
-  "createProductSubtitle": "Agrega un producto nuevo"
+  "createProductSubtitle": "Agrega un producto nuevo",
+  "forceUpdateTitle": "Actualización requerida",
+  "forceUpdateMessage": "Tu versión de la app ({{currentVersion}}) ya no es compatible. Actualiza para continuar usando Delivo.",
+  "forceUpdateAction": "Actualizar",
+  "forceUpdateRetry": "Reintentar"
 }

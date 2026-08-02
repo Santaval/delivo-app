@@ -5,8 +5,9 @@ import { Routes } from "@/constants";
 import { AuthProvider, useAuth } from "@/context/AuthContext";
 import { CompaniesProvider, useCompanies } from "@/context/CompaniesContext";
 import { PlanLimitProvider, usePlanLimit } from "@/context/PlanLimitContext";
-import { PurchasesProvider } from "@/context/PurchasesContext";
 import { ToastProvider } from "@/context/ToastContext";
+import { VersionProvider, useVersion } from "@/context/VersionContext";
+import { PurchasesProvider } from "@/context/PurchasesContext";
 import RevenueCatService from "@/services/purchases/RevenueCat.service";
 import MapboxGL from "@rnmapbox/maps";
 import * as Sentry from '@sentry/react-native';
@@ -52,8 +53,14 @@ function RootNavigator() {
     needsCompanyCreation,
     needsCompanySelection,
   } = useCompanies();
+  const { checking: isVersionChecking, needsUpdate } = useVersion();
   // Auth must resolve first; the company only matters once we know there is a session.
-  const isBootstrapping = authState.isLoading || (authState.authenticated && isLoadingActiveCompany);
+  // The version check also gates the splash — no flash of `index` if a force-update
+  // is required, and no app surface available until we know it isn't.
+  const isBootstrapping =
+    authState.isLoading ||
+    (authState.authenticated && isLoadingActiveCompany) ||
+    isVersionChecking;
 
   const isAuthenticated = authState.authenticated;
   const hasActiveCompany = !!activeCompany;
@@ -74,6 +81,14 @@ function RootNavigator() {
           first still-available screen in declaration order, so the order below
           determines where each auth/company state lands the user. */}
       <Stack screenOptions={{ headerShown: false }}>
+        {/* Force-update gate: declared first so its guard wins over every
+            other group — if the backend flagged this build as unsupported,
+            nothing else is reachable. `index` below still sees the splash
+            while `checking` is true, so the toggle is seamless. */}
+        <Stack.Protected guard={needsUpdate}>
+          <Stack.Screen name="force-update" />
+        </Stack.Protected>
+
         {/* `index` also covers the bootstrapping window: it renders a spinner
             while the session/company resolve, which keeps the stack non-empty
             without committing to an onboarding destination too early. */}
@@ -130,19 +145,21 @@ function RootNavigator() {
 
 function RootLayout() {
   return (
-    <AuthProvider>
-      <CompaniesProvider>
-        <PurchasesProvider>
-          <GestureHandlerRootView>
-            <ToastProvider>
-              <PlanLimitProvider>
-                <RootNavigator />
-              </PlanLimitProvider>
-            </ToastProvider>
-          </GestureHandlerRootView>
-        </PurchasesProvider>
-      </CompaniesProvider>
-    </AuthProvider>
+    <VersionProvider>
+      <AuthProvider>
+        <CompaniesProvider>
+          <PurchasesProvider>
+            <GestureHandlerRootView>
+              <ToastProvider>
+                <PlanLimitProvider>
+                  <RootNavigator />
+                </PlanLimitProvider>
+              </ToastProvider>
+            </GestureHandlerRootView>
+          </PurchasesProvider>
+        </CompaniesProvider>
+      </AuthProvider>
+    </VersionProvider>
   );
 }
 
