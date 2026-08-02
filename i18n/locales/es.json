@@ -34,6 +34,8 @@
   "companyInformation": "Información de la empresa",
   "companyName": "Nombre de la empresa",
   "companyNameIsRequired": "El nombre de la empresa es requerido",
+  "createCompanyWelcomeTitle": "Crea tu empresa para empezar",
+  "createCompanyWelcomeSubtitle": "Solo necesitamos el nombre de tu empresa para empezar. Podrás agregar más detalles luego.",
   "completed": "Completado",
   "completedStops": "PARADAS COMPLETADAS",
   "confirmPayment": "Confirmar Pago",
