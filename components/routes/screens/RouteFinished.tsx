@@ -10,6 +10,7 @@ import React from 'react';
 import { useTranslation } from 'react-i18next';
 import { ActivityIndicator, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { polylineDistanceKm } from '@/utils/distance';
 
 export default function RouteFinishedScreen() {
   const { t } = useTranslation();
@@ -18,10 +19,9 @@ export default function RouteFinishedScreen() {
 
   // Calculate route statistics
   const totalDistance = React.useMemo(() => {
-    if (!route) return '0';
-    // Mock calculation - replace with actual distance calculation
-    return '24.8';
-  }, [route]);
+    if (!route?.polyline) return '0';
+    return polylineDistanceKm(route.polyline).toFixed(1);
+  }, [route?.polyline]);
 
   const totalTime = React.useMemo(() => {
     if (!route) return '0h 0m';
@@ -87,7 +87,7 @@ export default function RouteFinishedScreen() {
         <View style={styles.statsContainer}>
           <View style={[styles.statCard, { backgroundColor: colors.backgroundSecondary }]}>
             <Text style={[styles.statLabel, { color: colors.textSecondary }]}>{t('distance')}</Text>
-            <Text style={[styles.statValue, { color: colors.text }]}>{totalDistance}<Text style={[styles.statUnit, { color: colors.textSecondary }]}>{t('mi')}</Text></Text>
+            <Text style={[styles.statValue, { color: colors.text }]}>{totalDistance}<Text style={[styles.statUnit, { color: colors.textSecondary }]}>{t('km')}</Text></Text>
           </View>
 
           <View style={[styles.statCard, { backgroundColor: colors.backgroundSecondary }]}>

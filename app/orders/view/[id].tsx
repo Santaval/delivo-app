@@ -112,14 +112,14 @@ export default function OrderDetailsPage() {
     return (
       <ThemedView style={[styles.container, { backgroundColor: colors.backgroundSecondary }]}>
         <TopBar
-          title={t('invoiceDetails')}
+          title={t('orderDetails')}
           showBack
           backTo={Routes.orders}
         />
         <View style={styles.centerContent}>
           <ActivityIndicator size="large" color={colors.primary} />
           <ThemedText style={[styles.loadingText, { color: colors.textSecondary }]}>
-            {t('loadingInvoiceDetails')}
+            {t('loadingOrderDetails')}
           </ThemedText>
         </View>
       </ThemedView>
@@ -130,7 +130,7 @@ export default function OrderDetailsPage() {
     return (
       <ThemedView style={[styles.container, { backgroundColor: colors.backgroundSecondary }]}>
         <TopBar
-          title={t('invoiceDetails')}
+          title={t('orderDetails')}
           showBack
           backTo={Routes.orders}
         />

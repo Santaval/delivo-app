@@ -37,12 +37,6 @@ export default function CompanySelectPage() {
       .substring(0, 2);
   };
 
-  const getCompanyId = (company: Company) => {
-    // Generate a formatted company ID for display
-    const idNumber = company.id.slice(-4);
-    return `ID: 3-101-${idNumber}`;
-  };
-
   if (!companies || companies.length === 0) {
     return (
       <SafeAreaView
@@ -133,14 +127,6 @@ export default function CompanySelectPage() {
                     >
                       {company.name}
                     </ThemedText>
-                    <ThemedText
-                      style={[
-                        styles.companyId,
-                        { color: colors.textSecondary },
-                      ]}
-                    >
-                      {getCompanyId(company)}
-                    </ThemedText>
                   </View>
                 </View>
               </TouchableOpacity>
@@ -212,10 +198,6 @@ const styles = StyleSheet.create({
   companyName: {
     fontSize: Typography.fontSize.base,
     fontWeight: Typography.fontWeight.semibold,
-    marginBottom: 2,
-  },
-  companyId: {
-    fontSize: Typography.fontSize.sm,
   },
   selectionIndicator: {
     width: 24,
