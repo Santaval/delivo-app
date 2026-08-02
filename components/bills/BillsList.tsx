@@ -1,16 +1,22 @@
-import { BorderRadius, Spacing, Typography } from '@/constants';
-import { useThemeColor } from '@/hooks/useColorScheme';
-import React, { useMemo, useState } from 'react';
-import { useTranslation } from 'react-i18next';
-import { RefreshControl, ScrollView, StyleSheet, TouchableOpacity, View } from 'react-native';
-import { EmptyState } from '../feedback/EmptyState';
-import { ErrorState } from '../feedback/ErrorState';
-import { ListSkeleton } from '../feedback/Skeleton';
-import { ThemedText } from '../ThemedText';
-import { ThemedView } from '../ThemedView';
-import { BillCard } from './BillCard';
+import { BorderRadius, Spacing, Typography } from "@/constants";
+import { useThemeColor } from "@/hooks/useColorScheme";
+import { useMemo, useState } from "react";
+import { useTranslation } from "react-i18next";
+import {
+  RefreshControl,
+  ScrollView,
+  StyleSheet,
+  TouchableOpacity,
+  View,
+} from "react-native";
+import { EmptyState } from "../feedback/EmptyState";
+import { ErrorState } from "../feedback/ErrorState";
+import { ListSkeleton } from "../feedback/Skeleton";
+import { ThemedText } from "../ThemedText";
+import { ThemedView } from "../ThemedView";
+import { BillCard } from "./BillCard";
 
-type TabType = OrderStatus | 'ALL';
+type TabType = OrderStatus | "ALL";
 
 export type BillListProps = {
   orders: Order[];
@@ -21,32 +27,38 @@ export type BillListProps = {
   error?: string | null;
 };
 
-export function BillsList({ orders, onOrderPress, onRefresh, isRefreshing, loading, error }: BillListProps) {
+export function BillsList({
+  orders,
+  onOrderPress,
+  onRefresh,
+  isRefreshing,
+  loading,
+  error,
+}: BillListProps) {
   const colors = useThemeColor();
   const { t } = useTranslation();
-  const [activeTab, setActiveTab] = useState<TabType>('ALL');
+  const [activeTab, setActiveTab] = useState<TabType>("ALL");
 
   const tabs: { key: TabType; label: string }[] = [
-    { key: 'ALL', label: t('all') },
-    { key: 'PAID', label: t('paid') },
-    { key: 'PENDING', label: t('pending') },
+    { key: "ALL", label: t("all") },
+    { key: "PAID", label: t("paid") },
+    { key: "PENDING", label: t("pending") },
   ];
 
   // Filter orders based on active tab
   const filteredOrders = useMemo(() => {
-    return orders.filter(order => {
-      if (activeTab === 'ALL') return true;
+    return orders.filter((order) => {
+      if (activeTab === "ALL") return true;
       return order.status === activeTab;
     });
   }, [orders, activeTab]);
 
   const getTabCount = (tab: TabType) => {
-    return orders.filter(order => {
-      if (tab === 'ALL') return true;
+    return orders.filter((order) => {
+      if (tab === "ALL") return true;
       return order.status === tab;
     }).length;
   };
-
 
   const renderTabButton = (tab: { key: TabType; label: string }) => {
     const isActive = activeTab === tab.key;
@@ -58,30 +70,42 @@ export function BillsList({ orders, onOrderPress, onRefresh, isRefreshing, loadi
         style={[
           styles.tabButton,
           isActive && styles.tabButtonActive,
-          { 
-            backgroundColor: isActive ? colors.primary : colors.backgroundSecondary,
-            borderColor: isActive ? colors.primary : colors.border 
-          }
+          {
+            backgroundColor: isActive
+              ? colors.primary
+              : colors.backgroundSecondary,
+            borderColor: isActive ? colors.primary : colors.border,
+          },
         ]}
         onPress={() => setActiveTab(tab.key)}
         activeOpacity={0.8}
       >
-        <ThemedText style={[
-          styles.tabText,
-          isActive && styles.tabTextActive,
-          { color: isActive ? colors.textInverse : colors.text }
-        ]}>
+        <ThemedText
+          style={[
+            styles.tabText,
+            isActive && styles.tabTextActive,
+            { color: isActive ? colors.textInverse : colors.text },
+          ]}
+        >
           {tab.label}
         </ThemedText>
         {count > 0 && (
-          <View style={[
-            styles.tabBadge,
-            { backgroundColor: isActive ? colors.textInverse : colors.textTertiary }
-          ]}>
-            <ThemedText style={[
-              styles.tabBadgeText,
-              { color: isActive ? colors.primary : colors.textInverse }
-            ]}>
+          <View
+            style={[
+              styles.tabBadge,
+              {
+                backgroundColor: isActive
+                  ? colors.textInverse
+                  : colors.textTertiary,
+              },
+            ]}
+          >
+            <ThemedText
+              style={[
+                styles.tabBadgeText,
+                { color: isActive ? colors.primary : colors.textInverse },
+              ]}
+            >
               {count}
             </ThemedText>
           </View>
@@ -93,17 +117,17 @@ export function BillsList({ orders, onOrderPress, onRefresh, isRefreshing, loadi
   const renderEmptyState = () => (
     <EmptyState
       icon="receipt"
-      title={t('noBillsYet')}
-      subtitle={activeTab === 'ALL' ? t('noBillsYetSubtitle') : undefined}
+      title={t("noBillsYet")}
+      subtitle={activeTab === "ALL" ? t("noBillsYetSubtitle") : undefined}
     />
   );
 
   return (
     <ThemedView style={styles.container}>
       {/* Filter Tabs */}
-      <View style={[styles.tabsContainer, { backgroundColor: colors.background, borderBottomColor: colors.border }]}>
-        <ScrollView 
-          horizontal 
+      <View style={[styles.tabsContainer]}>
+        <ScrollView
+          horizontal
           showsHorizontalScrollIndicator={false}
           contentContainerStyle={styles.tabsContent}
         >
@@ -112,7 +136,7 @@ export function BillsList({ orders, onOrderPress, onRefresh, isRefreshing, loadi
       </View>
 
       {/* Orders List */}
-      <ScrollView 
+      <ScrollView
         style={styles.ordersContainer}
         contentContainerStyle={styles.ordersContent}
         showsVerticalScrollIndicator={false}
@@ -126,12 +150,7 @@ export function BillsList({ orders, onOrderPress, onRefresh, isRefreshing, loadi
           <ErrorState message={error} onRetry={onRefresh} />
         ) : filteredOrders.length > 0 ? (
           filteredOrders.map((order) => (
-            <BillCard
-              key={order.id}
-              order={order}
-              onPress={onOrderPress}
-
-            />
+            <BillCard key={order.id} order={order} onPress={onOrderPress} />
           ))
         ) : (
           renderEmptyState()
@@ -144,18 +163,18 @@ export function BillsList({ orders, onOrderPress, onRefresh, isRefreshing, loadi
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    backgroundColor: "transparent",
   },
   tabsContainer: {
     paddingTop: Spacing.md,
     paddingBottom: Spacing.sm,
-    borderBottomWidth: 1,
   },
   tabsContent: {
     gap: Spacing.sm,
   },
   tabButton: {
-    flexDirection: 'row',
-    alignItems: 'center',
+    flexDirection: "row",
+    alignItems: "center",
     paddingHorizontal: Spacing.md,
     paddingVertical: Spacing.sm,
     borderRadius: BorderRadius.full,
@@ -176,8 +195,8 @@ const styles = StyleSheet.create({
     minWidth: 20,
     height: 20,
     borderRadius: 10,
-    justifyContent: 'center',
-    alignItems: 'center',
+    justifyContent: "center",
+    alignItems: "center",
     paddingHorizontal: 6,
   },
   tabBadgeText: {
@@ -192,20 +211,20 @@ const styles = StyleSheet.create({
   },
   emptyState: {
     flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
+    justifyContent: "center",
+    alignItems: "center",
     paddingVertical: Spacing.xl * 2,
     paddingHorizontal: Spacing.xl,
   },
   emptyTitle: {
     fontSize: Typography.fontSize.lg,
     fontWeight: Typography.fontWeight.semibold,
-    textAlign: 'center',
+    textAlign: "center",
     marginBottom: Spacing.xs,
   },
   emptySubtitle: {
     fontSize: Typography.fontSize.sm,
-    textAlign: 'center',
+    textAlign: "center",
     lineHeight: 20,
   },
 });

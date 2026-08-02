@@ -6,16 +6,19 @@ import { Routes, Spacing, Typography } from "@/constants";
 import { useThemeColor } from "@/hooks/useColorScheme";
 import useProducts from "@/hooks/useProducts";
 import { router } from "expo-router";
-import React from "react";
 import { useTranslation } from "react-i18next";
-import {
-  StyleSheet,
-  View
-} from "react-native";
+import { StyleSheet, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
 export default function Products() {
-  const { products, isInitialLoading, isRefreshing, error, refresh, searchProducts } = useProducts();
+  const {
+    products,
+    isInitialLoading,
+    isRefreshing,
+    error,
+    refresh,
+    searchProducts,
+  } = useProducts();
   const colors = useThemeColor();
   const { t } = useTranslation();
 
@@ -24,12 +27,12 @@ export default function Products() {
   };
 
   return (
-    <SafeAreaView style={[styles.container, { backgroundColor: colors.backgroundSecondary }]}>
-      <TopBar title={t('products')} />
+    <SafeAreaView style={[styles.container]}>
+      <TopBar title={t("products")} />
 
-      <ThemedView style={{ flex: 1 }}>
+      <ThemedView style={{ flex: 1, backgroundColor: "transparent" }}>
         {/* Search Section */}
-        <View style={[styles.searchContainer, { borderBottomColor: colors.border }]}>
+        <View>
           <SearchBar
             placeholder={t("searchProducts")}
             onSearch={searchProducts}
@@ -59,9 +62,6 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     padding: Spacing.lg,
-  },
-  searchContainer: {
-    borderBottomWidth: 1,
   },
   scrollView: {
     flex: 1,

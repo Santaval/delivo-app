@@ -1,16 +1,22 @@
-import { BorderRadius, Spacing, Typography } from '@/constants';
-import { useThemeColor } from '@/hooks/useColorScheme';
-import React, { useMemo, useState } from 'react';
-import { useTranslation } from 'react-i18next';
-import { RefreshControl, ScrollView, StyleSheet, TouchableOpacity, View } from 'react-native';
-import { EmptyState } from './feedback/EmptyState';
-import { ErrorState } from './feedback/ErrorState';
-import { ListSkeleton } from './feedback/Skeleton';
-import { RouteCard } from './RouteCard';
-import { ThemedText } from './ThemedText';
-import { ThemedView } from './ThemedView';
+import { BorderRadius, Spacing, Typography } from "@/constants";
+import { useThemeColor } from "@/hooks/useColorScheme";
+import { useMemo, useState } from "react";
+import { useTranslation } from "react-i18next";
+import {
+  RefreshControl,
+  ScrollView,
+  StyleSheet,
+  TouchableOpacity,
+  View,
+} from "react-native";
+import { EmptyState } from "./feedback/EmptyState";
+import { ErrorState } from "./feedback/ErrorState";
+import { ListSkeleton } from "./feedback/Skeleton";
+import { RouteCard } from "./RouteCard";
+import { ThemedText } from "./ThemedText";
+import { ThemedView } from "./ThemedView";
 
-type TabType = 'all' | 'created' | 'started' | 'completed';
+type TabType = "all" | "created" | "started" | "completed";
 
 export type RoutesListProps = {
   routes: Route[];
@@ -23,28 +29,37 @@ export type RoutesListProps = {
   onCreateFirst?: () => void;
 };
 
-export function RoutesList({ routes, onRoutePress, onRouteDetailsPress, isRefreshing, onRefresh, loading, error, onCreateFirst }: RoutesListProps) {
+export function RoutesList({
+  routes,
+  onRoutePress,
+  onRouteDetailsPress,
+  isRefreshing,
+  onRefresh,
+  loading,
+  error,
+  onCreateFirst,
+}: RoutesListProps) {
   const colors = useThemeColor();
-  const [activeTab, setActiveTab] = useState<TabType>('all');
+  const [activeTab, setActiveTab] = useState<TabType>("all");
   const { t } = useTranslation();
 
   const tabs: { key: TabType; label: string }[] = [
-    { key: 'all', label: t('all') },
-    { key: 'created', label: t('created') },
-    { key: 'started', label: t('started') },
-    { key: 'completed', label: t('completed') },
+    { key: "all", label: t("all") },
+    { key: "created", label: t("created") },
+    { key: "started", label: t("started") },
+    { key: "completed", label: t("completed") },
   ];
 
   // Filter routes based on active tab
   const filteredRoutes = useMemo(() => {
     switch (activeTab) {
-      case 'created':
-        return routes.filter(route => route.status === 'CREATED');
-      case 'started':
-        return routes.filter(route => route.status === 'STARTED');
-      case 'completed':
-        return routes.filter(route => route.status === 'COMPLETED');
-      case 'all':
+      case "created":
+        return routes.filter((route) => route.status === "CREATED");
+      case "started":
+        return routes.filter((route) => route.status === "STARTED");
+      case "completed":
+        return routes.filter((route) => route.status === "COMPLETED");
+      case "all":
       default:
         return routes;
     }
@@ -52,13 +67,13 @@ export function RoutesList({ routes, onRoutePress, onRouteDetailsPress, isRefres
 
   const getTabCount = (tab: TabType) => {
     switch (tab) {
-      case 'created':
-        return routes.filter(route => route.status === 'CREATED').length;
-      case 'started':
-        return routes.filter(route => route.status === 'STARTED').length;
-      case 'completed':
-        return routes.filter(route => route.status === 'COMPLETED').length;
-      case 'all':
+      case "created":
+        return routes.filter((route) => route.status === "CREATED").length;
+      case "started":
+        return routes.filter((route) => route.status === "STARTED").length;
+      case "completed":
+        return routes.filter((route) => route.status === "COMPLETED").length;
+      case "all":
       default:
         return routes.length;
     }
@@ -74,30 +89,42 @@ export function RoutesList({ routes, onRoutePress, onRouteDetailsPress, isRefres
         style={[
           styles.tabButton,
           isActive && styles.tabButtonActive,
-          { 
-            backgroundColor: isActive ? colors.primary : colors.backgroundSecondary,
-            borderColor: isActive ? colors.primary : colors.border 
-          }
+          {
+            backgroundColor: isActive
+              ? colors.primary
+              : colors.backgroundSecondary,
+            borderColor: isActive ? colors.primary : colors.border,
+          },
         ]}
         onPress={() => setActiveTab(tab.key)}
         activeOpacity={0.8}
       >
-        <ThemedText style={[
-          styles.tabText,
-          isActive && styles.tabTextActive,
-          { color: isActive ? colors.textInverse : colors.text }
-        ]}>
+        <ThemedText
+          style={[
+            styles.tabText,
+            isActive && styles.tabTextActive,
+            { color: isActive ? colors.textInverse : colors.text },
+          ]}
+        >
           {tab.label}
         </ThemedText>
         {count > 0 && (
-          <View style={[
-            styles.tabBadge,
-            { backgroundColor: isActive ? colors.textInverse : colors.textTertiary }
-          ]}>
-            <ThemedText style={[
-              styles.tabBadgeText,
-              { color: isActive ? colors.primary : colors.textInverse }
-            ]}>
+          <View
+            style={[
+              styles.tabBadge,
+              {
+                backgroundColor: isActive
+                  ? colors.textInverse
+                  : colors.textTertiary,
+              },
+            ]}
+          >
+            <ThemedText
+              style={[
+                styles.tabBadgeText,
+                { color: isActive ? colors.primary : colors.textInverse },
+              ]}
+            >
               {count}
             </ThemedText>
           </View>
@@ -109,19 +136,21 @@ export function RoutesList({ routes, onRoutePress, onRouteDetailsPress, isRefres
   const renderEmptyState = () => (
     <EmptyState
       icon="map"
-      title={t('noRoutesYet')}
-      subtitle={activeTab === 'all' ? t('noRoutesYetSubtitle') : undefined}
-      actionLabel={activeTab === 'all' && onCreateFirst ? t('createRoute') : undefined}
-      onAction={activeTab === 'all' ? onCreateFirst : undefined}
+      title={t("noRoutesYet")}
+      subtitle={activeTab === "all" ? t("noRoutesYetSubtitle") : undefined}
+      actionLabel={
+        activeTab === "all" && onCreateFirst ? t("createRoute") : undefined
+      }
+      onAction={activeTab === "all" ? onCreateFirst : undefined}
     />
   );
 
   return (
     <ThemedView style={styles.container}>
       {/* Filter Tabs */}
-      <View style={[styles.tabsContainer, { backgroundColor: colors.background, borderBottomColor: colors.border }]}>
-        <ScrollView 
-          horizontal 
+      <View style={[styles.tabsContainer]}>
+        <ScrollView
+          horizontal
           showsHorizontalScrollIndicator={false}
           contentContainerStyle={styles.tabsContent}
         >
@@ -130,7 +159,7 @@ export function RoutesList({ routes, onRoutePress, onRouteDetailsPress, isRefres
       </View>
 
       {/* Routes List */}
-      <ScrollView 
+      <ScrollView
         style={styles.routesContainer}
         contentContainerStyle={styles.routesContent}
         showsVerticalScrollIndicator={false}
@@ -162,19 +191,19 @@ export function RoutesList({ routes, onRoutePress, onRouteDetailsPress, isRefres
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    backgroundColor: "transparent",
   },
   tabsContainer: {
     paddingTop: Spacing.md,
     paddingBottom: Spacing.sm,
-    borderBottomWidth: 1,
   },
   tabsContent: {
     paddingHorizontal: Spacing.lg,
     gap: Spacing.sm,
   },
   tabButton: {
-    flexDirection: 'row',
-    alignItems: 'center',
+    flexDirection: "row",
+    alignItems: "center",
     paddingHorizontal: Spacing.md,
     paddingVertical: Spacing.sm,
     borderRadius: BorderRadius.full,
@@ -195,8 +224,8 @@ const styles = StyleSheet.create({
     minWidth: 20,
     height: 20,
     borderRadius: 10,
-    justifyContent: 'center',
-    alignItems: 'center',
+    justifyContent: "center",
+    alignItems: "center",
     paddingHorizontal: 6,
   },
   tabBadgeText: {
@@ -212,20 +241,20 @@ const styles = StyleSheet.create({
   },
   emptyState: {
     flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
+    justifyContent: "center",
+    alignItems: "center",
     paddingVertical: Spacing.xl * 2,
     paddingHorizontal: Spacing.xl,
   },
   emptyTitle: {
     fontSize: Typography.fontSize.lg,
     fontWeight: Typography.fontWeight.semibold,
-    textAlign: 'center',
+    textAlign: "center",
     marginBottom: Spacing.xs,
   },
   emptySubtitle: {
     fontSize: Typography.fontSize.sm,
-    textAlign: 'center',
+    textAlign: "center",
     lineHeight: 20,
   },
 });

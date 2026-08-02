@@ -1,14 +1,11 @@
-import { ThemedView } from '@/components/ThemedView';
-import { BorderRadius, Spacing, Typography } from '@/constants';
-import React from 'react';
-import { useTranslation } from 'react-i18next';
-import { RefreshControl, ScrollView, StyleSheet } from 'react-native';
-import { EmptyState } from '../feedback/EmptyState';
-import { ErrorState } from '../feedback/ErrorState';
-import { ListSkeleton } from '../feedback/Skeleton';
-import ProductCard from '../ProductCard';
-
-
+import { ThemedView } from "@/components/ThemedView";
+import { BorderRadius, Spacing, Typography } from "@/constants";
+import { useTranslation } from "react-i18next";
+import { RefreshControl, ScrollView, StyleSheet } from "react-native";
+import { EmptyState } from "../feedback/EmptyState";
+import { ErrorState } from "../feedback/ErrorState";
+import { ListSkeleton } from "../feedback/Skeleton";
+import ProductCard from "../ProductCard";
 
 export type ProductsListProps = {
   products: Product[];
@@ -20,15 +17,23 @@ export type ProductsListProps = {
   onCreateFirst?: () => void;
 };
 
-export function ProductsList({ products, onProductPress, onRefresh, isRefreshing, loading, error, onCreateFirst }: ProductsListProps) {
+export function ProductsList({
+  products,
+  onProductPress,
+  onRefresh,
+  isRefreshing,
+  loading,
+  error,
+  onCreateFirst,
+}: ProductsListProps) {
   const { t } = useTranslation();
 
   const renderEmptyState = () => (
     <EmptyState
       icon="inventory"
-      title={t('noProductsYet')}
-      subtitle={t('noProductsYetSubtitle')}
-      actionLabel={onCreateFirst ? t('addProduct') : undefined}
+      title={t("noProductsYet")}
+      subtitle={t("noProductsYetSubtitle")}
+      actionLabel={onCreateFirst ? t("addProduct") : undefined}
       onAction={onCreateFirst}
     />
   );
@@ -53,7 +58,6 @@ export function ProductsList({ products, onProductPress, onRefresh, isRefreshing
               key={product.id}
               item={product}
               onPress={() => onProductPress?.(product.id)}
-
             />
           ))
         ) : (
@@ -67,6 +71,7 @@ export function ProductsList({ products, onProductPress, onRefresh, isRefreshing
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    backgroundColor: "transparent",
   },
   tabsContainer: {
     paddingTop: Spacing.md,
@@ -77,8 +82,8 @@ const styles = StyleSheet.create({
     gap: Spacing.sm,
   },
   tabButton: {
-    flexDirection: 'row',
-    alignItems: 'center',
+    flexDirection: "row",
+    alignItems: "center",
     paddingHorizontal: Spacing.md,
     paddingVertical: Spacing.sm,
     borderRadius: BorderRadius.full,
@@ -99,8 +104,8 @@ const styles = StyleSheet.create({
     minWidth: 20,
     height: 20,
     borderRadius: 10,
-    justifyContent: 'center',
-    alignItems: 'center',
+    justifyContent: "center",
+    alignItems: "center",
     paddingHorizontal: 6,
   },
   tabBadgeText: {
@@ -115,20 +120,20 @@ const styles = StyleSheet.create({
   },
   emptyState: {
     flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
+    justifyContent: "center",
+    alignItems: "center",
     paddingVertical: Spacing.xl * 2,
     paddingHorizontal: Spacing.xl,
   },
   emptyTitle: {
     fontSize: Typography.fontSize.lg,
     fontWeight: Typography.fontWeight.semibold,
-    textAlign: 'center',
+    textAlign: "center",
     marginBottom: Spacing.xs,
   },
   emptySubtitle: {
     fontSize: Typography.fontSize.sm,
-    textAlign: 'center',
+    textAlign: "center",
     lineHeight: 20,
   },
 });
