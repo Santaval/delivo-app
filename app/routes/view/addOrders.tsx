@@ -1,13 +1,19 @@
-import { SwipeButton, TopBar } from '@/components';
-import { BorderRadius, RouteAddOrdersParams, Routes, Spacing, Typography } from '@/constants';
-import { useToast } from '@/context/ToastContext';
-import { useThemeColor } from '@/hooks/useColorScheme';
-import useOrders from '@/hooks/useOrders';
-import RoutesService from '@/services/routes/Routes.service';
-import { Ionicons } from '@expo/vector-icons';
-import { useLocalSearchParams } from 'expo-router';
-import React, { useMemo, useState } from 'react';
-import { useTranslation } from 'react-i18next';
+import { SwipeButton, TopBar } from "@/components";
+import {
+  BorderRadius,
+  RouteAddOrdersParams,
+  Routes,
+  Spacing,
+  Typography,
+} from "@/constants";
+import { useToast } from "@/context/ToastContext";
+import { useThemeColor } from "@/hooks/useColorScheme";
+import useOrders from "@/hooks/useOrders";
+import RoutesService from "@/services/routes/Routes.service";
+import { Ionicons } from "@expo/vector-icons";
+import { router, useLocalSearchParams } from "expo-router";
+import { useMemo, useState } from "react";
+import { useTranslation } from "react-i18next";
 import {
   ActivityIndicator,
   FlatList,
@@ -15,17 +21,16 @@ import {
   Text,
   TextInput,
   TouchableOpacity,
-  View
-} from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
-
+  View,
+} from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
 
 export default function AddOrders() {
   const { t } = useTranslation();
   const colors = useThemeColor();
   const toast = useToast();
   const { orders, loading, error } = useOrders();
-  const [searchQuery, setSearchQuery] = useState('');
+  const [searchQuery, setSearchQuery] = useState("");
   const [selectedOrders, setSelectedOrders] = useState<Set<string>>(new Set());
   const [isAddingToRoute, setIsAddingToRoute] = useState(false);
 
@@ -34,16 +39,21 @@ export default function AddOrders() {
   // Filter and search orders
   const filteredOrders = useMemo(() => {
     return orders
-      .filter(order => !order.route) // Only show orders not already assigned to routes
-      .filter(order => 
-        searchQuery === '' || 
-        order.client.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        `INV-${order.number.toString().padStart(3, '0')}`.toLowerCase().includes(searchQuery.toLowerCase())
+      .filter((order) => !order.route) // Only show orders not already assigned to routes
+      .filter(
+        (order) =>
+          searchQuery === "" ||
+          order.client.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+          `INV-${order.number.toString().padStart(3, "0")}`
+            .toLowerCase()
+            .includes(searchQuery.toLowerCase()),
       );
   }, [orders, searchQuery]);
 
   // Get pending orders (not assigned to routes)
-  const pendingOrders = filteredOrders.filter(order => order.deliveryStatus === 'PENDING');
+  const pendingOrders = filteredOrders.filter(
+    (order) => order.deliveryStatus === "PENDING",
+  );
 
   const toggleOrderSelection = (orderId: string) => {
     const newSelected = new Set(selectedOrders);
@@ -57,7 +67,7 @@ export default function AddOrders() {
 
   const calculateTotalValue = () => {
     return Array.from(selectedOrders).reduce((total, orderId) => {
-      const order = filteredOrders.find(o => o.id === orderId);
+      const order = filteredOrders.find((o) => o.id === orderId);
       return total + (order?.pricing.total || 0);
     }, 0);
   };
@@ -65,25 +75,24 @@ export default function AddOrders() {
   const formatPrice = (price: number) => `$${price.toFixed(2)}`;
 
   const generateInvoiceNumber = (orderNumber: number) => {
-    return `INV-${orderNumber.toString().padStart(3, '0')}`;
+    return `INV-${orderNumber.toString().padStart(3, "0")}`;
   };
 
   const handleAddToRoute = async () => {
     if (selectedOrders.size === 0) {
-      toast.show({ message: t('selectAtLeastOneOrder'), type: 'info' });
+      toast.show({ message: t("selectAtLeastOneOrder"), type: "info" });
       return;
     }
 
     setIsAddingToRoute(true);
     try {
-
-      const promises = Array.from(selectedOrders).map(orderId =>
-        RoutesService.addPoint(routeId, orderId)
+      const promises = Array.from(selectedOrders).map((orderId) =>
+        RoutesService.addPoint(routeId, orderId),
       );
       await Promise.all(promises);
-
+      router.push(Routes.routeView(routeId));
     } catch (err) {
-      toast.show({ message: t('failedToAddOrdersToRoute'), type: 'error' });
+      toast.show({ message: t("failedToAddOrdersToRoute"), type: "error" });
     } finally {
       setIsAddingToRoute(false);
     }
@@ -95,9 +104,12 @@ export default function AddOrders() {
 
   const getOrderPriorityIcon = (order: Order) => {
     // Mock priority logic - you can customize this based on your business rules
-    if (order.pricing.total > 500) return '⚠️'; // High value
-    if (order.status === 'PENDING' && new Date(order.createdAt) < new Date(Date.now() - 24 * 60 * 60 * 1000)) {
-      return '🔺'; // Old pending order
+    if (order.pricing.total > 500) return "⚠️"; // High value
+    if (
+      order.status === "PENDING" &&
+      new Date(order.createdAt) < new Date(Date.now() - 24 * 60 * 60 * 1000)
+    ) {
+      return "🔺"; // Old pending order
     }
     return null;
   };
@@ -110,20 +122,35 @@ export default function AddOrders() {
         style={[
           styles.orderItem,
           { backgroundColor: colors.background, borderColor: colors.border },
-          isSelected && { borderColor: colors.primary, backgroundColor: colors.primary + '08' }
+          isSelected && {
+            borderColor: colors.primary,
+            backgroundColor: colors.primary + "08",
+          },
         ]}
         onPress={() => toggleOrderSelection(item.id)}
         activeOpacity={0.7}
       >
         <View style={styles.orderContent}>
           <View style={styles.checkboxContainer}>
-            <View style={[
-              styles.checkbox,
-              { borderColor: colors.border, backgroundColor: colors.background },
-              isSelected && { backgroundColor: colors.primary, borderColor: colors.primary }
-            ]}>
+            <View
+              style={[
+                styles.checkbox,
+                {
+                  borderColor: colors.border,
+                  backgroundColor: colors.background,
+                },
+                isSelected && {
+                  backgroundColor: colors.primary,
+                  borderColor: colors.primary,
+                },
+              ]}
+            >
               {isSelected && (
-                <Ionicons name="checkmark" size={16} color={colors.textInverse} />
+                <Ionicons
+                  name="checkmark"
+                  size={16}
+                  color={colors.textInverse}
+                />
               )}
             </View>
           </View>
@@ -138,16 +165,22 @@ export default function AddOrders() {
               </Text>
             </View>
 
-
-
             <View style={styles.orderFooter}>
               <View style={styles.statusContainer}>
-                <View style={[styles.statusDot, { backgroundColor: colors.success }]} />
-                <Text style={[styles.statusText, { color: colors.textSecondary }]}>
-                  {item.status === 'PENDING' ? t('readyForPickup') : item.status}
+                <View
+                  style={[
+                    styles.statusDot,
+                    { backgroundColor: colors.success },
+                  ]}
+                />
+                <Text
+                  style={[styles.statusText, { color: colors.textSecondary }]}
+                >
+                  {item.status === "PENDING"
+                    ? t("readyForPickup")
+                    : item.status}
                 </Text>
               </View>
-
             </View>
           </View>
         </View>
@@ -157,21 +190,35 @@ export default function AddOrders() {
 
   const renderEmptyState = () => (
     <View style={styles.emptyState}>
-      <Ionicons name="document-text-outline" size={64} color={colors.textTertiary} />
-      <Text style={[styles.emptyTitle, { color: colors.text }]}>{t('noOrdersAvailable')}</Text>
+      <Ionicons
+        name="document-text-outline"
+        size={64}
+        color={colors.textTertiary}
+      />
+      <Text style={[styles.emptyTitle, { color: colors.text }]}>
+        {t("noOrdersAvailable")}
+      </Text>
       <Text style={[styles.emptyMessage, { color: colors.textSecondary }]}>
-        {searchQuery ? t('noOrdersMatchSearch') : t('allOrdersAssigned')}
+        {searchQuery ? t("noOrdersMatchSearch") : t("allOrdersAssigned")}
       </Text>
     </View>
   );
 
   if (loading) {
     return (
-      <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]}>
-        <TopBar title={t('addOrdersToRoute')} showBack backTo={Routes.tabRoutes} />
+      <SafeAreaView
+        style={[styles.container, { backgroundColor: colors.background }]}
+      >
+        <TopBar
+          title={t("addOrdersToRoute")}
+          showBack
+          backTo={Routes.tabRoutes}
+        />
         <View style={styles.centerContent}>
           <ActivityIndicator size="large" color={colors.primary} />
-          <Text style={[styles.loadingText, { color: colors.textSecondary }]}>{t('loadingOrders')}</Text>
+          <Text style={[styles.loadingText, { color: colors.textSecondary }]}>
+            {t("loadingOrders")}
+          </Text>
         </View>
       </SafeAreaView>
     );
@@ -179,33 +226,57 @@ export default function AddOrders() {
 
   if (error) {
     return (
-      <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]}>
-        <TopBar title={t('addOrdersToRoute')} showBack backTo={Routes.tabRoutes} />
+      <SafeAreaView
+        style={[styles.container, { backgroundColor: colors.background }]}
+      >
+        <TopBar
+          title={t("addOrdersToRoute")}
+          showBack
+          backTo={Routes.tabRoutes}
+        />
         <View style={styles.centerContent}>
-          <Text style={[styles.errorText, { color: colors.danger }]}>{error}</Text>
+          <Text style={[styles.errorText, { color: colors.danger }]}>
+            {error}
+          </Text>
         </View>
       </SafeAreaView>
     );
   }
 
   return (
-    <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]}>
-      <TopBar title={t('addOrdersToRoute')} showBack backTo={Routes.tabRoutes} />
+    <SafeAreaView
+      style={[styles.container, { backgroundColor: colors.background }]}
+    >
+      <TopBar
+        title={t("addOrdersToRoute")}
+        showBack
+        backTo={Routes.tabRoutes}
+      />
 
       <View style={styles.content}>
         {/* Search Bar */}
-        <View style={[styles.searchContainer, { backgroundColor: colors.background }]}>
-          <View style={[styles.searchInputContainer, { backgroundColor: colors.backgroundSecondary }]}>
+        <View
+          style={[
+            styles.searchContainer,
+            { backgroundColor: colors.background },
+          ]}
+        >
+          <View
+            style={[
+              styles.searchInputContainer,
+              { backgroundColor: colors.backgroundSecondary },
+            ]}
+          >
             <Ionicons name="search" size={20} color={colors.textSecondary} />
             <TextInput
               style={[styles.searchInput, { color: colors.text }]}
-              placeholder={t('searchByNameOrNumber')}
+              placeholder={t("searchByNameOrNumber")}
               value={searchQuery}
               onChangeText={setSearchQuery}
               placeholderTextColor={colors.textSecondary}
             />
             {searchQuery.length > 0 && (
-              <TouchableOpacity onPress={() => setSearchQuery('')}>
+              <TouchableOpacity onPress={() => setSearchQuery("")}>
                 <Ionicons name="close" size={20} color={colors.textSecondary} />
               </TouchableOpacity>
             )}
@@ -213,13 +284,17 @@ export default function AddOrders() {
         </View>
 
         {/* Section Header */}
-        <View style={[styles.sectionHeader, { borderBottomColor: colors.border }]}>
+        <View
+          style={[styles.sectionHeader, { borderBottomColor: colors.border }]}
+        >
           <Text style={[styles.sectionTitle, { color: colors.textSecondary }]}>
-            {t('pendingOrders')} ({pendingOrders.length})
+            {t("pendingOrders")} ({pendingOrders.length})
           </Text>
           {selectedOrders.size > 0 && (
             <TouchableOpacity onPress={clearSelection}>
-              <Text style={[styles.clearButton, { color: colors.primary }]}>{t('clearSelection')}</Text>
+              <Text style={[styles.clearButton, { color: colors.primary }]}>
+                {t("clearSelection")}
+              </Text>
             </TouchableOpacity>
           )}
         </View>
@@ -231,26 +306,40 @@ export default function AddOrders() {
           renderItem={renderOrderItem}
           showsVerticalScrollIndicator={false}
           style={styles.ordersList}
-          contentContainerStyle={pendingOrders.length === 0 ? styles.emptyListContent : undefined}
+          contentContainerStyle={
+            pendingOrders.length === 0 ? styles.emptyListContent : undefined
+          }
           ListEmptyComponent={renderEmptyState}
         />
 
         {/* Selection Summary & Add Button */}
         {selectedOrders.size > 0 && (
-          <View style={[styles.selectionSummary, { backgroundColor: colors.background, borderTopColor: colors.border }]}>
+          <View
+            style={[
+              styles.selectionSummary,
+              {
+                backgroundColor: colors.background,
+                borderTopColor: colors.border,
+              },
+            ]}
+          >
             <View style={styles.summaryInfo}>
               <Text style={[styles.selectionCount, { color: colors.text }]}>
-                {selectedOrders.size} {selectedOrders.size !== 1 ? t('orders') : t('order')} {t('ordersSelected')}
+                {selectedOrders.size}{" "}
+                {selectedOrders.size !== 1 ? t("orders") : t("order")}{" "}
+                {t("ordersSelected")}
               </Text>
               <Text style={[styles.selectionTotal, { color: colors.primary }]}>
-                {t('totalValue')}: {formatPrice(calculateTotalValue())}
+                {t("totalValue")}: {formatPrice(calculateTotalValue())}
               </Text>
             </View>
-            
+
             {/* Swipe Button */}
             <SwipeButton
               onSwipeComplete={handleAddToRoute}
-              text={isAddingToRoute ? t('addingToRoute') : t('slideToAddToRoute')}
+              text={
+                isAddingToRoute ? t("addingToRoute") : t("slideToAddToRoute")
+              }
               isLoading={isAddingToRoute}
               iconName="rocket"
               style={styles.swipeButton}
@@ -271,18 +360,18 @@ const styles = StyleSheet.create({
   },
   centerContent: {
     flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
+    justifyContent: "center",
+    alignItems: "center",
     paddingHorizontal: Spacing.xl,
   },
   loadingText: {
     marginTop: Spacing.md,
     fontSize: Typography.fontSize.base,
-    textAlign: 'center',
+    textAlign: "center",
   },
   errorText: {
     fontSize: Typography.fontSize.lg,
-    textAlign: 'center',
+    textAlign: "center",
   },
   searchContainer: {
     paddingHorizontal: Spacing.lg,
@@ -290,8 +379,8 @@ const styles = StyleSheet.create({
     paddingBottom: Spacing.lg,
   },
   searchInputContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
+    flexDirection: "row",
+    alignItems: "center",
     borderRadius: BorderRadius.lg,
     paddingHorizontal: Spacing.md,
     paddingVertical: Spacing.sm,
@@ -303,9 +392,9 @@ const styles = StyleSheet.create({
     paddingVertical: Spacing.xs,
   },
   sectionHeader: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
     paddingHorizontal: Spacing.lg,
     paddingBottom: Spacing.md,
     borderBottomWidth: 1,
@@ -332,7 +421,7 @@ const styles = StyleSheet.create({
     borderWidth: 1,
   },
   orderContent: {
-    flexDirection: 'row',
+    flexDirection: "row",
     padding: Spacing.lg,
   },
   checkboxContainer: {
@@ -344,16 +433,16 @@ const styles = StyleSheet.create({
     height: 24,
     borderRadius: 12,
     borderWidth: 2,
-    justifyContent: 'center',
-    alignItems: 'center',
+    justifyContent: "center",
+    alignItems: "center",
   },
   orderInfo: {
     flex: 1,
   },
   orderHeader: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'flex-start',
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "flex-start",
     marginBottom: Spacing.xs,
   },
   invoiceNumber: {
@@ -371,13 +460,13 @@ const styles = StyleSheet.create({
     marginBottom: Spacing.sm,
   },
   orderFooter: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
   },
   statusContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
+    flexDirection: "row",
+    alignItems: "center",
     gap: Spacing.xs,
   },
   statusDot: {
@@ -389,8 +478,8 @@ const styles = StyleSheet.create({
     fontSize: Typography.fontSize.sm,
   },
   priorityContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
+    flexDirection: "row",
+    alignItems: "center",
     gap: Spacing.xs,
   },
   priorityIcon: {
@@ -402,8 +491,8 @@ const styles = StyleSheet.create({
   },
   emptyState: {
     flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
+    justifyContent: "center",
+    alignItems: "center",
     paddingHorizontal: Spacing.xl,
   },
   emptyTitle: {
@@ -414,7 +503,7 @@ const styles = StyleSheet.create({
   },
   emptyMessage: {
     fontSize: Typography.fontSize.base,
-    textAlign: 'center',
+    textAlign: "center",
     lineHeight: 22,
   },
   selectionSummary: {
@@ -423,9 +512,9 @@ const styles = StyleSheet.create({
     gap: Spacing.md,
   },
   summaryInfo: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
   },
   selectionCount: {
     fontSize: Typography.fontSize.base,
