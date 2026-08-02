@@ -1,11 +1,10 @@
-import { BorderRadius, Shadows, Spacing } from '@/constants';
-import React from 'react';
-import { ScrollView, StyleSheet, View } from 'react-native';
-import { QuickLinkCard, type QuickLinkCardProps } from './QuickLinkCard';
-import { ThemedText } from './ThemedText';
-import { ThemedView } from './ThemedView';
+import { BorderRadius, Shadows, Spacing } from "@/constants";
+import { ScrollView, StyleSheet, View } from "react-native";
+import { QuickLinkCard, type QuickLinkCardProps } from "./QuickLinkCard";
+import { ThemedText } from "./ThemedText";
+import { ThemedView } from "./ThemedView";
 
-export type QuickLinkData = Omit<QuickLinkCardProps, 'onPress'> & {
+export type QuickLinkData = Omit<QuickLinkCardProps, "onPress"> & {
   id: string;
   onPress?: () => void;
 };
@@ -13,17 +12,16 @@ export type QuickLinkData = Omit<QuickLinkCardProps, 'onPress'> & {
 export type QuickLinksProps = {
   title?: string;
   links: QuickLinkData[];
-  variant?: 'card' | 'flat';
+  variant?: "card" | "flat";
   onLinkPress?: (linkId: string) => void;
 };
 
 export function QuickLinks({
-  title = 'Quick Links',
+  title = "Quick Links",
   links,
-  variant = 'card',
+  variant = "card",
   onLinkPress,
 }: QuickLinksProps) {
-
   const handleLinkPress = (link: QuickLinkData) => {
     if (link.onPress) {
       link.onPress();
@@ -32,15 +30,14 @@ export function QuickLinks({
     }
   };
 
-  const containerStyle = variant === 'card' ? styles.cardContainer : styles.flatContainer;
+  const containerStyle =
+    variant === "card" ? styles.cardContainer : styles.flatContainer;
 
   return (
     <ThemedView style={containerStyle}>
       {/* Header */}
       <View style={styles.header}>
-        <ThemedText style={styles.title}>
-          {title}
-        </ThemedText>
+        <ThemedText style={styles.title}>{title}</ThemedText>
       </View>
 
       {/* Links */}
@@ -71,14 +68,14 @@ const styles = StyleSheet.create({
   flatContainer: {
     padding: Spacing.lg,
     marginVertical: Spacing.xs,
-    backgroundColor: 'transparent',
+    backgroundColor: "transparent",
   },
   header: {
     marginBottom: Spacing.md,
   },
   title: {
     fontSize: 18,
-    fontWeight: '600',
+    fontWeight: "600",
   },
   linksContainer: {
     gap: Spacing.xs,

@@ -8,7 +8,7 @@ import { RefreshControl, ScrollView, StyleSheet } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 export default function Clients() {
-  const { clients, loading, error, searchClients, refresh } = useClients();
+  const { clients, isInitialLoading, isRefreshing, error, searchClients, refresh } = useClients();
   const { t } = useTranslation();
 
   const handleAddClient = () => {
@@ -31,10 +31,10 @@ export default function Clients() {
         showsVerticalScrollIndicator={false}
         contentContainerStyle={styles.listContent}
         refreshControl={
-          <RefreshControl refreshing={loading && clients.length > 0} onRefresh={refresh} />
+          <RefreshControl refreshing={isRefreshing} onRefresh={refresh} />
         }
       >
-        {loading && clients.length === 0 ? (
+        {isInitialLoading ? (
           <ListSkeleton />
         ) : error && clients.length === 0 ? (
           <ErrorState message={error} onRetry={refresh} />

@@ -36,7 +36,8 @@ export default function CreateOrder() {
         });
       }
 
-      router.push(Routes.orderView(order.id));
+      // replace: el formulario ya enviado no debe quedar en el stack
+      router.replace(Routes.orderView(order.id));
 
     } catch (error) {
       console.error('Error saving order:', error);

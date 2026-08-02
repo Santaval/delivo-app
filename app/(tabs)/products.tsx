@@ -6,7 +6,7 @@ import { Routes, Spacing, Typography } from "@/constants";
 import { useThemeColor } from "@/hooks/useColorScheme";
 import useProducts from "@/hooks/useProducts";
 import { router } from "expo-router";
-import React, { useState } from "react";
+import React from "react";
 import { useTranslation } from "react-i18next";
 import {
   StyleSheet,
@@ -15,15 +15,9 @@ import {
 import { SafeAreaView } from "react-native-safe-area-context";
 
 export default function Products() {
-  const { products, loading, error, refresh } = useProducts();
+  const { products, isInitialLoading, isRefreshing, error, refresh, searchProducts } = useProducts();
   const colors = useThemeColor();
-  const [searchQuery, setSearchQuery] = useState("");
   const { t } = useTranslation();
-
-  // Filter products based on search query
-  const filteredProducts = products.filter((product) =>
-    product.name.toLowerCase().includes(searchQuery.toLowerCase()),
-  );
 
   const handlePress = (productId: string) => {
     router.push(Routes.productView(productId));
@@ -38,17 +32,16 @@ export default function Products() {
         <View style={[styles.searchContainer, { borderBottomColor: colors.border }]}>
           <SearchBar
             placeholder={t("searchProducts")}
-            onSearch={setSearchQuery}
-            initialValue={searchQuery}
+            onSearch={searchProducts}
           />
         </View>
 
         {/* Content */}
         <ProductsList
-          products={filteredProducts}
+          products={products}
           onProductPress={handlePress}
-          isRefreshing={loading && products.length > 0}
-          loading={loading && products.length === 0}
+          isRefreshing={isRefreshing}
+          loading={isInitialLoading}
           error={error}
           onRefresh={refresh}
           onCreateFirst={() => router.push(Routes.productsAdd)}

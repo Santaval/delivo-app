@@ -1,7 +1,8 @@
 import { OrderItem } from "@/components";
 import i18n from "@/i18n";
 import OrdersService from "@/services/orders/Orders.service";
-import { useEffect, useState } from "react";
+import { useState } from "react";
+import useFocusRefetch from "./useFocusRefetch";
 
 const useOrder = (orderId: string) => {
   const [order, setOrder] = useState<Order | null>(null);
@@ -81,9 +82,11 @@ const useOrder = (orderId: string) => {
     }
   };
 
-  useEffect(() => {
-    fetchOrder();
-  }, [orderId]);
+  // Recarga al volver a la pantalla (ej. después de una pantalla hija)
+  useFocusRefetch((isFirstFocus) => {
+    if (isFirstFocus) setIsInitialLoading(true);
+    fetchOrder({ silent: !isFirstFocus });
+  }, orderId);
 
   const loading = isInitialLoading || isRefreshing || isMutating;
 

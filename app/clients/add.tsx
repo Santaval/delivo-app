@@ -76,7 +76,8 @@ export default function AddClient() {
     try {
       const client = await ClientsService.createClient(formData);
 
-      router.push(Routes.clientProfile(client.id));
+      // replace: el formulario ya enviado no debe quedar en el stack
+      router.replace(Routes.clientProfile(client.id));
     } catch (error) {
       console.error('Error creating client:', error);
       toast.show({ message: t('failedToCreateClient'), type: 'error' });

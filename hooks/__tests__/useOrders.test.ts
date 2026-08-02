@@ -7,6 +7,23 @@ jest.mock('@/context/ToastContext', () => ({
   toast: { error: jest.fn(), success: jest.fn(), info: jest.fn() },
 }));
 
+// Guarda el efecto de foco para poder simular que se vuelve a la pantalla
+const focusEffect: { current: (() => void) | null } = { current: null };
+
+jest.mock('expo-router', () => ({
+  useFocusEffect: (effect: () => void) => {
+    const React = require('react');
+    focusEffect.current = effect;
+    React.useEffect(() => {
+      effect();
+    }, [effect]);
+  },
+}));
+
+const simulateRefocus = () => act(() => {
+  focusEffect.current?.();
+});
+
 const mockedOrdersService = OrdersService as jest.Mocked<typeof OrdersService>;
 
 const buildOrder = (overrides: Partial<Order> = {}): Order => ({
@@ -76,6 +93,41 @@ describe('useOrders (PBI-003: Registro y Gestión de Órdenes de Pedido)', () =>
     });
     expect(result.current.orders).toHaveLength(1);
     expect(result.current.orders[0].id).toBe('order-2');
+
+    act(() => {
+      result.current.search('');
+    });
+    expect(result.current.orders).toHaveLength(2);
+  });
+
+  it('recarga la lista al volver a la pantalla, en silencio y respetando la búsqueda activa', async () => {
+    mockedOrdersService.all.mockResolvedValueOnce([buildOrder({ id: 'order-1', number: 101 })]);
+
+    const { result } = renderHook(() => useOrders());
+    await waitFor(() => expect(result.current.loading).toBe(false));
+    expect(result.current.orders).toHaveLength(1);
+
+    act(() => {
+      result.current.search('101');
+    });
+
+    // Una orden creada en otra pantalla aparece al volver
+    mockedOrdersService.all.mockResolvedValueOnce([
+      buildOrder({ id: 'order-1', number: 101 }),
+      buildOrder({ id: 'order-2', number: 202 }),
+    ]);
+
+    simulateRefocus();
+
+    // La recarga es silenciosa: no se muestra el loader
+    expect(result.current.isInitialLoading).toBe(false);
+    expect(result.current.isRefreshing).toBe(false);
+
+    await waitFor(() => expect(mockedOrdersService.all).toHaveBeenCalledTimes(2));
+
+    // El filtro activo sobrevive a la recarga
+    await waitFor(() => expect(result.current.orders).toHaveLength(1));
+    expect(result.current.orders[0].id).toBe('order-1');
 
     act(() => {
       result.current.search('');

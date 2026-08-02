@@ -1,6 +1,7 @@
 import i18n from "@/i18n";
 import ClientsService from "@/services/clients/Clients.service";
-import { useEffect, useState } from "react";
+import { useState } from "react";
+import useFocusRefetch from "./useFocusRefetch";
 
 const useClient = (clientId: string) => {
   const [client, setClient] = useState<Client | null>(null);
@@ -9,11 +10,13 @@ const useClient = (clientId: string) => {
   const [isMutating, setIsMutating] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  useEffect(() => {
-    fetchClient();
-  }, [clientId]);
+  // Recarga al volver a la pantalla (ej. después de editar el cliente)
+  useFocusRefetch((isFirstFocus) => {
+    if (isFirstFocus) setIsInitialLoading(true);
+    fetchClient({ silent: !isFirstFocus });
+  }, clientId);
 
-  const fetchClient = async () => {
+  const fetchClient = async ({ silent = false }: { silent?: boolean } = {}) => {
     try {
       setError(null);
       const clientData = await ClientsService.getClientById(clientId);
@@ -26,8 +29,10 @@ const useClient = (clientId: string) => {
       setError(i18n.t('loadFailedError'));
       console.error('Error fetching client:', err);
     } finally {
-      setIsInitialLoading(false);
-      setIsRefreshing(false);
+      if (!silent) {
+        setIsInitialLoading(false);
+        setIsRefreshing(false);
+      }
     }
   };
 

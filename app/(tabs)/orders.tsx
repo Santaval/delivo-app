@@ -9,7 +9,7 @@ import { StyleSheet } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 export default function Orders() {
-  const { orders, loading, error, refresh, search } = useOrders();
+  const { orders, isInitialLoading, isRefreshing, error, refresh, search } = useOrders();
   const { t } = useTranslation();
 
   const handleAddOrder = () => {
@@ -31,8 +31,8 @@ export default function Orders() {
       <OrdersList
         onOrderPress={(orderId) => router.push(Routes.orderView(orderId))}
         orders={orders}
-        isRefreshing={loading && orders.length > 0}
-        loading={loading && orders.length === 0}
+        isRefreshing={isRefreshing}
+        loading={isInitialLoading}
         error={error}
         onRefresh={refresh}
         onCreateFirst={handleAddOrder}
