@@ -1,25 +1,26 @@
-import config from '@/config/env';
+import config from "@/config/env";
+import { Platform } from "react-native";
 import Purchases, {
   CustomerInfo,
   LOG_LEVEL,
   PurchasesOffering,
   PurchasesPackage,
-} from 'react-native-purchases';
-import { Platform } from 'react-native';
+} from "react-native-purchases";
 
 export const ENTITLEMENTS = {
-  PRO: 'arranque',
+  PRO: "arranque",
 } as const;
 
 export const OFFERING_IDENTIFIERS = {
-  DEFAULT: 'delivo_arranque',
+  DEFAULT: "delivo_arranque",
 } as const;
 
 class RevenueCatService {
   configure(): void {
-    const apiKey = Platform.OS === 'ios'
-      ? config.revenueCatIosKey
-      : config.revenueCatAndroidKey;
+    const apiKey =
+      Platform.OS === "ios"
+        ? config.revenueCatIosKey
+        : config.revenueCatAndroidKey;
 
     if (config.isDevelopment) {
       Purchases.setLogLevel(LOG_LEVEL.DEBUG);
@@ -59,14 +60,18 @@ class RevenueCatService {
   }
 
   isProActive(customerInfo: CustomerInfo): boolean {
-    return !!customerInfo.entitlements.active[ENTITLEMENTS.PRO];
+    const entitlement = customerInfo.entitlements.active[ENTITLEMENTS.PRO];
+    console.log("RevenueCatService.isProActive", { entitlement, customerInfo });
+    return customerInfo?.activeSubscriptions?.includes("delivo_monthly");
   }
 
   addCustomerInfoUpdateListener(callback: (info: CustomerInfo) => void): void {
     Purchases.addCustomerInfoUpdateListener(callback);
   }
 
-  removeCustomerInfoUpdateListener(callback: (info: CustomerInfo) => void): void {
+  removeCustomerInfoUpdateListener(
+    callback: (info: CustomerInfo) => void,
+  ): void {
     Purchases.removeCustomerInfoUpdateListener(callback);
   }
 }
