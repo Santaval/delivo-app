@@ -104,6 +104,8 @@ export function SearchBar({
         returnKeyType="search"
         autoCorrect={false}
         autoCapitalize="none"
+        accessibilityRole="search"
+        accessibilityLabel={placeholder}
       />
 
       {/* Clear Button */}
@@ -112,6 +114,8 @@ export function SearchBar({
           style={styles.clearButton}
           onPress={handleClear}
           activeOpacity={0.7}
+          accessibilityRole="button"
+          accessibilityLabel="Clear"
         >
           <MaterialIcons name="close" size={20} color={colors.textSecondary} />
         </TouchableOpacity>

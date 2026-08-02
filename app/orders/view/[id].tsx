@@ -8,10 +8,10 @@ import ClientCompactCard from '@/components/clients/ClientCompactCard';
 import CurrencyText from '@/components/currency/CurrencyText';
 import AddProductsModal from '@/components/orders/AddProductsModal';
 import OrderStatusBadge from '@/components/orders/OrderStatusBadge';
-import { BorderRadius, Shadows, Spacing, Typography } from '@/constants';
-import { Colors } from '@/constants/Colors';
+import { BorderRadius, OrdersViewParams, Routes, Shadows, Spacing, Typography } from '@/constants';
 import { useThemeColor } from '@/hooks/useColorScheme';
 import useOrder from '@/hooks/useOrder';
+import { confirmDestructive } from '@/utils/confirm';
 import { MaterialIcons } from '@expo/vector-icons';
 import { router, useLocalSearchParams } from 'expo-router';
 import moment from 'moment';
@@ -32,20 +32,38 @@ type LineItemRowProps = {
   onRemove: (itemId: string) => void;
   index: number;
   total: number;
+  disabled?: boolean;
 };
 
-const LineItemRow: React.FC<LineItemRowProps> = ({ item, onRemove }) => {
+const LineItemRow: React.FC<LineItemRowProps> = ({ item, onRemove, disabled }) => {
   const colors = useThemeColor();
   const { t } = useTranslation();
 
   const itemTotal = item.pricing.totalPrice * item.quantity;
+
+  const handleRemove = () => {
+    if (disabled) return;
+    confirmDestructive({
+      title: t('removeProductFromOrder'),
+      message: t('removeProductFromOrderMessage'),
+      onConfirm: () => onRemove(item.id),
+    });
+  };
 
   return (
     <View style={[styles.lineItemRow, { borderBottomColor: colors.border }]}>
       <View style={styles.lineItemContent}>
         <View style={styles.lineItemLeft}>
           <ThemedText style={[styles.productName, { color: colors.text }]}>
-            <MaterialIcons name="delete" size={24} color={colors.danger} onPress={() => onRemove(item.id)} />
+            <MaterialIcons
+              name="delete"
+              size={24}
+              color={colors.danger}
+              onPress={handleRemove}
+              accessibilityRole="button"
+              accessibilityLabel={t('removeProductFromOrder')}
+              accessibilityState={{ disabled }}
+            />
             {item.name}
           </ThemedText>
           {item.deletedAt && (
@@ -69,17 +87,17 @@ const LineItemRow: React.FC<LineItemRowProps> = ({ item, onRemove }) => {
 
 
 export default function OrderDetailsPage() {
-  const { id } = useLocalSearchParams<{ id: string }>();
+  const { id } = useLocalSearchParams<OrdersViewParams>();
   const colors = useThemeColor();
   const { t } = useTranslation();
-  const { order, loading, error, refresh, addItems, removeItem, markAsDelivered } = useOrder(id);
+  const { order, isInitialLoading, isRefreshing, isMutating, error, refresh, addItems, removeItem, markAsDelivered } = useOrder(id);
   const [showAddProductsModal, setShowAddProductsModal] = useState(false);
   const isSomeProductDeleted = order?.items.some(item => item.deletedAt);
 
   const onMarkAsDelivered = async () => {
     try {
       await markAsDelivered();
-      router.replace(`/bills/view/${id}`);
+      router.replace(Routes.billView(id));
     } catch (error) {
       console.error('Failed to mark as delivered', error);
     }
@@ -90,27 +108,31 @@ export default function OrderDetailsPage() {
   };
 
 
-  if (loading) {
+  if (isInitialLoading) {
     return (
-      <ThemedView style={styles.container}>
+      <ThemedView style={[styles.container, { backgroundColor: colors.backgroundSecondary }]}>
         <TopBar
-          title={t('invoiceDetails')}
+          title={t('orderDetails')}
+          showBack
+          backTo={Routes.orders}
         />
         <View style={styles.centerContent}>
           <ActivityIndicator size="large" color={colors.primary} />
           <ThemedText style={[styles.loadingText, { color: colors.textSecondary }]}>
-            {t('loadingInvoiceDetails')}
+            {t('loadingOrderDetails')}
           </ThemedText>
         </View>
       </ThemedView>
     );
   }
 
-  if (error || !order) {
+  if (!order) {
     return (
-      <ThemedView style={styles.container}>
+      <ThemedView style={[styles.container, { backgroundColor: colors.backgroundSecondary }]}>
         <TopBar
-          title={t('invoiceDetails')}
+          title={t('orderDetails')}
+          showBack
+          backTo={Routes.orders}
         />
         <View style={styles.centerContent}>
           <MaterialIcons name="error-outline" size={48} color={colors.danger} />
@@ -129,145 +151,167 @@ export default function OrderDetailsPage() {
 
   return (
     <SafeAreaView
-      style={styles.container}>
+      style={[styles.container, { backgroundColor: colors.backgroundSecondary }]}>
       <TopBar
         title={t('invoiceDetails')}
+        showBack
+        backTo={Routes.orders}
       />
 
-      <ScrollView
-        style={styles.scrollView}
-        contentContainerStyle={styles.content}
-        refreshControl={
-          <RefreshControl
-            refreshing={loading}
-            onRefresh={refresh}
-            colors={[colors.primary]}
-            tintColor={colors.primary}
-          />
-        }
-        showsVerticalScrollIndicator={false}
-      >
-        {/* Invoice Header */}
-        <ThemedView style={[styles.headerCard, { backgroundColor: colors.surface }]}>
-          <View style={styles.headerContent}>
-            <View>
-              <ThemedText style={[styles.invoiceNumber, { color: colors.text }]}>
-                {generateOrderNumber(order.number)}
-              </ThemedText>
-              <ThemedText style={[styles.invoiceDate, { color: colors.textSecondary }]}>
-                {t('issuedOn')} {moment(order.createdAt).format('MMMM D, YYYY')}
-              </ThemedText>
+      <View style={styles.contentWrapper}>
+        <ScrollView
+          style={styles.scrollView}
+          contentContainerStyle={styles.content}
+          refreshControl={
+            <RefreshControl
+              refreshing={isRefreshing}
+              onRefresh={refresh}
+              colors={[colors.primary]}
+              tintColor={colors.primary}
+            />
+          }
+          showsVerticalScrollIndicator={false}
+        >
+          {/* Invoice Header */}
+          <ThemedView style={[styles.headerCard, { backgroundColor: colors.surface }]}>
+            <View style={styles.headerContent}>
+              <View>
+                <ThemedText style={[styles.invoiceNumber, { color: colors.text }]}>
+                  {generateOrderNumber(order.number)}
+                </ThemedText>
+                <ThemedText style={[styles.invoiceDate, { color: colors.textSecondary }]}>
+                  {t('issuedOn')} {moment(order.createdAt).format('MMMM D, YYYY')}
+                </ThemedText>
+              </View>
+              <OrderStatusBadge status={order.deliveryStatus} />
             </View>
-            <OrderStatusBadge status={order.deliveryStatus} />
-          </View>
-        </ThemedView>
+          </ThemedView>
 
-        <ClientCompactCard
-          client={order.client}
-        />
+          <ClientCompactCard
+            client={order.client}
+          />
 
-        {/* Line Items */}
-        <ThemedView style={[styles.lineItemsCard, { backgroundColor: colors.surface }]}>
-          <View style={styles.lineItemContent}>
+          {/* Line Items */}
+          <ThemedView style={[styles.lineItemsCard, { backgroundColor: colors.surface }]}>
+            <View style={styles.lineItemContent}>
+              <ThemedText style={[styles.sectionTitle, { color: colors.text }]}>
+                {t("products")}
+              </ThemedText>
+
+            </View>
+
+            {/* Header */}
+            <View style={[styles.lineItemHeader, { borderBottomColor: colors.border }]}>
+              <View style={styles.headerLeft}>
+                <ThemedText style={[styles.headerText, { color: colors.textSecondary }]}>
+                  {t("productName")}
+                </ThemedText>
+                <ThemedText style={[styles.headerText, { color: colors.textSecondary }]}>
+                  {t("unitPrice")}
+                </ThemedText>
+              </View>
+              <View style={styles.headerRight}>
+                <ThemedText style={[styles.headerText, { color: colors.textSecondary }]}>
+                  {t("quantity")}
+                </ThemedText>
+                <ThemedText style={[styles.headerText, { color: colors.textSecondary }]}>
+                  {t("total")}
+                </ThemedText>
+              </View>
+            </View>
+
+            {/* Items */}
+            {order.items.map((item, index) => (
+              <LineItemRow
+                onRemove={removeItem}
+                key={`${item.productId}-${index}`}
+                item={item}
+                index={index}
+                total={item.pricing.totalPrice * item.quantity}
+                disabled={isMutating}
+              />
+            ))}
+
+            {order.deliveryStatus !== "DELIVERED" && (
+              <PrimaryButton
+                onPress={() => setShowAddProductsModal(true)}
+                title={'+ ' + t("addProducts")}
+                variant='outline'
+                style={{ marginTop: Spacing.md }}
+                disabled={isMutating}
+              />
+            )}
+
+          </ThemedView>
+
+          {/* Financial Summary */}
+          <ThemedView style={[styles.summaryCard, { backgroundColor: colors.surface }]}>
             <ThemedText style={[styles.sectionTitle, { color: colors.text }]}>
-              {t("products")}
+              {t("financialSummary")}
             </ThemedText>
 
-          </View>
-
-          {/* Header */}
-          <View style={[styles.lineItemHeader, { borderBottomColor: colors.border }]}>
-            <View style={styles.headerLeft}>
-              <ThemedText style={[styles.headerText, { color: colors.textSecondary }]}>
-                {t("productName")}
+            <View style={styles.summaryRow}>
+              <ThemedText style={[styles.summaryLabel, { color: colors.textSecondary }]}>
+                {t("subtotal")}
               </ThemedText>
-              <ThemedText style={[styles.headerText, { color: colors.textSecondary }]}>
-                {t("unitPrice")}
-              </ThemedText>
+              <CurrencyText style={[styles.summaryValue, { color: colors.text }]} amount={order.pricing.subtotal} />
             </View>
-            <View style={styles.headerRight}>
-              <ThemedText style={[styles.headerText, { color: colors.textSecondary }]}>
-                {t("quantity")}
+
+            <View style={styles.summaryRow}>
+              <ThemedText style={[styles.summaryLabel, { color: colors.textSecondary }]}>
+                {t("ivaAmount")} ({((order.pricing.ivaTotal / order.pricing.subtotal) * 100).toFixed(0)}%)
               </ThemedText>
-              <ThemedText style={[styles.headerText, { color: colors.textSecondary }]}>
-                {t("total")}
-              </ThemedText>
+              <CurrencyText style={[styles.summaryValue, { color: colors.text }]} amount={order.pricing.ivaTotal} />
             </View>
-          </View>
 
-          {/* Items */}
-          {order.items.map((item, index) => (
-            <LineItemRow
-              onRemove={removeItem}
-              key={`${item.productId}-${index}`}
-              item={item}
-              index={index}
-              total={item.pricing.totalPrice * item.quantity}
-            />
-          ))}
+            <View style={[styles.summaryRow, styles.totalRow, { borderTopColor: colors.border }]}>
+              <ThemedText style={[styles.totalLabel, { color: colors.text }]}>
+                {t("grandTotal")}
+              </ThemedText>
+              <CurrencyText style={[styles.totalValue, { color: colors.primary }]} amount={order.pricing.total} />
+            </View>
+          </ThemedView>
 
-          {order.deliveryStatus !== "DELIVERED" && (
+          {/* Action Buttons */}
+          <View style={styles.actionButtons}>
+
+            {/* A failed mutation no longer replaces the screen, so surface it here */}
+            {error && (
+              <ThemedText style={[styles.warningMessage, { color: colors.danger }]}>
+                {error}
+              </ThemedText>
+            )}
+
+            {isSomeProductDeleted && (
+              <ThemedText style={[styles.warningMessage, { color: colors.danger }]}>
+                {t('deletedProductsWarningMessage')}
+              </ThemedText>
+            )}
+
             <PrimaryButton
-              onPress={() => setShowAddProductsModal(true)}
-              title={'+ ' + t("addProducts")}
-              variant='outline'
+              title={t("generateBill")}
+              onPress={onMarkAsDelivered}
+              disabled={isSomeProductDeleted || isMutating}
               style={{ marginTop: Spacing.md }}
             />
-          )}
-
-        </ThemedView>
-
-        {/* Financial Summary */}
-        <ThemedView style={[styles.summaryCard, { backgroundColor: colors.surface }]}>
-          <ThemedText style={[styles.sectionTitle, { color: colors.text }]}>
-            {t("financialSummary")}
-          </ThemedText>
-
-          <View style={styles.summaryRow}>
-            <ThemedText style={[styles.summaryLabel, { color: colors.textSecondary }]}>
-              {t("subtotal")}
-            </ThemedText>
-            <CurrencyText style={[styles.summaryValue, { color: colors.text }]} amount={order.pricing.subtotal} />
           </View>
 
-          <View style={styles.summaryRow}>
-            <ThemedText style={[styles.summaryLabel, { color: colors.textSecondary }]}>
-              {t("ivaAmount")} ({((order.pricing.ivaTotal / order.pricing.subtotal) * 100).toFixed(0)}%)
-            </ThemedText>
-            <CurrencyText style={[styles.summaryValue, { color: colors.text }]} amount={order.pricing.ivaTotal} />
-          </View>
-
-          <View style={[styles.summaryRow, styles.totalRow, { borderTopColor: colors.border }]}>
-            <ThemedText style={[styles.totalLabel, { color: colors.text }]}>
-              {t("grandTotal")}
-            </ThemedText>
-            <CurrencyText style={[styles.totalValue, { color: colors.primary }]} amount={order.pricing.total} />
-          </View>
-        </ThemedView>
-
-        {/* Action Buttons */}
-        <View style={styles.actionButtons}>
-
-          {isSomeProductDeleted && (
-            <ThemedText style={[styles.warningMessage, { color: colors.danger }]}>
-              {t('deletedProductsWarningMessage')}
-            </ThemedText>
-          )}
-
-          <PrimaryButton
-            title={t("generateBill")}
-            onPress={onMarkAsDelivered}
-            disabled={isSomeProductDeleted}
-            style={{ marginTop: Spacing.md }}
+          <AddProductsModal
+            onAdd={addItems}
+            onClose={() => setShowAddProductsModal(false)}
+            visible={showAddProductsModal}
           />
-        </View>
-
-        <AddProductsModal
-          onAdd={addItems}
-          onClose={() => setShowAddProductsModal(false)}
-          visible={showAddProductsModal}
-        />
-      </ScrollView>
+        </ScrollView>
+        {isMutating && (
+          <View
+            style={styles.mutatingOverlay}
+            pointerEvents="auto"
+            accessibilityLabel={t('updating')}
+          >
+            <ActivityIndicator size="large" color={colors.primary} />
+          </View>
+        )}
+      </View>
     </SafeAreaView>
   );
 }
@@ -275,10 +319,18 @@ export default function OrderDetailsPage() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: Colors.light.backgroundSecondary,
   },
   scrollView: {
     flex: 1,
+  },
+  contentWrapper: {
+    flex: 1,
+  },
+  mutatingOverlay: {
+    ...StyleSheet.absoluteFill,
+    backgroundColor: 'rgba(0,0,0,0.15)',
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   content: {
     padding: Spacing.lg,
@@ -357,7 +409,6 @@ const styles = StyleSheet.create({
   addButtonText: {
     fontSize: Typography.fontSize.sm,
     fontWeight: Typography.fontWeight.medium,
-    color: Colors.light.primary,
   },
   headerLeft: {
     flex: 1,

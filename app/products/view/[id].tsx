@@ -1,12 +1,12 @@
-import { PrimaryButton, ThemedText, ThemedView, TopBar } from "@/components";
+import { LoadingState, PrimaryButton, ThemedText, ThemedView, TopBar } from "@/components";
 import {
     ProductDetailActions,
     ProductDetailHeader,
     ProductMetaCard,
     ProductPricingCard,
 } from "@/components/products";
-import { Spacing, Typography } from "@/constants";
-import { Colors } from "@/constants/Colors";
+import { ProductsViewParams, Routes, Spacing, Typography } from "@/constants";
+import { useToast } from "@/context/ToastContext";
 import { useThemeColor } from "@/hooks/useColorScheme";
 import useProduct from "@/hooks/useProduct";
 import { MaterialIcons } from "@expo/vector-icons";
@@ -14,7 +14,6 @@ import { router, useLocalSearchParams } from "expo-router";
 import React from "react";
 import { useTranslation } from "react-i18next";
 import {
-    Alert,
     RefreshControl,
     ScrollView,
     StyleSheet,
@@ -23,39 +22,39 @@ import {
 import { SafeAreaView } from "react-native-safe-area-context";
 
 export default function ProductDetail() {
-  const { id } = useLocalSearchParams<{ id: string }>();
+  const { id } = useLocalSearchParams<ProductsViewParams>();
   const colors = useThemeColor();
   const { t } = useTranslation();
+  const toast = useToast();
   const { product, loading, error, refresh, remove } = useProduct(id);
 
   const handleEdit = () => {
-    router.push({ pathname: "/products/edit/[id]", params: { id } });
+    router.push(Routes.productEdit(id));
   };
 
   const handleDelete = async () => {
     try {
       await remove();
+      toast.show({ message: t('productDeletedSuccessfully'), type: 'success' });
       router.back();
     } catch (err) {
-      Alert.alert(t("error"), t("failedToDeleteProduct"));
+      toast.show({ message: t("failedToDeleteProduct"), type: 'error' });
     }
   };
 
   if (loading) {
     return (
-      <ThemedView style={styles.container}>
-        <TopBar title={t("productDetail")} />
-        <View style={styles.centerContent}>
-          <ThemedText>{t("loading")}...</ThemedText>
-        </View>
+      <ThemedView style={[styles.container, { backgroundColor: colors.backgroundSecondary }]}>
+        <TopBar title={t("productDetail")} showBack backTo={Routes.products} />
+        <LoadingState message={t('loading')} />
       </ThemedView>
     );
   }
 
   if (error || !product) {
     return (
-      <ThemedView style={styles.container}>
-        <TopBar title={t("productDetail")} />
+      <ThemedView style={[styles.container, { backgroundColor: colors.backgroundSecondary }]}>
+        <TopBar title={t("productDetail")} showBack backTo={Routes.products} />
         <View style={styles.centerContent}>
           <MaterialIcons name="error-outline" size={48} color={colors.danger} />
           <ThemedText style={[styles.errorText, { color: colors.danger }]}>
@@ -72,8 +71,8 @@ export default function ProductDetail() {
   }
 
   return (
-    <SafeAreaView style={styles.container}>
-      <TopBar title={t("productDetail")} />
+    <SafeAreaView style={[styles.container, { backgroundColor: colors.backgroundSecondary }]}>
+      <TopBar title={t("productDetail")} showBack backTo={Routes.products} />
 
       <ScrollView
         style={styles.scrollView}
@@ -118,7 +117,6 @@ export default function ProductDetail() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: Colors.light.backgroundSecondary,
   },
   scrollView: {
     flex: 1,

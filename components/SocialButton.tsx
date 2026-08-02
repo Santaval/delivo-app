@@ -13,9 +13,9 @@ export type SocialButtonProps = {
   isLoading?: boolean; 
 };
 
-export function SocialButton({ 
-  provider, 
-  onPress = () => console.log(`${provider} login pressed`),
+export function SocialButton({
+  provider,
+  onPress = () => {},
   disabled = false,
   isLoading
 }: SocialButtonProps) {
@@ -84,6 +84,9 @@ export function SocialButton({
       onPress={onPress}
       disabled={disabled}
       activeOpacity={0.8}
+      accessibilityRole="button"
+      accessibilityLabel={getButtonText()}
+      accessibilityState={{ disabled, busy: isLoading }}
     >
       <View style={styles.content}>
         <View style={styles.iconContainer}>
@@ -95,7 +98,7 @@ export function SocialButton({
             { color: getTextColor() }
           ]}
         >
-          {isLoading ? "Solo un momento..." : getButtonText()}
+          {isLoading ? t('justAMoment') : getButtonText()}
         </ThemedText>
       </View>
     </TouchableOpacity>

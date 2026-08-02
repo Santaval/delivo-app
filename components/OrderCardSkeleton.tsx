@@ -1,33 +1,8 @@
-import { BorderRadius, Colors, Shadows, Spacing } from '@/constants';
+import { BorderRadius, Shadows, Spacing } from '@/constants';
 import { useThemeColor } from '@/hooks/useColorScheme';
-import React, { useEffect } from 'react';
+import React from 'react';
 import { StyleSheet, View } from 'react-native';
-import Animated, {
-  useAnimatedStyle,
-  useSharedValue,
-  withRepeat,
-  withSequence,
-  withTiming,
-} from 'react-native-reanimated';
-
-function SkeletonBox({ style }: { style?: object }) {
-  const opacity = useSharedValue(1);
-
-  useEffect(() => {
-    opacity.value = withRepeat(
-      withSequence(
-        withTiming(0.4, { duration: 800 }),
-        withTiming(1, { duration: 800 }),
-      ),
-      -1,
-      false,
-    );
-  }, []);
-
-  const animatedStyle = useAnimatedStyle(() => ({ opacity: opacity.value }));
-
-  return <Animated.View style={[style, animatedStyle]} />;
-}
+import { SkeletonBox } from './feedback/Skeleton';
 
 export function OrderCardSkeleton() {
   const colors = useThemeColor();

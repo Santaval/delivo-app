@@ -1,6 +1,8 @@
-import api from "@/services/api";
+import { toast } from "@/context/ToastContext";
+import i18n from "@/i18n";
+import api, { setOnUnauthorized } from "@/services/api";
 import AuthService from "@/services/auth/Auth.service";
-import { router } from "expo-router";
+import { Observe } from "expo-observe";
 import * as SecureStore from "expo-secure-store";
 import { createContext, useContext, useEffect, useState } from "react";
 
@@ -30,6 +32,8 @@ interface AuthContextType {
   googleAuth: (token: string) => Promise<void>;
   /** Function to authenticate user with Apple */
   appleAuth: (token: string) => Promise<void>;
+  /** Function to qa log in */
+  qaLogin: (username: string, password: string) => Promise<void>;
   /** Function to log out the current user */
   logout: () => Promise<void>;
   /** Current authentication state */
@@ -48,7 +52,7 @@ interface AuthContextType {
 const initialState: AuthState = {
   token: null,
   authenticated: false,
-  isLoading: false,
+  isLoading: true,
   error: null,
 };
 
@@ -59,6 +63,7 @@ const AuthContext = createContext<AuthContextType>({
   user: null,
   googleAuth: async () => {},
   appleAuth: async () => {},
+  qaLogin: async () => {},
   logout: async () => {},
   authState: initialState,
   clearError: () => {},
@@ -81,7 +86,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
    * @param {boolean} isLoading - Whether an async operation is in progress
    */
   const setLoading = (isLoading: boolean) => {
-    setAuthState(prev => ({ ...prev, isLoading }));
+    setAuthState((prev) => ({ ...prev, isLoading }));
   };
 
   /**
@@ -89,7 +94,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
    * @param {string | null} error - Error message to set
    */
   const setError = (error: string | null) => {
-    setAuthState(prev => ({ ...prev, error }));
+    setAuthState((prev) => ({ ...prev, error }));
   };
 
   /**
@@ -103,7 +108,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
    * @param {boolean} authenticated - Whether the user is authenticated
    */
   const updateAuthState = (token: string | null, authenticated: boolean) => {
-    setAuthState(prev => ({
+    setAuthState((prev) => ({
       ...prev,
       token,
       authenticated,
@@ -124,20 +129,38 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   };
 
   const googleAuth = async (token: string) => {
-    const { token: jwtToken, user } = await AuthService.googleAuth(token)
+    const { token: jwtToken, user } = await AuthService.googleAuth(token);
     await SecureStore.setItemAsync("token", jwtToken);
     setupApiAuth(jwtToken);
     updateAuthState(jwtToken, true);
     setUser(user);
   };
 
-
   const appleAuth = async (token: string) => {
-    const { token: jwtToken, user } = await AuthService.appleAuth(token)
+    const { token: jwtToken, user } = await AuthService.appleAuth(token);
     await SecureStore.setItemAsync("token", jwtToken);
     setupApiAuth(jwtToken);
     updateAuthState(jwtToken, true);
     setUser(user);
+  };
+
+  const qaLogin = async (username: string, password: string) => {
+    try {
+      setLoading(true);
+      const { token: jwtToken, user } = await AuthService.qaLogin(
+        username,
+        password,
+      );
+      await SecureStore.setItemAsync("token", jwtToken);
+      setupApiAuth(jwtToken);
+      updateAuthState(jwtToken, true);
+      setUser(user);
+    } catch (error) {
+      setError(error instanceof Error ? error.message : "QA login failed");
+      throw error;
+    } finally {
+      setLoading(false);
+    }
   };
 
   /**
@@ -146,13 +169,12 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   useEffect(() => {
     const loadToken = async () => {
       try {
-        setLoading(true);
         const token = await SecureStore.getItemAsync("token");
-        
+
         if (token) {
           setupApiAuth(token);
           const user = await AuthService.getUser();
-          
+
           if (user) {
             updateAuthState(token, true);
             setUser(user);
@@ -162,13 +184,41 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         }
       } catch (error) {
         await handleLogout();
-        setError(error instanceof Error ? error.message : "Failed to load user session");
+        setError(
+          error instanceof Error
+            ? error.message
+            : "Failed to load user session",
+        );
       } finally {
         setLoading(false);
+        Observe.markInteractive();
       }
     };
 
     loadToken();
+  }, []);
+
+  /**
+   * Effect hook to force logout + redirect when any API call returns 401
+   * (expired session). Guarded so a burst of parallel 401s only logs out once.
+   */
+  useEffect(() => {
+    let handling = false;
+    setOnUnauthorized(() => {
+      if (handling) return;
+      handling = true;
+      (async () => {
+        try {
+          await handleLogout();
+          toast.info(i18n.t("sessionExpired"));
+          // Clearing `authenticated` above is enough — the guard in
+          // app/_layout.tsx redirects to the login screen.
+        } finally {
+          handling = false;
+        }
+      })();
+    });
+    return () => setOnUnauthorized(null);
   }, []);
 
   const refreshUser = async () => {
@@ -178,7 +228,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     } catch (error) {
       await handleLogout();
     }
-    }
+  };
 
   /**
    * Handles the logout process by clearing auth state and removing stored token
@@ -190,8 +240,6 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     setupApiAuth(null);
   };
 
-
-
   /**
    * Logs out the current user and redirects to login page
    * @throws {Error} If logout process fails
@@ -200,8 +248,8 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     try {
       setLoading(true);
       await handleLogout();
-      // Reset the navigation stack and redirect to login
-      router.replace("/");
+      // Clearing `authenticated` above is enough — the guard in
+      // app/_layout.tsx redirects to the login screen.
     } catch (error) {
       setError(error instanceof Error ? error.message : "Logout failed");
       throw error;
@@ -222,14 +270,14 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         setUser({ ...updatedUser, ...userData });
       }
     } catch (error) {
-      setError(error instanceof Error ? error.message : "Failed to update user");
+      setError(
+        error instanceof Error ? error.message : "Failed to update user",
+      );
       throw error;
     } finally {
       setLoading(false);
     }
   };
-
-
 
   return (
     <AuthContext.Provider
@@ -238,6 +286,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         logout,
         googleAuth,
         appleAuth,
+        qaLogin,
         authState,
         clearError,
         updateUser,

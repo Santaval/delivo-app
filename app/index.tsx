@@ -3,22 +3,22 @@ import Logo from "@/components/Logo";
 import { SocialButton } from "@/components/SocialButton";
 import { ThemedText } from "@/components/ThemedText";
 import { ThemedView } from "@/components/ThemedView";
-import { Spacing, Typography } from "@/constants";
+import config from "@/config/env";
+import { Routes, Spacing, Typography } from "@/constants";
 import { useAuth } from "@/context/AuthContext";
-import { useCompanies } from "@/context/CompaniesContext";
 import { useAppleAuth } from "@/hooks/useAppleAuth";
 import { useThemeColor } from "@/hooks/useColorScheme";
 import { useGoogleAuth } from "@/hooks/useGoogleAuh";
 import { router } from "expo-router";
-import { useEffect } from "react";
+import { StatusBar } from "expo-status-bar";
+import * as WebBrowser from "expo-web-browser";
 import { useTranslation } from "react-i18next";
-import { StatusBar, StyleSheet, View } from "react-native";
+import { ActivityIndicator, StyleSheet, View } from "react-native";
 
 export default function Index() {
   const colors = useThemeColor();
   const { authState } = useAuth();
-  const { activeCompany } = useCompanies();
-  const { onGoogleSignIn, isLoading  } = useGoogleAuth();
+  const { onGoogleSignIn, isLoading } = useGoogleAuth();
   const { onAppleSignIn } = useAppleAuth();
   const { t } = useTranslation();
 
@@ -26,21 +26,24 @@ export default function Index() {
     await onGoogleSignIn();
   };
 
-  useEffect(() => {
-    if (authState.isLoading) return; // Still loading
-    if (authState.authenticated && activeCompany) {
-      router.replace('/(tabs)/home');
-    }
-  }, [authState, activeCompany]);
+  if (authState.isLoading || authState.authenticated) {
+    return (
+      <ThemedView style={styles.container}>
+        <StatusBar style="auto" />
+        <View style={styles.centerContent}>
+          <ActivityIndicator size="large" color={colors.primary} />
+        </View>
+      </ThemedView>
+    );
+  }
 
   return (
     <ThemedView style={styles.container}>
-      <StatusBar barStyle="dark-content" backgroundColor={colors.background} />
+      <StatusBar style="auto" />
 
       {/* Logo Section */}
       <View style={styles.logoSection}>
         <Logo />
-
       </View>
 
       {/* App Title & Subtitle */}
@@ -58,15 +61,7 @@ export default function Index() {
           disabled={isLoading}
         />
 
-        <AppleSignInButton
-          onPress={onAppleSignIn}
-        />
-
-
-        {/* <SocialButton
-          provider="apple"
-          onPress={() => console.log('Apple login pressed')}
-        /> */}
+        <AppleSignInButton onPress={onAppleSignIn} />
       </View>
 
       {/* Footer Links */}
@@ -75,7 +70,8 @@ export default function Index() {
           <ThemedText
             variant="link"
             style={styles.footerLink}
-            onPress={() => console.log('Terms pressed')}
+            onPress={() => WebBrowser.openBrowserAsync(config.termsUrl)}
+            accessibilityRole="link"
           >
             {t("termsOfService")}
           </ThemedText>
@@ -85,10 +81,26 @@ export default function Index() {
           <ThemedText
             variant="link"
             style={styles.footerLink}
-            onPress={() => console.log('Privacy pressed')}
+            onPress={() => WebBrowser.openBrowserAsync(config.privacyUrl)}
+            accessibilityRole="link"
           >
             {t("privacyPolicy")}
           </ThemedText>
+          {config.isOnReview && (
+            <>
+              <ThemedText variant="caption" style={styles.footerSeparator}>
+                •
+              </ThemedText>
+              <ThemedText
+                variant="link"
+                style={styles.footerLink}
+                onPress={() => router.push(Routes.qa)}
+                accessibilityRole="link"
+              >
+                QA
+              </ThemedText>
+            </>
+          )}
         </View>
       </View>
     </ThemedView>
@@ -100,11 +112,16 @@ const styles = StyleSheet.create({
     flex: 1,
     paddingHorizontal: Spacing.xl,
   },
+  centerContent: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+  },
   logoSection: {
     flex: 0.3,
-    justifyContent: 'center',
-    alignItems: 'center',
-    paddingTop: Spacing['6xl'],
+    justifyContent: "center",
+    alignItems: "center",
+    paddingTop: Spacing["6xl"],
   },
   logoSubtext: {
     marginTop: Spacing.md,
@@ -113,28 +130,28 @@ const styles = StyleSheet.create({
   },
   titleSection: {
     flex: 0.2,
-    justifyContent: 'center',
-    alignItems: 'center',
+    justifyContent: "center",
+    alignItems: "center",
     paddingVertical: Spacing.xl,
   },
   appTitle: {
-    fontSize: Typography.fontSize['3xl'],
+    fontSize: Typography.fontSize["3xl"],
     fontWeight: Typography.fontWeight.bold,
     marginBottom: Spacing.xs,
   },
   appSubtitle: {
     fontSize: Typography.fontSize.base,
-    textAlign: 'center',
+    textAlign: "center",
   },
   buttonSection: {
     flex: 0.4,
     gap: Spacing.md,
-    justifyContent: 'center',
+    justifyContent: "center",
     paddingVertical: Spacing.lg,
   },
   dividerSection: {
-    flexDirection: 'row',
-    alignItems: 'center',
+    flexDirection: "row",
+    alignItems: "center",
     marginVertical: Spacing.lg,
   },
   dividerLine: {
@@ -147,13 +164,13 @@ const styles = StyleSheet.create({
   },
   footer: {
     flex: 0.1,
-    justifyContent: 'flex-end',
+    justifyContent: "flex-end",
     paddingBottom: Spacing.xl,
   },
   footerLinks: {
-    flexDirection: 'row',
-    justifyContent: 'center',
-    alignItems: 'center',
+    flexDirection: "row",
+    justifyContent: "center",
+    alignItems: "center",
   },
   footerLink: {
     fontSize: Typography.fontSize.sm,

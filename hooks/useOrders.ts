@@ -1,44 +1,67 @@
+import { toast } from "@/context/ToastContext";
+import i18n from "@/i18n";
 import OrdersService from "@/services/orders/Orders.service";
-import { useEffect, useState } from "react";
+import { useCallback, useMemo, useRef, useState } from "react";
+import useFocusRefetch from "./useFocusRefetch";
 
 const useOrders = () => {
-  const [orders, setOrders] = useState<Order[]>([]);
-  const [originalOrders, setOriginalOrders] = useState<Order[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [allOrders, setAllOrders] = useState<Order[]>([]);
+  const [query, setQuery] = useState('');
+  const [isInitialLoading, setIsInitialLoading] = useState(true);
+  const [isRefreshing, setIsRefreshing] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const hasLoadedRef = useRef(false);
+  const isFetchingRef = useRef(false);
 
-  const fetchOrders = async () => {
+  const fetchOrders = useCallback(async ({ silent = false }: { silent?: boolean } = {}) => {
+    if (isFetchingRef.current) return;
+    isFetchingRef.current = true;
+
+    if (!silent) {
+      if (hasLoadedRef.current) setIsRefreshing(true);
+      else setIsInitialLoading(true);
+    }
+
     try {
-      setLoading(true);
       const response = await OrdersService.all();
-      setOrders(response);
-      setOriginalOrders(response);
+      setAllOrders(response);
+      setError(null);
+      hasLoadedRef.current = true;
     } catch (err) {
-      setError('Failed to load orders');
+      setError(i18n.t('loadFailedError'));
+      // Mantiene los datos viejos visibles pero avisa que la recarga falló
+      if (hasLoadedRef.current) toast.error(i18n.t('loadFailedError'));
       console.error('Error fetching orders:', err);
     } finally {
-      setLoading(false);
+      isFetchingRef.current = false;
+      setIsInitialLoading(false);
+      setIsRefreshing(false);
     }
-  };
+  }, []);
 
-  const search = (query: string) => {
-    if (!query) {
-      setOrders(originalOrders);
-      return;
-    }
+  // Recarga al volver a la pantalla (ej. después de crear una orden)
+  useFocusRefetch((isFirstFocus) => {
+    fetchOrders({ silent: !isFirstFocus });
+  });
 
-    const filtered = originalOrders.filter(order =>
+  const orders = useMemo(() => {
+    if (!query) return allOrders;
+
+    return allOrders.filter(order =>
       order.client.name.toLowerCase().includes(query.toLowerCase()) ||
       order.number.toString().includes(query)
     );
-    setOrders(filtered);
+  }, [allOrders, query]);
+
+  return {
+    orders,
+    loading: isInitialLoading || isRefreshing,
+    isInitialLoading,
+    isRefreshing,
+    error,
+    refresh: fetchOrders,
+    search: setQuery,
   };
-
-  useEffect(() => {
-    fetchOrders();
-  }, []);
-
-  return { orders, loading, error, refresh: fetchOrders, search };
 };
 
 export default useOrders;

@@ -19,7 +19,7 @@ export function QuickLinkCard({
   subtitle,
   icon,
   iconColor,
-  onPress = () => console.log(`${title} pressed`),
+  onPress = () => {},
   showChevron = true,
 }: QuickLinkCardProps) {
   const colors = useThemeColor();
@@ -29,6 +29,8 @@ export function QuickLinkCard({
       style={styles.container}
       onPress={onPress}
       activeOpacity={0.7}
+      accessibilityRole="button"
+      accessibilityLabel={`${title}. ${subtitle}`}
     >
       <ThemedView style={styles.content}>
         {/* Icon */}

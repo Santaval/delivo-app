@@ -14,13 +14,13 @@ Expo/React Native mobile app (Delivo) for small business expense/income tracking
 
 ## Architecture
 
-- **Routing**: Expo Router (file-based) with typed routes (`experiments.typedRoutes: true`). Entry: `app/_layout.tsx` → `app/(tabs)/_layout.tsx`
+- **Routing**: Expo Router (file-based) with typed routes (`experiments.typedRoutes: true`). Entry: `app/_layout.tsx` → `app/(drawer)/_layout.tsx` → `app/(drawer)/(tabs)/_layout.tsx`
 - **Auth**: `AuthContext` wraps the app; token stored in `expo-secure-store`; `services/auth/Auth.service.ts` handles Google/Apple sign-in
 - **State**: React Context (`AuthContext`, `CompaniesContext`, `RouteContext`). No external state library.
 - **API**: Axios client in `services/api.ts`, base URL from `EXPO_PUBLIC_API_URL` env var
 - **i18n**: react-i18next, default language is **Spanish** (`es`), fallback `es`. Locales in `i18n/locales/`
 - **Moment**: locale forced to `es` via `moment/moment.ts`
-- **Theme**: Light mode is hardcoded-dark-on-read — dark colors exist in `constants/Colors.ts` but `useColorScheme` currently returns `'light'`
+- **Theme**: `useColorScheme` follows the device setting; read colors via `useThemeColor()` only. Direct `Colors.light`/`Colors.dark` access is blocked by ESLint (see `THEME_STRATEGY.md`)
 - **React Compiler**: enabled (`experiments.reactCompiler: true`)
 
 ## Path Aliases

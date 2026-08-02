@@ -1,5 +1,6 @@
 import { PrimaryButton, ThemedText, TopBar } from '@/components';
-import { BorderRadius, Spacing, Typography } from '@/constants';
+import { BorderRadius, Routes, Spacing, Typography } from '@/constants';
+import { useToast } from '@/context/ToastContext';
 import { useThemeColor } from '@/hooks/useColorScheme';
 import PaymentMethodsService from '@/services/paymentMethods/PaymentMethods.service';
 import { MaterialIcons } from '@expo/vector-icons';
@@ -7,7 +8,6 @@ import { router } from 'expo-router';
 import React, { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
-  Alert,
   KeyboardAvoidingView,
   Platform,
   ScrollView,
@@ -20,27 +20,24 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 export default function AddPaymentMethodScreen() {
   const { t } = useTranslation();
   const colors = useThemeColor();
+  const toast = useToast();
   const [name, setName] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const handleSave = async () => {
     if (!name.trim()) {
-      Alert.alert(t('error'), t('paymentMethodNameRequired'));
+      toast.show({ message: t('paymentMethodNameRequired'), type: 'error' });
       return;
     }
 
     setIsSubmitting(true);
     try {
       await PaymentMethodsService.create({ name: name.trim() });
-      Alert.alert(t('success'), t('paymentMethodCreated'), [
-        {
-          text: t('ok'),
-          onPress: () => router.back(),
-        },
-      ]);
+      toast.show({ message: t('paymentMethodCreated'), type: 'success' });
+      router.back();
     } catch (error) {
       console.error('Error creating payment method:', error);
-      Alert.alert(t('error'), t('failedToCreatePaymentMethod'));
+      toast.show({ message: t('failedToCreatePaymentMethod'), type: 'error' });
     } finally {
       setIsSubmitting(false);
     }
@@ -48,7 +45,7 @@ export default function AddPaymentMethodScreen() {
 
   return (
     <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]}>
-      <TopBar title={t('newMethod')} />
+      <TopBar title={t('newMethod')} showBack backTo={Routes.home} />
 
       <KeyboardAvoidingView
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}

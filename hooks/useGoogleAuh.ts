@@ -1,6 +1,5 @@
 import { useAuth } from "@/context/AuthContext";
 import * as Google from "expo-auth-session/providers/google";
-import { router } from "expo-router";
 import * as WebBrowser from "expo-web-browser";
 import { useEffect, useState } from "react";
 
@@ -14,10 +13,6 @@ const GOOGLE_CLIENT_ID_IOS =
 export const useGoogleAuth = () => {
   const { googleAuth } = useAuth();
   const [isLoading, setIsLoading] = useState(false);
-
-
-
-  // console.log("Redirect URI:", redirectUri);
 
   const [request, response, promptAsync] = Google.useAuthRequest({
     androidClientId: GOOGLE_CLIENT_ID_ANDROID,
@@ -39,8 +34,6 @@ export const useGoogleAuth = () => {
         try {
           if (!authentication.idToken) return;
           await handleGoogleSignIn(authentication.idToken);
-          router.push("/(tabs)/home");
-          
         } catch (error) {
           console.error("Failed to process Google sign in:", error);
         }

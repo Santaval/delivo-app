@@ -1,4 +1,4 @@
-import { BorderRadius, Shadows, Spacing, Typography } from '@/constants';
+import { BorderRadius, Routes, Shadows, Spacing, Typography } from '@/constants';
 import { useThemeColor } from '@/hooks/useColorScheme';
 import { router } from 'expo-router';
 import React from 'react';
@@ -15,7 +15,7 @@ export default function ClientCompactCard({ client }: Props) {
 
   return (
     <Pressable style={[styles.clientCard, { backgroundColor: colors.surface }]}
-    onPress={() => router.push(`/clients/profile/${client.id}`)}
+    onPress={() => router.push(Routes.clientProfile(client.id))}
     >
       <View style={styles.clientHeader}>
         <View style={[styles.clientAvatar, { backgroundColor: colors.primary }]}>

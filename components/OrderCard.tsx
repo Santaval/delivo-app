@@ -1,9 +1,8 @@
-import { BorderRadius, Colors, Shadows, Spacing, Typography } from '@/constants';
+import { BorderRadius, Shadows, Spacing, Typography } from '@/constants';
 import { useThemeColor } from '@/hooks/useColorScheme';
 import { MaterialIcons } from '@expo/vector-icons';
 import moment from 'moment';
 import React from 'react';
-import { useTranslation } from 'react-i18next';
 import { StyleSheet, TouchableOpacity, View } from 'react-native';
 import { ThemedText } from './ThemedText';
 import { ThemedView } from './ThemedView';
@@ -21,9 +20,6 @@ export function OrderCard({
   onPress,
 }: OrderCardProps) {
   const colors = useThemeColor();
-  const { t } = useTranslation();
-
-
 
 
   return (
@@ -31,6 +27,8 @@ export function OrderCard({
       style={styles.container}
       onPress={() => onPress && onPress(order.id)}
       activeOpacity={0.8}
+      accessibilityRole="button"
+      accessibilityLabel={`INV-${order.number}, ${order.client.name ?? ''}`}
     >
       <ThemedView style={[styles.card, { backgroundColor: colors.surface }]}>
         <View style={styles.content}>
@@ -43,15 +41,15 @@ export function OrderCard({
 
             {/* Order Info */}
             <View style={styles.orderInfo}>
-              <ThemedText style={styles.invoiceNumber}>
+              <ThemedText style={[styles.invoiceNumber, { color: colors.text }]}>
                 INV-{order.number}
               </ThemedText>
               {order.client.name && (
-                <ThemedText style={styles.clientName}>
+                <ThemedText style={[styles.clientName, { color: colors.textSecondary }]}>
                   {order.client.name}
                 </ThemedText>
               )}
-              <ThemedText style={styles.date}>
+              <ThemedText style={[styles.date, { color: colors.textSecondary }]}>
                 {moment(order.createdAt).format('MMMM D, YYYY')}
               </ThemedText>
             </View>
@@ -59,11 +57,11 @@ export function OrderCard({
 
           {/* Right Section */}
           <View style={styles.rightSection}>
-            <CurrencyText style={styles.amount} amount={order.pricing.total} />
+            <CurrencyText style={[styles.amount, { color: colors.text }]} amount={order.pricing.total} />
             <MaterialIcons
               name="chevron-right"
               size={20}
-              color={colors.textTertiary || Colors.light.textTertiary}
+              color={colors.textTertiary}
               style={styles.chevron}
             />
           </View>
@@ -97,17 +95,14 @@ const styles = StyleSheet.create({
   invoiceNumber: {
     fontSize: Typography.fontSize.base,
     fontWeight: Typography.fontWeight.semibold,
-    color: Colors.light.text,
     marginBottom: 2,
   },
   clientName: {
     fontSize: Typography.fontSize.sm,
-    color: Colors.light.textSecondary,
     marginBottom: 2,
   },
   date: {
     fontSize: Typography.fontSize.sm,
-    color: Colors.light.textSecondary,
   },
   rightSection: {
     flexDirection: 'row',
@@ -117,7 +112,6 @@ const styles = StyleSheet.create({
   amount: {
     fontSize: Typography.fontSize.lg,
     fontWeight: Typography.fontWeight.bold,
-    color: Colors.light.text,
     textAlign: 'right',
   },
   chevron: {

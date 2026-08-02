@@ -1,5 +1,6 @@
 import {
   FloatingActionButton,
+  LoadingState,
   PrimaryButton,
   ThemedText,
   ThemedView,
@@ -9,8 +10,7 @@ import ClientBills from "@/components/clients/ClientBills";
 import ClientCompactCard from "@/components/clients/ClientCompactCard";
 import ClientLocationView from "@/components/clients/ClientLocationView";
 import ClientOrders from "@/components/clients/ClientOrders";
-import { BorderRadius, Shadows, Spacing, Typography } from "@/constants";
-import { Colors } from "@/constants/Colors";
+import { BorderRadius, ClientsProfileParams, Routes, Shadows, Spacing, Typography } from "@/constants";
 import useClient from "@/hooks/useClient";
 import { useThemeColor } from "@/hooks/useColorScheme";
 import useCustomerOrders from "@/hooks/useCustomerOrders";
@@ -19,6 +19,7 @@ import { router, useLocalSearchParams } from "expo-router";
 import React, { useState } from "react";
 import { useTranslation } from "react-i18next";
 import {
+  ActivityIndicator,
   Alert,
   Linking,
   RefreshControl,
@@ -33,9 +34,9 @@ import { SafeAreaView } from "react-native-safe-area-context";
 type TabType = "bills" | "location" | "orders";
 
 export default function ClientProfile() {
-  const { id } = useLocalSearchParams<{ id: string }>();
+  const { id } = useLocalSearchParams<ClientsProfileParams>();
   const colors = useThemeColor();
-  const { client, loading, error, refreshClient, updateLocation, deleteClient } =
+  const { client, isInitialLoading, isMutating, error, refreshClient, updateLocation, deleteClient } =
     useClient(id);
   const [activeTab, setActiveTab] = useState<TabType>("bills");
   const {
@@ -68,7 +69,7 @@ export default function ClientProfile() {
   };
 
   const handleEdit = () => {
-    router.push(`/clients/edit/${id}`);
+    router.push(Routes.clientEdit(id));
   };
 
   const handleDelete = () => {
@@ -102,14 +103,19 @@ export default function ClientProfile() {
     }
   };
 
-  if (loading) {
-    return <Text>{t("loading")}...</Text>;
+  if (isInitialLoading) {
+    return (
+      <ThemedView style={[styles.container, { backgroundColor: colors.backgroundSecondary }]}>
+        <TopBar title={t("clientProfile")} showBack backTo={Routes.clients} />
+        <LoadingState message={t('loading')} />
+      </ThemedView>
+    );
   }
 
-  if (error || !client) {
+  if (!client) {
     return (
-      <ThemedView style={styles.container}>
-        <TopBar title={t("clientProfile")} />
+      <ThemedView style={[styles.container, { backgroundColor: colors.backgroundSecondary }]}>
+        <TopBar title={t("clientProfile")} showBack backTo={Routes.clients} />
         <View style={styles.centerContent}>
           <MaterialIcons name="error-outline" size={48} color={colors.danger} />
           <ThemedText style={[styles.errorText, { color: colors.danger }]}>
@@ -126,112 +132,142 @@ export default function ClientProfile() {
   }
 
   return (
-    <SafeAreaView style={styles.container}>
-      <TopBar title={t("clientProfile")} />
+    <SafeAreaView style={[styles.container, { backgroundColor: colors.backgroundSecondary }]}>
+      <TopBar title={t("clientProfile")} showBack backTo={Routes.clients} />
 
-      <ScrollView
-        style={styles.scrollView}
-        contentContainerStyle={styles.content}
-        refreshControl={
-          <RefreshControl
-            refreshing={ordersLoading}
-            onRefresh={refreshOrders}
-            colors={[colors.primary]}
-            tintColor={colors.primary}
-          />
-        }
-        showsVerticalScrollIndicator={false}
-      >
-        {/* Client Info Card */}
-        <ClientCompactCard client={client} />
-
-        {/* Edit / Delete actions */}
-        <View style={styles.actionsRow}>
-          <TouchableOpacity
-            style={[styles.actionButton, { borderColor: colors.border }]}
-            onPress={handleEdit}
-            activeOpacity={0.7}
-          >
-            <MaterialIcons name="edit" size={18} color={colors.primary} />
-            <Text style={[styles.actionButtonText, { color: colors.primary }]}>
-              {t("edit")}
-            </Text>
-          </TouchableOpacity>
-          <TouchableOpacity
-            style={[styles.actionButton, { borderColor: colors.danger + "55" }]}
-            onPress={handleDelete}
-            activeOpacity={0.7}
-          >
-            <MaterialIcons name="delete-outline" size={18} color={colors.danger} />
-            <Text style={[styles.actionButtonText, { color: colors.danger }]}>
-              {t("delete")}
-            </Text>
-          </TouchableOpacity>
-        </View>
-
-        {/* Tabs */}
-        <View style={styles.tabsContainer}>
-          <TouchableOpacity
-            style={[styles.tab, activeTab === "orders" && styles.activeTab]}
-            onPress={() => setActiveTab("orders")}
-          >
-            <Text
-              style={[
-                styles.tabText,
-                activeTab === "orders" && styles.activeTabText,
-              ]}
-            >
-              {t("orders")}
-            </Text>
-          </TouchableOpacity>
-          <TouchableOpacity
-            style={[styles.tab, activeTab === "bills" && styles.activeTab]}
-            onPress={() => setActiveTab("bills")}
-          >
-            <Text
-              style={[
-                styles.tabText,
-                activeTab === "bills" && styles.activeTabText,
-              ]}
-            >
-              {t("bills")}
-            </Text>
-          </TouchableOpacity>
-
-          <TouchableOpacity
-            style={[styles.tab, activeTab === "location" && styles.activeTab]}
-            onPress={() => setActiveTab("location")}
-          >
-            <Text
-              style={[
-                styles.tabText,
-                activeTab === "location" && styles.activeTabText,
-              ]}
-            >
-              {t("location")}
-            </Text>
-          </TouchableOpacity>
-        </View>
-
-        {/* Tab Content */}
-        {activeTab === "bills" && <ClientBills clientId={client.id} />}
-
-        {activeTab === "orders" && <ClientOrders clientId={client.id} />}
-
-        {activeTab === "location" && (
-          <View style={styles.tabContent}>
-            <ClientLocationView
-              client={client}
-              onUpdateLocation={updateLocation}
+      <View style={styles.contentWrapper}>
+        <ScrollView
+          style={styles.scrollView}
+          contentContainerStyle={styles.content}
+          refreshControl={
+            <RefreshControl
+              refreshing={ordersLoading}
+              onRefresh={refreshOrders}
+              colors={[colors.primary]}
+              tintColor={colors.primary}
             />
+          }
+          showsVerticalScrollIndicator={false}
+        >
+          {/* Client Info Card */}
+          <ClientCompactCard client={client} />
+
+          {/* Edit / Delete actions */}
+          <View style={styles.actionsRow}>
+            <TouchableOpacity
+              style={[styles.actionButton, { backgroundColor: colors.background, borderColor: colors.border }]}
+              onPress={handleEdit}
+              activeOpacity={0.7}
+            >
+              <MaterialIcons name="edit" size={18} color={colors.primary} />
+              <Text style={[styles.actionButtonText, { color: colors.primary }]}>
+                {t("edit")}
+              </Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              style={[styles.actionButton, { backgroundColor: colors.background, borderColor: colors.danger + "55" }]}
+              onPress={handleDelete}
+              activeOpacity={0.7}
+              disabled={isMutating}
+            >
+              <MaterialIcons name="delete-outline" size={18} color={colors.danger} />
+              <Text style={[styles.actionButtonText, { color: colors.danger }]}>
+                {t("delete")}
+              </Text>
+            </TouchableOpacity>
+          </View>
+
+          {/* Tabs */}
+          <View style={styles.tabsContainer}>
+            <TouchableOpacity
+              style={[
+                styles.tab,
+                activeTab === "orders" && styles.activeTab,
+                activeTab === "orders" && { borderBottomColor: colors.primary },
+              ]}
+              onPress={() => setActiveTab("orders")}
+            >
+              <Text
+                style={[
+                  styles.tabText,
+                  { color: colors.textSecondary },
+                  activeTab === "orders" && styles.activeTabText,
+                  activeTab === "orders" && { color: colors.primary },
+                ]}
+              >
+                {t("orders")}
+              </Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              style={[
+                styles.tab,
+                activeTab === "bills" && styles.activeTab,
+                activeTab === "bills" && { borderBottomColor: colors.primary },
+              ]}
+              onPress={() => setActiveTab("bills")}
+            >
+              <Text
+                style={[
+                  styles.tabText,
+                  { color: colors.textSecondary },
+                  activeTab === "bills" && styles.activeTabText,
+                  activeTab === "bills" && { color: colors.primary },
+                ]}
+              >
+                {t("bills")}
+              </Text>
+            </TouchableOpacity>
+
+            <TouchableOpacity
+              style={[
+                styles.tab,
+                activeTab === "location" && styles.activeTab,
+                activeTab === "location" && { borderBottomColor: colors.primary },
+              ]}
+              onPress={() => setActiveTab("location")}
+            >
+              <Text
+                style={[
+                  styles.tabText,
+                  { color: colors.textSecondary },
+                  activeTab === "location" && styles.activeTabText,
+                  activeTab === "location" && { color: colors.primary },
+                ]}
+              >
+                {t("location")}
+              </Text>
+            </TouchableOpacity>
+          </View>
+
+          {/* Tab Content */}
+          {activeTab === "bills" && <ClientBills clientId={client.id} />}
+
+          {activeTab === "orders" && <ClientOrders clientId={client.id} />}
+
+          {activeTab === "location" && (
+            <View style={styles.tabContent}>
+              <ClientLocationView
+                client={client}
+                onUpdateLocation={updateLocation}
+              />
+            </View>
+          )}
+        </ScrollView>
+        {isMutating && (
+          <View
+            style={styles.mutatingOverlay}
+            pointerEvents="auto"
+            accessibilityLabel={t('updating')}
+          >
+            <ActivityIndicator size="large" color={colors.primary} />
           </View>
         )}
-      </ScrollView>
+      </View>
 
       <FloatingActionButton
         icon="add-shopping-cart"
         onPress={() => {
-          router.push(`/orders/create?clientId=${client.id}`);
+          router.push(Routes.orderCreate(client.id));
         }}
       />
     </SafeAreaView>
@@ -242,10 +278,18 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     padding: Spacing.lg,
-    backgroundColor: Colors.light.backgroundSecondary,
   },
   scrollView: {
     flex: 1,
+  },
+  contentWrapper: {
+    flex: 1,
+  },
+  mutatingOverlay: {
+    ...StyleSheet.absoluteFill,
+    backgroundColor: 'rgba(0,0,0,0.15)',
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   content: {
     paddingBottom: Spacing.xl * 4, // Extra space for contact buttons
@@ -260,7 +304,6 @@ const styles = StyleSheet.create({
     marginTop: Spacing.md,
     fontSize: Typography.fontSize.base,
     textAlign: "center",
-    color: Colors.light.textSecondary,
   },
   errorText: {
     fontSize: Typography.fontSize.lg,
@@ -273,7 +316,6 @@ const styles = StyleSheet.create({
     paddingHorizontal: Spacing.xl,
   },
   clientInfoCard: {
-    backgroundColor: Colors.light.background,
     padding: Spacing.lg,
     marginHorizontal: Spacing.lg,
     marginTop: Spacing.lg,
@@ -287,7 +329,6 @@ const styles = StyleSheet.create({
     width: 60,
     height: 60,
     borderRadius: 30,
-    backgroundColor: Colors.light.primary,
     justifyContent: "center",
     alignItems: "center",
     marginRight: Spacing.md,
@@ -295,7 +336,6 @@ const styles = StyleSheet.create({
   clientAvatarText: {
     fontSize: Typography.fontSize["2xl"],
     fontWeight: Typography.fontWeight.bold,
-    color: Colors.light.textInverse,
   },
   clientInfo: {
     flex: 1,
@@ -303,20 +343,16 @@ const styles = StyleSheet.create({
   clientName: {
     fontSize: Typography.fontSize.lg,
     fontWeight: Typography.fontWeight.bold,
-    color: Colors.light.text,
     marginBottom: Spacing.xs / 2,
   },
   clientPhone: {
     fontSize: Typography.fontSize.sm,
-    color: Colors.light.textSecondary,
     marginBottom: Spacing.xs / 2,
   },
   clientEmail: {
     fontSize: Typography.fontSize.sm,
-    color: Colors.light.textSecondary,
   },
   balanceCard: {
-    backgroundColor: Colors.light.background,
     padding: Spacing.xl,
     marginHorizontal: Spacing.lg,
     marginBottom: Spacing.md,
@@ -327,14 +363,12 @@ const styles = StyleSheet.create({
   balanceLabel: {
     fontSize: Typography.fontSize.xs,
     fontWeight: Typography.fontWeight.semibold,
-    color: Colors.light.textSecondary,
     letterSpacing: 1,
     marginBottom: Spacing.xs,
   },
   balanceAmount: {
     fontSize: Typography.fontSize["4xl"],
     fontWeight: Typography.fontWeight.bold,
-    color: Colors.light.text,
   },
   tabsContainer: {
     flexDirection: "row",
@@ -349,16 +383,12 @@ const styles = StyleSheet.create({
     borderBottomWidth: 2,
     borderBottomColor: "transparent",
   },
-  activeTab: {
-    borderBottomColor: Colors.light.primary,
-  },
+  activeTab: {},
   tabText: {
     fontSize: Typography.fontSize.base,
     fontWeight: Typography.fontWeight.medium,
-    color: Colors.light.textSecondary,
   },
   activeTabText: {
-    color: Colors.light.primary,
     fontWeight: Typography.fontWeight.semibold,
   },
   tabContent: {
@@ -375,27 +405,19 @@ const styles = StyleSheet.create({
     paddingHorizontal: Spacing.md,
     paddingVertical: Spacing.sm,
     borderRadius: BorderRadius.full,
-    backgroundColor: Colors.light.background,
     borderWidth: 1,
-    borderColor: Colors.light.border,
     gap: Spacing.xs,
   },
-  allChip: {
-    backgroundColor: Colors.light.primary + "15",
-    borderColor: Colors.light.primary,
-  },
+  allChip: {},
   chipText: {
     fontSize: Typography.fontSize.sm,
-    color: Colors.light.textSecondary,
     fontWeight: Typography.fontWeight.medium,
   },
   allChipText: {
     fontSize: Typography.fontSize.sm,
-    color: Colors.light.primary,
     fontWeight: Typography.fontWeight.semibold,
   },
   chipBadge: {
-    backgroundColor: Colors.light.primary,
     borderRadius: BorderRadius.full,
     minWidth: 20,
     height: 20,
@@ -403,12 +425,9 @@ const styles = StyleSheet.create({
     alignItems: "center",
     paddingHorizontal: Spacing.xs,
   },
-  pendingBadge: {
-    backgroundColor: Colors.light.backgroundSecondary,
-  },
+  pendingBadge: {},
   chipBadgeText: {
     fontSize: Typography.fontSize.xs,
-    color: Colors.light.textInverse,
     fontWeight: Typography.fontWeight.bold,
   },
   loadingContainer: {
@@ -419,7 +438,6 @@ const styles = StyleSheet.create({
     gap: Spacing.md,
   },
   orderItem: {
-    backgroundColor: Colors.light.background,
     padding: Spacing.lg,
     borderRadius: BorderRadius.lg,
     ...Shadows.small,
@@ -434,34 +452,25 @@ const styles = StyleSheet.create({
     paddingHorizontal: Spacing.sm,
     paddingVertical: Spacing.xs / 2,
     borderRadius: BorderRadius.sm,
-    backgroundColor: Colors.light.backgroundSecondary,
   },
   orderStatusText: {
     fontSize: Typography.fontSize.xs,
     fontWeight: Typography.fontWeight.bold,
-    color: Colors.light.textSecondary,
     textTransform: "uppercase",
   },
-  paidStatus: {
-    color: Colors.light.success,
-  },
-  pendingStatus: {
-    color: Colors.light.warning,
-  },
+  paidStatus: {},
+  pendingStatus: {},
   orderAmount: {
     fontSize: Typography.fontSize.lg,
     fontWeight: Typography.fontWeight.bold,
-    color: Colors.light.text,
   },
   orderNumber: {
     fontSize: Typography.fontSize.base,
     fontWeight: Typography.fontWeight.semibold,
-    color: Colors.light.text,
     marginBottom: Spacing.xs / 2,
   },
   orderDate: {
     fontSize: Typography.fontSize.sm,
-    color: Colors.light.textSecondary,
   },
   emptyContainer: {
     paddingVertical: Spacing.xl * 2,
@@ -470,7 +479,6 @@ const styles = StyleSheet.create({
   emptyText: {
     marginTop: Spacing.md,
     fontSize: Typography.fontSize.base,
-    color: Colors.light.textSecondary,
   },
   contactButtonsContainer: {
     position: "absolute",
@@ -484,7 +492,6 @@ const styles = StyleSheet.create({
     width: 48,
     height: 48,
     borderRadius: 24,
-    backgroundColor: Colors.light.background,
     justifyContent: "center",
     alignItems: "center",
     ...Shadows.small,
@@ -504,7 +511,6 @@ const styles = StyleSheet.create({
     paddingVertical: Spacing.sm,
     borderRadius: BorderRadius.md,
     borderWidth: 1,
-    backgroundColor: Colors.light.background,
     ...Shadows.small,
   },
   actionButtonText: {

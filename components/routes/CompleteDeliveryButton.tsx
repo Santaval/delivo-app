@@ -1,5 +1,6 @@
 import { SwipeButton } from '@/components';
-import { Colors, Spacing } from '@/constants';
+import { Spacing } from '@/constants';
+import { useThemeColor } from '@/hooks/useColorScheme';
 import React from 'react';
 import { StyleSheet, View } from 'react-native';
 
@@ -14,14 +15,15 @@ const CompleteDeliveryButton: React.FC<CompleteDeliveryButtonProps> = ({
   isLoading = false,
   text = 'Slide to complete delivery',
 }) => {
+  const colors = useThemeColor();
   return (
-    <View style={styles.completeDeliveryContainer}>
+    <View style={[styles.completeDeliveryContainer, { borderTopColor: colors.border, backgroundColor: colors.background }]}>
       <SwipeButton
         onSwipeComplete={onSwipeComplete}
         text={isLoading ? 'Completing delivery...' : text}
         isLoading={isLoading}
         iconName="checkmark"
-        backgroundColor={Colors.light.success}
+        backgroundColor={colors.success}
         style={styles.completeDeliveryButton}
       />
     </View>
@@ -32,8 +34,6 @@ const styles = StyleSheet.create({
   completeDeliveryContainer: {
     paddingTop: Spacing.md,
     borderTopWidth: 1,
-    borderTopColor: Colors.light.border,
-    backgroundColor: Colors.light.background,
   },
   completeDeliveryButton: {
     marginBottom: 0,

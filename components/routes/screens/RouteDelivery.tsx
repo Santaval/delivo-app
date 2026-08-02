@@ -6,20 +6,24 @@ import CurrentStopHeader from '@/components/routes/CurrentStopHeader';
 import DeliveryActionButtons from '@/components/routes/DeliveryActionButtons';
 import DeliveryMap from '@/components/routes/DeliveryMap';
 import DeliveryTabs, { Tab } from '@/components/routes/DeliveryTabs';
-import { BorderRadius, Colors, Spacing, Typography } from '@/constants';
+import { BorderRadius, Routes, Spacing, Typography } from '@/constants';
 import { useRoute } from '@/context/RouteContext';
+import { useToast } from '@/context/ToastContext';
+import { useThemeColor } from '@/hooks/useColorScheme';
 import useUserLocation from '@/hooks/useUserLocation';
 import { router } from 'expo-router';
 import React, { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { ActivityIndicator, Alert, Linking, StyleSheet, Text, View } from 'react-native';
+import { ActivityIndicator, Linking, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 export default function RouteDeliveryScreen() {
   const { route, isLoading, error, getCurrentPoint, completeCurrentDelivery } = useRoute();
   const { location, refreshLocation } = useUserLocation();
-  const { t } = useTranslation(); 
-  
+  const { t } = useTranslation();
+  const toast = useToast();
+  const colors = useThemeColor();
+
   const [isCompletingDelivery, setIsCompletingDelivery] = React.useState(false);
   const [activeTab, setActiveTab] = useState<Tab>('current');
 
@@ -27,14 +31,14 @@ export default function RouteDeliveryScreen() {
 
   const handleCompleteDelivery = async () => {
     if (!currentPoint) return;
-    
+
     setIsCompletingDelivery(true);
     try {
        await completeCurrentDelivery();
 
     } catch (error) {
       console.error('Failed to complete delivery:', error);
-      Alert.alert(t('error'), t('failedToCompleteDelivery'));
+      toast.show({ message: t('failedToCompleteDelivery'), type: 'error' });
     } finally {
       setIsCompletingDelivery(false);
     }
@@ -44,7 +48,7 @@ export default function RouteDeliveryScreen() {
     if (currentPoint?.order.client.phoneNumber) {
       Linking.openURL(`tel:${currentPoint.order.client.phoneNumber}`);
     } else {
-      Alert.alert(t('error'), t('noPhoneNumber'));
+      toast.show({ message: t('noPhoneNumber'), type: 'error' });
     }
   };
 
@@ -66,11 +70,11 @@ export default function RouteDeliveryScreen() {
 
   if (isLoading) {
     return (
-      <SafeAreaView style={styles.container}>
-        <TopBar title={t('delivery')} />
+      <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]}>
+        <TopBar title={t('delivery')} showBack backTo={Routes.routes} />
         <View style={styles.centerContent}>
-          <ActivityIndicator size="large" color={Colors.light.primary} />
-          <Text style={styles.loadingText}>{t("loadingDelivery")}</Text>
+          <ActivityIndicator size="large" color={colors.primary} />
+          <Text style={[styles.loadingText, { color: colors.textSecondary }]}>{t("loadingDelivery")}</Text>
         </View>
       </SafeAreaView>
     );
@@ -78,10 +82,10 @@ export default function RouteDeliveryScreen() {
 
   if (error || !route || !currentPoint) {
     return (
-      <SafeAreaView style={styles.container}>
-        <TopBar title={t('delivery')} />
+      <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]}>
+        <TopBar title={t('delivery')} showBack backTo={Routes.routes} />
         <View style={styles.centerContent}>
-          <Text style={styles.errorText}>{error || t('noActiveDeliveryFound')}</Text>
+          <Text style={[styles.errorText, { color: colors.danger }]}>{error || t('noActiveDeliveryFound')}</Text>
         </View>
       </SafeAreaView>
     );
@@ -90,9 +94,9 @@ export default function RouteDeliveryScreen() {
   const currentClient = currentPoint.order.client;
 
   return (
-    <SafeAreaView style={styles.container}>
-      <TopBar title={t('currentDelivery')} />
-      
+    <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]}>
+      <TopBar title={t('currentDelivery')} showBack backTo={Routes.routes} />
+
       <View style={styles.content}>
         {/* Map Section */}
         <DeliveryMap
@@ -101,10 +105,11 @@ export default function RouteDeliveryScreen() {
           skippedDeliveries={route.points.filter(point => point.status === 'SKIPPED')}
           userLocation={location?.coords}
           polylines={route.polyline}
+          fitToRoute
         />
 
         {/* Client Info Section */}
-        <View style={styles.clientInfoContainer}>
+        <View style={[styles.clientInfoContainer, { backgroundColor: colors.background }]}>
           {/* Tabs */}
           <DeliveryTabs activeTab={activeTab} onTabChange={setActiveTab} />
 
@@ -123,7 +128,7 @@ export default function RouteDeliveryScreen() {
               {/* Delivery Notes */}
               <OrderCard
                 order={currentPoint.order}
-                onPress={() => {router.push(`/orders/view/${currentPoint.order.id}`)}}
+                onPress={() => {router.push(Routes.orderView(currentPoint.order.id))}}
               />
 
               {/* Complete Delivery Button */}
@@ -150,7 +155,6 @@ export default function RouteDeliveryScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: Colors.light.background,
   },
   content: {
     flex: 1,
@@ -164,17 +168,14 @@ const styles = StyleSheet.create({
   loadingText: {
     marginTop: Spacing.md,
     fontSize: Typography.fontSize.base,
-    color: Colors.light.textSecondary,
     textAlign: 'center',
   },
   errorText: {
     fontSize: Typography.fontSize.lg,
-    color: Colors.light.danger,
     textAlign: 'center',
   },
   clientInfoContainer: {
     flex: 1,
-    backgroundColor: Colors.light.background,
     borderTopLeftRadius: BorderRadius.xl,
     borderTopRightRadius: BorderRadius.xl,
     marginTop: -BorderRadius.xl,

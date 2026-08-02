@@ -1,6 +1,5 @@
 import {
   BorderRadius,
-  Colors,
   Shadows,
   Spacing,
   Typography,
@@ -60,7 +59,7 @@ export default function ProductCard({ item, onPress }: Props) {
                 TOTAL
               </ThemedText>
               <CurrencyText
-                style={styles.totalValue}
+                style={[styles.totalValue, { color: colors.primary }]}
                 amount={item.pricing.totalPrice}
               />
             </View>
@@ -106,7 +105,6 @@ const styles = StyleSheet.create({
   },
   metaLabel: {
     fontSize: Typography.fontSize.xs,
-    color: Colors.light.textSecondary,
   },
   metaValue: {
     fontSize: Typography.fontSize.sm,
@@ -115,7 +113,6 @@ const styles = StyleSheet.create({
   totalValue: {
     fontSize: Typography.fontSize.lg,
     fontWeight: Typography.fontWeight.bold,
-    color: Colors.light.primary,
   },
   editButton: {
     padding: Spacing.sm,

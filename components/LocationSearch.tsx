@@ -1,4 +1,5 @@
 import { BorderRadius, Spacing, Typography } from '@/constants';
+import { toast } from '@/context/ToastContext';
 import { useThemeColor } from '@/hooks/useColorScheme';
 import useGeolsocation from '@/hooks/useGeolocation';
 import PlacesService from '@/services/geolocation/places.service';
@@ -7,7 +8,6 @@ import React, { useCallback, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
   ActivityIndicator,
-  Alert,
   Platform,
   ScrollView,
   StyleSheet,
@@ -120,7 +120,7 @@ export function LocationSearch({
       onLocationSelect(placeDetails);
     } catch (error) {
       console.error('Error fetching place details:', error);
-      Alert.alert(t('error'), t('failedToGetLocationDetails'));
+      toast.error(t('failedToGetLocationDetails'));
     }
   }, [onLocationSelect, clearLocations]);
 

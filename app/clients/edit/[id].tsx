@@ -1,15 +1,17 @@
+import { LoadingState } from '@/components/feedback/LoadingState';
 import { FormField } from '@/components/FormField';
 import { PrimaryButton } from '@/components/PrimaryButton';
 import { ThemedText } from '@/components/ThemedText';
-import { BorderRadius, Colors, Spacing, Typography } from '@/constants';
-import { useThemeColor } from '@/hooks/useColorScheme';
+import { BorderRadius, ClientsEditParams, Spacing, Typography } from '@/constants';
+import { useToast } from '@/context/ToastContext';
+import { useColorScheme, useThemeColor } from '@/hooks/useColorScheme';
 import useClient from '@/hooks/useClient';
+import i18n from '@/i18n';
 import { MaterialIcons } from '@expo/vector-icons';
 import { router, useLocalSearchParams } from 'expo-router';
 import React, { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
-  Alert,
   KeyboardAvoidingView,
   Platform,
   ScrollView,
@@ -22,15 +24,17 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { z } from 'zod';
 
 const clientSchema = z.object({
-  name: z.string().min(2, 'Name must be at least 2 characters'),
-  phoneNumber: z.string().min(2, 'Phone number must be at least 2 characters').optional().or(z.literal('')),
-  email: z.string().email('Invalid email address').optional().or(z.literal('')),
+  name: z.string().min(2, i18n.t('minTwoCharacters')),
+  phoneNumber: z.string().min(2, i18n.t('minTwoCharacters')).optional().or(z.literal('')),
+  email: z.string().email(i18n.t('invalidEmail')).optional().or(z.literal('')),
 });
 
 export default function ClientEditScreen() {
-  const { id } = useLocalSearchParams<{ id: string }>();
+  const { id } = useLocalSearchParams<ClientsEditParams>();
   const colors = useThemeColor();
+  const scheme = useColorScheme();
   const { t } = useTranslation();
+  const toast = useToast();
   const { client, loading, error, updateClient } = useClient(id);
 
   const [isLoading, setIsLoading] = useState(false);
@@ -69,7 +73,7 @@ export default function ClientEditScreen() {
 
   const handleSubmit = async () => {
     if (!validateForm()) {
-      Alert.alert(t('validationError'), t('pleaseCheckTheFormAndTryAgain'));
+      toast.show({ message: t('pleaseCheckTheFormAndTryAgain'), type: 'error' });
       return;
     }
 
@@ -80,11 +84,10 @@ export default function ClientEditScreen() {
         phoneNumber: phoneNumber.trim() || undefined,
         email: email.trim() || undefined,
       });
-      Alert.alert(t('success'), t('clientUpdatedSuccessfully'), [
-        { text: t('ok'), onPress: () => router.back() },
-      ]);
+      toast.show({ message: t('clientUpdatedSuccessfully'), type: 'success' });
+      router.back();
     } catch {
-      Alert.alert(t('error'), t('failedToUpdateClient'));
+      toast.show({ message: t('failedToUpdateClient'), type: 'error' });
     } finally {
       setIsLoading(false);
     }
@@ -92,17 +95,17 @@ export default function ClientEditScreen() {
 
   if (loading && !isInitialized) {
     return (
-      <SafeAreaView style={styles.container}>
-        <StatusBar barStyle="dark-content" backgroundColor={colors.background} />
-        <View style={styles.header}>
+      <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]}>
+        <StatusBar barStyle={scheme === 'dark' ? 'light-content' : 'dark-content'} backgroundColor={colors.background} />
+        <View style={[styles.header, { borderBottomColor: colors.border, backgroundColor: colors.background }]}>
           <TouchableOpacity onPress={() => router.back()} style={styles.backButton} activeOpacity={0.7}>
             <MaterialIcons name="arrow-back" size={24} color={colors.text} />
           </TouchableOpacity>
-          <ThemedText style={styles.headerTitle}>{t('editClient')}</ThemedText>
+          <ThemedText style={[styles.headerTitle, { color: colors.text }]}>{t('editClient')}</ThemedText>
           <View style={styles.placeholder} />
         </View>
         <View style={styles.loadingContainer}>
-          <ThemedText>{t('loading')}...</ThemedText>
+          <LoadingState message={t('loading')} />
         </View>
       </SafeAreaView>
     );
@@ -110,13 +113,13 @@ export default function ClientEditScreen() {
 
   if (error || !client) {
     return (
-      <SafeAreaView style={styles.container}>
-        <StatusBar barStyle="dark-content" backgroundColor={colors.background} />
-        <View style={styles.header}>
+      <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]}>
+        <StatusBar barStyle={scheme === 'dark' ? 'light-content' : 'dark-content'} backgroundColor={colors.background} />
+        <View style={[styles.header, { borderBottomColor: colors.border, backgroundColor: colors.background }]}>
           <TouchableOpacity onPress={() => router.back()} style={styles.backButton} activeOpacity={0.7}>
             <MaterialIcons name="arrow-back" size={24} color={colors.text} />
           </TouchableOpacity>
-          <ThemedText style={styles.headerTitle}>{t('editClient')}</ThemedText>
+          <ThemedText style={[styles.headerTitle, { color: colors.text }]}>{t('editClient')}</ThemedText>
           <View style={styles.placeholder} />
         </View>
         <View style={styles.loadingContainer}>
@@ -130,25 +133,25 @@ export default function ClientEditScreen() {
   }
 
   return (
-    <SafeAreaView style={styles.container}>
-      <StatusBar barStyle="dark-content" backgroundColor={colors.background} />
+    <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]}>
+      <StatusBar barStyle={scheme === 'dark' ? 'light-content' : 'dark-content'} backgroundColor={colors.background} />
 
-      <View style={styles.header}>
+      <View style={[styles.header, { borderBottomColor: colors.border, backgroundColor: colors.background }]}>
         <TouchableOpacity onPress={() => router.back()} style={styles.backButton} activeOpacity={0.7}>
           <MaterialIcons name="arrow-back" size={24} color={colors.text} />
         </TouchableOpacity>
-        <ThemedText style={styles.headerTitle}>{t('editClient')}</ThemedText>
+        <ThemedText style={[styles.headerTitle, { color: colors.text }]}>{t('editClient')}</ThemedText>
         <View style={styles.placeholder} />
       </View>
 
       <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : 'height'} style={styles.flex}>
         <ScrollView
-          style={styles.scrollView}
+          style={[styles.scrollView, { backgroundColor: colors.backgroundSecondary }]}
           contentContainerStyle={styles.content}
           showsVerticalScrollIndicator={false}
         >
-          <View style={styles.section}>
-            <ThemedText style={styles.sectionTitle}>{t('contactDetails')}</ThemedText>
+          <View style={[styles.section, { backgroundColor: colors.background }]}>
+            <ThemedText style={[styles.sectionTitle, { color: colors.text }]}>{t('contactDetails')}</ThemedText>
 
             <FormField
               label={t('clientName')}
@@ -181,7 +184,7 @@ export default function ClientEditScreen() {
           </View>
         </ScrollView>
 
-        <View style={styles.buttonContainer}>
+        <View style={[styles.buttonContainer, { backgroundColor: colors.background, borderTopColor: colors.border }]}>
           <PrimaryButton
             title={isLoading ? t('savingClient') : t('saveClient')}
             onPress={handleSubmit}
@@ -198,7 +201,6 @@ export default function ClientEditScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: Colors.light.background,
   },
   header: {
     flexDirection: 'row',
@@ -207,8 +209,6 @@ const styles = StyleSheet.create({
     paddingHorizontal: Spacing.lg,
     paddingVertical: Spacing.md,
     borderBottomWidth: 1,
-    borderBottomColor: Colors.light.border,
-    backgroundColor: Colors.light.background,
   },
   backButton: {
     padding: Spacing.xs,
@@ -217,7 +217,6 @@ const styles = StyleSheet.create({
   headerTitle: {
     fontSize: Typography.fontSize.lg,
     fontWeight: Typography.fontWeight.semibold,
-    color: Colors.light.text,
   },
   placeholder: {
     width: 32,
@@ -227,7 +226,6 @@ const styles = StyleSheet.create({
   },
   scrollView: {
     flex: 1,
-    backgroundColor: Colors.light.backgroundSecondary,
   },
   content: {
     paddingBottom: Spacing.xl,
@@ -245,7 +243,6 @@ const styles = StyleSheet.create({
     marginTop: Spacing.md,
   },
   section: {
-    backgroundColor: Colors.light.background,
     marginBottom: Spacing.md,
     paddingHorizontal: Spacing.lg,
     paddingVertical: Spacing.lg,
@@ -254,13 +251,10 @@ const styles = StyleSheet.create({
   sectionTitle: {
     fontSize: Typography.fontSize.base,
     fontWeight: Typography.fontWeight.semibold,
-    color: Colors.light.text,
     marginBottom: Spacing.md,
   },
   buttonContainer: {
     padding: Spacing.lg,
-    backgroundColor: Colors.light.background,
     borderTopWidth: 1,
-    borderTopColor: Colors.light.border,
   },
 });

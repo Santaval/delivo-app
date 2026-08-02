@@ -1,4 +1,4 @@
-import { BorderRadius, Colors, Spacing, Typography } from '@/constants';
+import { BorderRadius, Spacing, Typography } from '@/constants';
 import { useThemeColor } from '@/hooks';
 import useRoutes from '@/hooks/useRoutes';
 import { Ionicons } from '@expo/vector-icons';
@@ -73,19 +73,19 @@ export default function RouteSelect({
 
   const renderRouteItem = ({ item }: { item: Route }) => (
     <TouchableOpacity
-      style={styles.routeItem}
+      style={[styles.routeItem, { borderBottomColor: colors.border }]}
       onPress={() => handleSelectRoute(item)}
       activeOpacity={0.7}
     >
       <View style={styles.routeInfo}>
-        <Text style={styles.routeName}>{item.name}</Text>
+        <Text style={[styles.routeName, { color: colors.text }]}>{item.name}</Text>
         <View style={styles.routeDetails}>
           <View style={[styles.statusBadge, { backgroundColor: getStatusColor(item.status as RouteStatus) + '20' }]}>
             <Text style={[styles.statusText, { color: getStatusColor(item.status as RouteStatus) }]}>
               {getStatusLabel(item.status as RouteStatus)}
             </Text>
           </View>
-          <Text style={styles.routeDate}>
+          <Text style={[styles.routeDate, { color: colors.textSecondary }]}>
             {new Date(item.createdAt).toLocaleDateString()}
           </Text>
         </View>
@@ -97,8 +97,8 @@ export default function RouteSelect({
   const renderEmptyState = () => (
     <View style={styles.emptyState}>
       <Ionicons name="map-outline" size={48} color={colors.textTertiary} />
-      <Text style={styles.emptyStateTitle}>{t('noRoutesFound')}</Text>
-      <Text style={styles.emptyStateMessage}>
+      <Text style={[styles.emptyStateTitle, { color: colors.text }]}>{t('noRoutesFound')}</Text>
+      <Text style={[styles.emptyStateMessage, { color: colors.textSecondary }]}>
         {t('noRoutesWithStatusAvailable', { status: getStatusLabel(status) })}
       </Text>
     </View>
@@ -109,7 +109,7 @@ export default function RouteSelect({
       return (
         <View style={styles.loadingState}>
           <ActivityIndicator size="large" color={colors.primary} />
-          <Text style={styles.loadingText}>{t('loadingRoutes')}</Text>
+          <Text style={[styles.loadingText, { color: colors.textSecondary }]}>{t('loadingRoutes')}</Text>
         </View>
       );
     }
@@ -118,8 +118,8 @@ export default function RouteSelect({
       return (
         <View style={styles.errorState}>
           <Ionicons name="alert-circle-outline" size={48} color={colors.danger} />
-          <Text style={styles.errorTitle}>{t('failedToLoadRoutes')}</Text>
-          <Text style={styles.errorMessage}>{error}</Text>
+          <Text style={[styles.errorTitle, { color: colors.text }]}>{t('failedToLoadRoutes')}</Text>
+          <Text style={[styles.errorMessage, { color: colors.textSecondary }]}>{error}</Text>
         </View>
       );
     }
@@ -144,8 +144,9 @@ export default function RouteSelect({
       <TouchableOpacity
         style={[
           styles.selectButton,
-          disabled && styles.selectButtonDisabled,
-          selectedRoute && styles.selectButtonSelected,
+          { backgroundColor: colors.background, borderColor: colors.border },
+          disabled && [styles.selectButtonDisabled, { backgroundColor: colors.backgroundSecondary }],
+          selectedRoute && [styles.selectButtonSelected, { borderColor: colors.primary }],
         ]}
         onPress={() => setIsModalVisible(true)}
         disabled={disabled}
@@ -154,7 +155,7 @@ export default function RouteSelect({
         <View style={styles.selectButtonContent}>
           {selectedRoute ? (
             <View style={styles.selectedRouteInfo}>
-              <Text style={styles.selectedRouteName}>{selectedRoute.name}</Text>
+              <Text style={[styles.selectedRouteName, { color: colors.text }]}>{selectedRoute.name}</Text>
               <View style={[styles.statusBadge, { backgroundColor: getStatusColor(selectedRoute.status as RouteStatus) + '20' }]}>
                 <Text style={[styles.statusText, { color: getStatusColor(selectedRoute.status as RouteStatus) }]}>
                   {getStatusLabel(selectedRoute.status as RouteStatus)}
@@ -162,7 +163,13 @@ export default function RouteSelect({
               </View>
             </View>
           ) : (
-            <Text style={[styles.placeholderText, disabled && styles.placeholderTextDisabled]}>
+            <Text
+              style={[
+                styles.placeholderText,
+                { color: colors.textSecondary },
+                disabled && [styles.placeholderTextDisabled, { color: colors.textTertiary }],
+              ]}
+            >
               {placeholder}
             </Text>
           )}
@@ -180,9 +187,9 @@ export default function RouteSelect({
         presentationStyle="pageSheet"
         onRequestClose={() => setIsModalVisible(false)}
       >
-        <SafeAreaView style={styles.modalContainer}>
-          <View style={styles.modalHeader}>
-            <Text style={styles.modalTitle}>
+        <SafeAreaView style={[styles.modalContainer, { backgroundColor: colors.background }]}>
+          <View style={[styles.modalHeader, { borderBottomColor: colors.border }]}>
+            <Text style={[styles.modalTitle, { color: colors.text }]}>
               Select Route - {getStatusLabel(status)}
             </Text>
             <TouchableOpacity
@@ -207,21 +214,16 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    backgroundColor: Colors.light.background,
     borderWidth: 1,
-    borderColor: Colors.light.border,
     borderRadius: BorderRadius.md,
     paddingHorizontal: Spacing.md,
     paddingVertical: Spacing.sm,
     minHeight: 48,
   },
   selectButtonDisabled: {
-    backgroundColor: Colors.light.backgroundSecondary,
     opacity: 0.6,
   },
-  selectButtonSelected: {
-    borderColor: Colors.light.primary,
-  },
+  selectButtonSelected: {},
   selectButtonContent: {
     flex: 1,
     marginRight: Spacing.sm,
@@ -234,16 +236,12 @@ const styles = StyleSheet.create({
   selectedRouteName: {
     fontSize: Typography.fontSize.base,
     fontWeight: Typography.fontWeight.medium,
-    color: Colors.light.text,
     flex: 1,
   },
   placeholderText: {
     fontSize: Typography.fontSize.base,
-    color: Colors.light.textSecondary,
   },
-  placeholderTextDisabled: {
-    color: Colors.light.textTertiary,
-  },
+  placeholderTextDisabled: {},
   statusBadge: {
     paddingHorizontal: Spacing.xs,
     paddingVertical: 2,
@@ -257,7 +255,6 @@ const styles = StyleSheet.create({
   },
   modalContainer: {
     flex: 1,
-    backgroundColor: Colors.light.background,
   },
   modalHeader: {
     flexDirection: 'row',
@@ -266,12 +263,10 @@ const styles = StyleSheet.create({
     paddingHorizontal: Spacing.lg,
     paddingVertical: Spacing.md,
     borderBottomWidth: 1,
-    borderBottomColor: Colors.light.border,
   },
   modalTitle: {
     fontSize: Typography.fontSize.lg,
     fontWeight: Typography.fontWeight.semibold,
-    color: Colors.light.text,
   },
   closeButton: {
     padding: Spacing.xs,
@@ -289,7 +284,6 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     paddingVertical: Spacing.md,
     borderBottomWidth: 1,
-    borderBottomColor: Colors.light.border,
   },
   routeInfo: {
     flex: 1,
@@ -297,7 +291,6 @@ const styles = StyleSheet.create({
   routeName: {
     fontSize: Typography.fontSize.base,
     fontWeight: Typography.fontWeight.medium,
-    color: Colors.light.text,
     marginBottom: Spacing.xs,
   },
   routeDetails: {
@@ -307,7 +300,6 @@ const styles = StyleSheet.create({
   },
   routeDate: {
     fontSize: Typography.fontSize.sm,
-    color: Colors.light.textSecondary,
   },
   emptyState: {
     flex: 1,
@@ -318,13 +310,11 @@ const styles = StyleSheet.create({
   emptyStateTitle: {
     fontSize: Typography.fontSize.lg,
     fontWeight: Typography.fontWeight.semibold,
-    color: Colors.light.text,
     marginTop: Spacing.md,
     marginBottom: Spacing.sm,
   },
   emptyStateMessage: {
     fontSize: Typography.fontSize.base,
-    color: Colors.light.textSecondary,
     textAlign: 'center',
     lineHeight: 22,
   },
@@ -336,7 +326,6 @@ const styles = StyleSheet.create({
   },
   loadingText: {
     fontSize: Typography.fontSize.base,
-    color: Colors.light.textSecondary,
     marginTop: Spacing.md,
   },
   errorState: {
@@ -348,13 +337,11 @@ const styles = StyleSheet.create({
   errorTitle: {
     fontSize: Typography.fontSize.lg,
     fontWeight: Typography.fontWeight.semibold,
-    color: Colors.light.text,
     marginTop: Spacing.md,
     marginBottom: Spacing.sm,
   },
   errorMessage: {
     fontSize: Typography.fontSize.base,
-    color: Colors.light.textSecondary,
     textAlign: 'center',
     lineHeight: 22,
   },

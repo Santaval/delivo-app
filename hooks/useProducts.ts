@@ -1,42 +1,65 @@
+import { toast } from "@/context/ToastContext";
+import i18n from "@/i18n";
 import ProductsService from "@/services/products/Products.service";
-import { useEffect, useState } from "react";
+import { useCallback, useMemo, useRef, useState } from "react";
+import useFocusRefetch from "./useFocusRefetch";
 
 const useProducts = () => {
-  const [products, setProducts] = useState<Product[]>([]);
-  const [originalProducts, setOriginalProducts] = useState<Product[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [allProducts, setAllProducts] = useState<Product[]>([]);
+  const [query, setQuery] = useState('');
+  const [isInitialLoading, setIsInitialLoading] = useState(true);
+  const [isRefreshing, setIsRefreshing] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const hasLoadedRef = useRef(false);
+  const isFetchingRef = useRef(false);
 
-  const fetchProducts = async () => {
-    setLoading(true);
+  const fetchProducts = useCallback(async ({ silent = false }: { silent?: boolean } = {}) => {
+    if (isFetchingRef.current) return;
+    isFetchingRef.current = true;
+
+    if (!silent) {
+      if (hasLoadedRef.current) setIsRefreshing(true);
+      else setIsInitialLoading(true);
+    }
+
     try {
       const response = await ProductsService.all();
-      setProducts(response);
-      setOriginalProducts(response);
+      setAllProducts(response);
+      setError(null);
+      hasLoadedRef.current = true;
     } catch (err) {
-      setError('Failed to fetch products');
+      setError(i18n.t('loadFailedError'));
+      // Mantiene los datos viejos visibles pero avisa que la recarga falló
+      if (hasLoadedRef.current) toast.error(i18n.t('loadFailedError'));
     } finally {
-      setLoading(false);
+      isFetchingRef.current = false;
+      setIsInitialLoading(false);
+      setIsRefreshing(false);
     }
-  };
-
-  const searchProducts = (query: string) => {
-    if (!query) {
-      setProducts(originalProducts);
-      return;
-    }
-
-    const filtered = originalProducts.filter(product =>
-      product.name.toLowerCase().includes(query.toLowerCase())
-    );
-    setProducts(filtered);
-  };
-
-  useEffect(() => {
-    fetchProducts();
   }, []);
 
-  return { products, loading, error, searchProducts, refresh: fetchProducts };
+  // Recarga al volver a la pantalla (ej. después de crear un producto)
+  useFocusRefetch((isFirstFocus) => {
+    fetchProducts({ silent: !isFirstFocus });
+  });
+
+  const products = useMemo(() => {
+    if (!query) return allProducts;
+
+    return allProducts.filter(product =>
+      product.name.toLowerCase().includes(query.toLowerCase())
+    );
+  }, [allProducts, query]);
+
+  return {
+    products,
+    loading: isInitialLoading || isRefreshing,
+    isInitialLoading,
+    isRefreshing,
+    error,
+    searchProducts: setQuery,
+    refresh: fetchProducts,
+  };
 };
 
 export default useProducts;

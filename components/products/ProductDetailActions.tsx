@@ -1,5 +1,4 @@
 import { BorderRadius, Spacing, Typography } from "@/constants";
-import { Colors } from "@/constants/Colors";
 import { useThemeColor } from "@/hooks/useColorScheme";
 import React from "react";
 import { useTranslation } from "react-i18next";
@@ -50,7 +49,7 @@ export default function ProductDetailActions({
             title={t("delete")}
             variant="outline"
             onPress={handleDelete}
-            style={styles.deleteButton}
+            style={{ ...styles.deleteButton, borderColor: colors.danger }}
             disabled={loading}
           />
         </View>
@@ -81,6 +80,5 @@ const styles = StyleSheet.create({
   },
   deleteButton: {
     borderRadius: BorderRadius.lg,
-    borderColor: Colors.light.danger,
   },
 });

@@ -1,8 +1,7 @@
-import { BorderRadius, Spacing, Typography } from '@/constants';
-import { useThemeColor } from '@/hooks/useColorScheme';
-import React from 'react';
-import { StyleSheet, TextInput, View } from 'react-native';
-import { ThemedText } from './ThemedText';
+import { BorderRadius, Spacing, Typography } from "@/constants";
+import { useThemeColor } from "@/hooks/useColorScheme";
+import { StyleSheet, TextInput, View } from "react-native";
+import { ThemedText } from "./ThemedText";
 
 export type FormFieldProps = {
   label: string;
@@ -10,10 +9,11 @@ export type FormFieldProps = {
   onChangeText: (text: string) => void;
   placeholder?: string;
   error?: string;
-  keyboardType?: 'default' | 'email-address' | 'phone-pad' | 'numeric';
-  autoCapitalize?: 'none' | 'sentences' | 'words' | 'characters';
+  keyboardType?: "default" | "email-address" | "phone-pad" | "numeric";
+  autoCapitalize?: "none" | "sentences" | "words" | "characters";
   autoCorrect?: boolean;
   required?: boolean;
+  isSecure?: boolean;
 };
 
 export function FormField({
@@ -22,10 +22,11 @@ export function FormField({
   onChangeText,
   placeholder,
   error,
-  keyboardType = 'default',
-  autoCapitalize = 'sentences',
+  keyboardType = "default",
+  autoCapitalize = "sentences",
   autoCorrect = true,
   required = false,
+  isSecure = false,
 }: FormFieldProps) {
   const colors = useThemeColor();
 
@@ -33,9 +34,7 @@ export function FormField({
     <View style={styles.container}>
       {/* Label */}
       <View style={styles.labelContainer}>
-        <ThemedText style={styles.label}>
-          {label}
-        </ThemedText>
+        <ThemedText style={styles.label}>{label}</ThemedText>
         {required && (
           <ThemedText style={[styles.required, { color: colors.danger }]}>
             *
@@ -61,6 +60,9 @@ export function FormField({
         keyboardType={keyboardType}
         autoCapitalize={autoCapitalize}
         autoCorrect={autoCorrect}
+        accessibilityLabel={label}
+        accessibilityHint={error}
+        secureTextEntry={isSecure}
       />
 
       {/* Error Message */}
@@ -78,7 +80,7 @@ const styles = StyleSheet.create({
     marginBottom: Spacing.lg,
   },
   labelContainer: {
-    flexDirection: 'row',
+    flexDirection: "row",
     marginBottom: Spacing.sm,
   },
   label: {

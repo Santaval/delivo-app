@@ -1,3 +1,5 @@
+import { toast } from "@/context/ToastContext";
+import i18n from "@/i18n";
 import BillsService from "@/services/orders/Bills.service";
 import { useEffect, useState } from "react";
 
@@ -10,11 +12,13 @@ const useBills = () => {
   const fetchBills = async () => {
     try {
       setLoading(true);
+      setError(null);
       const response = await BillsService.all();
       setBills(response);
       setOriginalBills(response);
     } catch (err) {
-      setError('Failed to load bills');
+      setError(i18n.t('loadFailedError'));
+      if (originalBills.length > 0) toast.error(i18n.t('loadFailedError'));
       console.error('Error fetching bills:', err);
     } finally {
       setLoading(false);

@@ -32,7 +32,6 @@ const AddProductsModal: React.FC<RecordPaymentModalProps> = ({
   };
 
   const handleAddProducts = () => {
-    console.log("Adding products:", orderItems);
     onAdd(orderItems);
     setOrderItems([]);
     onClose();

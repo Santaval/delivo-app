@@ -1,27 +1,29 @@
-import { MaterialCommunityIcons, MaterialIcons } from '@expo/vector-icons';
+import { MaterialIcons } from '@expo/vector-icons';
 import { Tabs } from 'expo-router';
 import React from 'react';
 import { Platform } from 'react-native';
 
 import { HapticTab } from '@/components/HapticTab';
-import { Colors } from '@/constants';
+import { useThemeColor } from '@/hooks/useColorScheme';
 import { useTranslation } from 'react-i18next';
 
 export default function TabLayout() {
   const { t } = useTranslation();
+  const colors = useThemeColor();
   return (
     <Tabs
       screenOptions={{
-        tabBarActiveTintColor: Colors.light.primary,
+        tabBarActiveTintColor: colors.primary,
+        tabBarInactiveTintColor: colors.tabIconDefault,
         headerShown: false,
         tabBarButton: HapticTab,
         tabBarStyle: Platform.select({
           ios: {
             position: 'absolute',
-            backgroundColor: Colors.light.background,
+            backgroundColor: colors.background,
           },
           default: {
-            backgroundColor: Colors.light.background,
+            backgroundColor: colors.background,
           },
         }),
       }}
@@ -45,20 +47,11 @@ export default function TabLayout() {
         }}
       />
       <Tabs.Screen
-        name='bills'
+        name='routes'
         options={{
-          title: t('bills'),
+          title: t('routes'),
           tabBarIcon: ({ color }) => (
-            <MaterialIcons name="receipt" size={28} color={color} />
-          ),
-        }}
-      />
-      <Tabs.Screen
-        name='products'
-        options={{
-          title: t('products'),
-          tabBarIcon: ({ color }) => (
-            <MaterialCommunityIcons name="package" size={28} color={color} />
+            <MaterialIcons name="map" size={28} color={color} />
           ),
         }}
       />
@@ -68,15 +61,6 @@ export default function TabLayout() {
           title: t('clients'),
           tabBarIcon: ({ color }) => (
             <MaterialIcons name="people" size={28} color={color} />
-          ),
-        }}
-      />
-      <Tabs.Screen
-        name='routes'
-        options={{
-          title: t('routes'),
-          tabBarIcon: ({ color }) => (
-            <MaterialIcons name="map" size={28} color={color} />
           ),
         }}
       />

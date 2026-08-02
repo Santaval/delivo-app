@@ -1,8 +1,8 @@
 import { ClientSelect, OrderItem, PrimaryButton, ProductSelect, TopBar } from '@/components';
-import { Spacing } from '@/constants';
+import { OrdersCreateParams, Routes, Spacing } from '@/constants';
+import { useToast } from '@/context/ToastContext';
 import OrdersService from '@/services/orders/Orders.service';
-import { useRoute } from '@react-navigation/native';
-import { router } from 'expo-router';
+import { router, useLocalSearchParams } from 'expo-router';
 import React, { useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { StyleSheet } from 'react-native';
@@ -13,9 +13,8 @@ export default function CreateOrder() {
   const [clientId, setClientId] = React.useState<string | undefined>(undefined);
   const [isSaving, setIsSaving] = React.useState<boolean>(false);
   const { t } = useTranslation();
-  // load client id param from route params
-  const route = useRoute();
-  const { clientId: defaultClientId } = route.params as { clientId?: string };
+  const toast = useToast();
+  const { clientId: defaultClientId } = useLocalSearchParams<OrdersCreateParams>();
 
   useEffect(() => {
     setClientId(defaultClientId);
@@ -37,10 +36,12 @@ export default function CreateOrder() {
         });
       }
 
-      router.push(`/orders/view/${order.id}`);
+      // replace: el formulario ya enviado no debe quedar en el stack
+      router.replace(Routes.orderView(order.id));
 
     } catch (error) {
       console.error('Error saving order:', error);
+      toast.show({ message: t('failedToCreateOrder'), type: 'error' });
     } finally {
       setIsSaving(false);
     }
@@ -50,7 +51,8 @@ export default function CreateOrder() {
     <SafeAreaView style={styles.container}>
       <TopBar
         title={t('createOrder')}
-        goBackTo='/orders'
+        showBack
+        backTo={Routes.orders}
       />
       <ClientSelect
         label={t("assignedClient").toUpperCase()}

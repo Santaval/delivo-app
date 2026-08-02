@@ -1,6 +1,7 @@
 import { FloatingActionButton, SearchBar, TopBar } from '@/components';
 import { OrdersList } from '@/components/OrdersList';
-import { Spacing } from '@/constants';
+import { Routes, Spacing } from '@/constants';
+import { useDrawer } from '@/hooks';
 import useOrders from '@/hooks/useOrders';
 import { router } from 'expo-router';
 import React from 'react';
@@ -8,18 +9,20 @@ import { useTranslation } from 'react-i18next';
 import { StyleSheet } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
-export default function Clients() {
-  const { orders, loading, refresh, search } = useOrders();
+export default function Orders() {
+  const { orders, isInitialLoading, isRefreshing, error, refresh, search } = useOrders();
   const { t } = useTranslation();
+  const { openDrawer } = useDrawer();
 
   const handleAddOrder = () => {
-    router.push('/orders/create');
+    router.push(Routes.ordersCreate);
   };
 
   return (
     <SafeAreaView style={styles.container}>
       <TopBar
         title={t('orders')}
+        onMenuPress={openDrawer}
       />
 
       <SearchBar
@@ -29,11 +32,13 @@ export default function Clients() {
       />
 
       <OrdersList
-        onOrderPress={(orderId) => router.push(`/orders/view/${orderId}`)}
+        onOrderPress={(orderId) => router.push(Routes.orderView(orderId))}
         orders={orders}
-        isRefreshing={loading && orders.length > 0}
-        loading={loading && orders.length === 0}
+        isRefreshing={isRefreshing}
+        loading={isInitialLoading}
+        error={error}
         onRefresh={refresh}
+        onCreateFirst={handleAddOrder}
       />
       
       <FloatingActionButton

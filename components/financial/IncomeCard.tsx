@@ -21,7 +21,7 @@ export function IncomeCard({
   percentage,
   timeStamp,
   variant = 'light',
-  onPress = () => console.log('Income card pressed'),
+  onPress = () => {},
 }: IncomeCardProps) {
   const colors = useThemeColor();
 

@@ -1,6 +1,6 @@
 import { SearchBar, TopBar } from '@/components';
 import { BillsList } from '@/components/bills/BillsList';
-import { Spacing } from '@/constants';
+import { Routes, Spacing } from '@/constants';
 import useBills from '@/hooks/useBills';
 import { router } from 'expo-router';
 import React from 'react';
@@ -8,8 +8,8 @@ import { useTranslation } from 'react-i18next';
 import { StyleSheet } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
-export default function Clients() {
-  const { bills, loading, refresh, search } = useBills();
+export default function Bills() {
+  const { bills, loading, error, refresh, search } = useBills();
   const { t } = useTranslation();
 
 
@@ -17,6 +17,8 @@ export default function Clients() {
     <SafeAreaView style={styles.container}>
       <TopBar
         title={t('bills')}
+        showBack
+        backTo={Routes.home}
       />
 
       <SearchBar
@@ -25,10 +27,12 @@ export default function Clients() {
         showClearButton
       />
 
-      <BillsList 
-        onOrderPress={(orderId) => router.push(`/bills/view/${orderId}`)}
+      <BillsList
+        onOrderPress={(orderId) => router.push(Routes.billView(orderId))}
         orders={bills}
-        isRefreshing={loading}
+        isRefreshing={loading && bills.length > 0}
+        loading={loading && bills.length === 0}
+        error={error}
         onRefresh={refresh}
       />
       

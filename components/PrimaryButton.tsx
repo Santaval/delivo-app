@@ -18,7 +18,7 @@ export function PrimaryButton({
   title,
   variant = 'primary',
   size = 'medium',
-  onPress = () => console.log(`${title} button pressed`),
+  onPress = () => {},
   disabled = false,
   fullWidth = false,
   style,
@@ -124,6 +124,9 @@ export function PrimaryButton({
       onPress={onPress}
       disabled={disabled}
       activeOpacity={0.8}
+      accessibilityRole="button"
+      accessibilityLabel={title}
+      accessibilityState={{ disabled }}
     >
       <ThemedText 
         style={[

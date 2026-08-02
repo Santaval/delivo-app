@@ -1,6 +1,7 @@
 import React from 'react';
 import { StyleSheet, View, TouchableOpacity, Text } from 'react-native';
-import { BorderRadius, Colors, Spacing, Typography } from '@/constants';
+import { BorderRadius, Spacing, Typography } from '@/constants';
+import { useThemeColor } from '@/hooks/useColorScheme';
 
 type Tab = 'current' | 'all';
 
@@ -10,24 +11,37 @@ type DeliveryTabsProps = {
 };
 
 const DeliveryTabs: React.FC<DeliveryTabsProps> = ({ activeTab, onTabChange }) => {
+  const colors = useThemeColor();
   return (
-    <View style={styles.container}>
+    <View style={[styles.container, { backgroundColor: colors.backgroundSecondary }]}>
       <TouchableOpacity
-        style={[styles.tab, activeTab === 'current' && styles.activeTab]}
+        style={[styles.tab, activeTab === 'current' && [styles.activeTab, { backgroundColor: colors.background }]]}
         onPress={() => onTabChange('current')}
         activeOpacity={0.7}
       >
-        <Text style={[styles.tabText, activeTab === 'current' && styles.activeTabText]}>
+        <Text
+          style={[
+            styles.tabText,
+            { color: colors.textSecondary },
+            activeTab === 'current' && [styles.activeTabText, { color: colors.primary }],
+          ]}
+        >
           Current Location
         </Text>
       </TouchableOpacity>
 
       <TouchableOpacity
-        style={[styles.tab, activeTab === 'all' && styles.activeTab]}
+        style={[styles.tab, activeTab === 'all' && [styles.activeTab, { backgroundColor: colors.background }]]}
         onPress={() => onTabChange('all')}
         activeOpacity={0.7}
       >
-        <Text style={[styles.tabText, activeTab === 'all' && styles.activeTabText]}>
+        <Text
+          style={[
+            styles.tabText,
+            { color: colors.textSecondary },
+            activeTab === 'all' && [styles.activeTabText, { color: colors.primary }],
+          ]}
+        >
           All Stops
         </Text>
       </TouchableOpacity>
@@ -38,7 +52,6 @@ const DeliveryTabs: React.FC<DeliveryTabsProps> = ({ activeTab, onTabChange }) =
 const styles = StyleSheet.create({
   container: {
     flexDirection: 'row',
-    backgroundColor: Colors.light.backgroundSecondary,
     borderRadius: BorderRadius.lg,
     padding: Spacing.xs,
     marginBottom: Spacing.md,
@@ -52,7 +65,6 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   activeTab: {
-    backgroundColor: Colors.light.background,
     shadowColor: '#000',
     shadowOffset: {
       width: 0,
@@ -65,10 +77,8 @@ const styles = StyleSheet.create({
   tabText: {
     fontSize: Typography.fontSize.sm,
     fontWeight: Typography.fontWeight.medium,
-    color: Colors.light.textSecondary,
   },
   activeTabText: {
-    color: Colors.light.primary,
     fontWeight: Typography.fontWeight.semibold,
   },
 });

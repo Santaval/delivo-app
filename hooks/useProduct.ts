@@ -11,6 +11,7 @@ const useProduct = (productId: string) => {
   const fetchProduct = async () => {
     try {
       setLoading(true);
+      setError(null);
       const productData = await ProductsService.findById(productId);
       setProduct(productData);
     } catch (err) {

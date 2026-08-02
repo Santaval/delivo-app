@@ -1,3 +1,4 @@
+import { Routes } from "@/constants";
 import useCustomerOrders from "@/hooks/useCustomerOrders";
 import { router } from "expo-router";
 import React from "react";
@@ -17,7 +18,7 @@ export default function ClientOrders(props: Props) {
       orders={orders}
       isRefreshing={loading}
       onRefresh={refreshOrders}
-      onOrderPress={(orderId) => router.push(`/orders/view/${orderId}`)}
+      onOrderPress={(orderId) => router.push(Routes.orderView(orderId))}
     />
   );
 }

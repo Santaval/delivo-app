@@ -1,5 +1,4 @@
 import { BorderRadius, Shadows, Spacing, Typography } from "@/constants";
-import { Colors } from "@/constants/Colors";
 import { useThemeColor } from "@/hooks/useColorScheme";
 import { MaterialIcons } from "@expo/vector-icons";
 import moment from "moment";
@@ -25,7 +24,7 @@ export default function ProductMetaCard({ createdAt, updatedAt }: Props) {
         <MaterialIcons
           name="event"
           size={18}
-          color={Colors.light.textSecondary}
+          color={colors.textSecondary}
         />
         <View style={styles.metaContent}>
           <ThemedText variant="caption" style={styles.label}>
@@ -39,7 +38,7 @@ export default function ProductMetaCard({ createdAt, updatedAt }: Props) {
         <MaterialIcons
           name="update"
           size={18}
-          color={Colors.light.textSecondary}
+          color={colors.textSecondary}
         />
         <View style={styles.metaContent}>
           <ThemedText variant="caption" style={styles.label}>
@@ -73,7 +72,6 @@ const styles = StyleSheet.create({
   },
   label: {
     fontSize: Typography.fontSize.xs,
-    color: Colors.light.textSecondary,
     marginBottom: Spacing.xs / 2,
   },
   value: {

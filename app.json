@@ -2,7 +2,7 @@
   "expo": {
     "name": "Delivo",
     "slug": "tributcr-app",
-    "version": "1.0.0",
+    "version": "1.2.0",
     "orientation": "portrait",
     "icon": "./assets/images/logo.png",
     "scheme": "com.tributcr.savaldev",
@@ -58,7 +58,19 @@
         }
       ],
       "expo-web-browser",
-      "expo-localization"
+      "expo-localization",
+      "expo-font",
+      "expo-image",
+      "expo-secure-store",
+      "expo-status-bar",
+      [
+        "@sentry/react-native/expo",
+        {
+          "url": "https://sentry.io/",
+          "project": "react-native",
+          "organization": "delivo"
+        }
+      ]
     ],
     "experiments": {
       "typedRoutes": true,

@@ -1,111 +1,101 @@
-import { useAuth } from '@/context/AuthContext';
-import { useCompanies } from '@/context/CompaniesContext';
-import CompaniesService from '@/services/companies/Companies.service';
-import { MaterialIcons } from '@expo/vector-icons';
-import { router } from 'expo-router';
-import React, { useState } from 'react';
-import { useTranslation } from 'react-i18next';
+import { useAuth } from "@/context/AuthContext";
+import { useCompanies } from "@/context/CompaniesContext";
+import { useToast } from "@/context/ToastContext";
+import CompaniesService from "@/services/companies/Companies.service";
+import { MaterialIcons } from "@expo/vector-icons";
+import { useState } from "react";
+import { useTranslation } from "react-i18next";
 import {
-  Alert,
   KeyboardAvoidingView,
   Platform,
   ScrollView,
   StatusBar,
   StyleSheet,
-  TouchableOpacity,
   View,
-} from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
-import { FormField, PrimaryButton, ThemedText } from '../../components';
-import { BorderRadius, Colors, Spacing, Typography } from '../../constants';
+} from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
+import { FormField, PrimaryButton, ThemedText } from "../../components";
+import { BorderRadius, Spacing, Typography } from "../../constants";
+import { useColorScheme, useThemeColor } from "../../hooks/useColorScheme";
 
 export default function AddCompanyPage() {
   const { t } = useTranslation();
-  const [name, setName] = useState('');
-  const [taxId, setTaxId] = useState('');
+  const [name, setName] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const { selectCompany } = useCompanies();
-  const {refreshUser } = useAuth()
+  const { refreshUser } = useAuth();
+  const toast = useToast();
+  const colors = useThemeColor();
+  const scheme = useColorScheme();
 
   const handleSubmit = async () => {
     if (!name.trim()) {
-      Alert.alert(t('error'), t('companyNameIsRequired'));
+      toast.show({ message: t("companyNameIsRequired"), type: "error" });
       return;
     }
 
     setIsLoading(true);
     try {
       const company = await CompaniesService.create(name);
-      selectCompany(company.id);
-      refreshUser();
-      router.replace('/companies/select');
-      
+      // Persist the id + header first, then refresh so `companies` picks up the
+      // new company and CompaniesContext can resolve it into activeCompany —
+      // which is what triggers the RevenueCat login for it.
+      await selectCompany(company.id);
+      await refreshUser();
+      // No redirect here: once the company resolves into activeCompany the
+      // guard in app/_layout.tsx swaps this screen for the app stack.
     } catch (error) {
-      Alert.alert(t('error'), t('failedToCreateCompany'));
+      toast.show({ message: t("failedToCreateCompany"), type: "error" });
     } finally {
       setIsLoading(false);
     }
   };
 
   return (
-    <SafeAreaView style={styles.container}>
-      <StatusBar barStyle="dark-content" backgroundColor={Colors.light.background} />
-      
-      {/* Custom Header */}
-      <View style={styles.header}>
-        <TouchableOpacity
-          onPress={() => router.back()}
-          style={styles.backButton}
-          activeOpacity={0.7}
-        >
-          <MaterialIcons name="arrow-back" size={24} color={Colors.light.text} />
-        </TouchableOpacity>
-        <ThemedText style={styles.headerTitle}>{t('addNewCompany')}</ThemedText>
-        <View style={styles.placeholder} />
-      </View>
-      
-      <KeyboardAvoidingView 
-        behavior={Platform.OS === 'ios' ? 'padding' : 'height'} 
+    <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]}>
+      <StatusBar
+        barStyle={scheme === "dark" ? "light-content" : "dark-content"}
+        backgroundColor={colors.background}
+      />
+      <KeyboardAvoidingView
+        behavior={Platform.OS === "ios" ? "padding" : "height"}
         style={styles.flex}
       >
-        <ScrollView style={styles.scrollView} contentContainerStyle={styles.content}>
+        <ScrollView
+          style={styles.scrollView}
+          contentContainerStyle={styles.content}
+        >
+          <View style={styles.welcome}>
+            <View style={[styles.iconBadge, { backgroundColor: colors.backgroundSecondary }]}>
+              <MaterialIcons
+                name="business"
+                size={32}
+                color={colors.primary}
+              />
+            </View>
+            <ThemedText style={[styles.title, { color: colors.text }]}>
+              {t("createCompanyWelcomeTitle")}
+            </ThemedText>
+            <ThemedText style={[styles.subtitle, { color: colors.textSecondary }]}>
+              {t("createCompanyWelcomeSubtitle")}
+            </ThemedText>
+          </View>
+
           <View style={styles.form}>
-            <ThemedText style={styles.sectionTitle}>{t('companyInformation')}</ThemedText>
-            
             <FormField
-              label={t('companyName')}
+              label={t("companyName")}
               value={name}
               onChangeText={setName}
-              placeholder={t('enterCompanyName')}
+              placeholder={t("enterCompanyName")}
               required
               autoCapitalize="words"
             />
-
-            <FormField
-              label={t('taxIdOptional')}
-              value={taxId}
-              onChangeText={setTaxId}
-              placeholder={t('enterTaxId')}
-              autoCapitalize="characters"
-            />
-
-            <View style={styles.infoBox}>
-              <MaterialIcons 
-                name="info" 
-                size={16} 
-                color={Colors.light.info} 
-                style={styles.infoIcon}
-              />
-              <ThemedText style={styles.infoText}>
-                {t('companyInfoLater')}
-              </ThemedText>
-            </View>
           </View>
         </ScrollView>
 
         <View style={styles.buttonContainer}>
           <PrimaryButton
-            title={isLoading ? t('creatingCompany') : t('createCompany')}
+            title={isLoading ? t("creatingCompany") : t("createCompany")}
             onPress={handleSubmit}
             disabled={isLoading || !name.trim()}
           />
@@ -118,28 +108,6 @@ export default function AddCompanyPage() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: Colors.light.background,
-  },
-  header: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    paddingHorizontal: Spacing.lg,
-    paddingVertical: Spacing.md,
-    borderBottomWidth: 1,
-    borderBottomColor: Colors.light.border,
-  },
-  backButton: {
-    padding: Spacing.xs,
-    borderRadius: BorderRadius.sm,
-  },
-  headerTitle: {
-    fontSize: Typography.fontSize.lg,
-    fontWeight: Typography.fontWeight.semibold,
-    color: Colors.light.text,
-  },
-  placeholder: {
-    width: 32, // Same as back button width for centering
   },
   flex: {
     flex: 1,
@@ -149,34 +117,34 @@ const styles = StyleSheet.create({
   },
   content: {
     padding: Spacing.xl,
-    paddingTop: Spacing.lg,
+    paddingTop: Spacing["3xl"],
+  },
+  welcome: {
+    alignItems: "center",
+    marginBottom: Spacing["3xl"],
+  },
+  iconBadge: {
+    width: 64,
+    height: 64,
+    borderRadius: BorderRadius.full,
+    justifyContent: "center",
+    alignItems: "center",
+    marginBottom: Spacing.lg,
+  },
+  title: {
+    fontSize: Typography.fontSize["2xl"],
+    fontWeight: Typography.fontWeight.bold,
+    textAlign: "center",
+    marginBottom: Spacing.xs,
+  },
+  subtitle: {
+    fontSize: Typography.fontSize.base,
+    textAlign: "center",
+    lineHeight: 22,
+    paddingHorizontal: Spacing.md,
   },
   form: {
     gap: Spacing.lg,
-  },
-  sectionTitle: {
-    fontSize: Typography.fontSize.lg,
-    fontWeight: Typography.fontWeight.semibold,
-    marginBottom: Spacing.sm,
-    color: Colors.light.text,
-  },
-  infoBox: {
-    flexDirection: 'row',
-    backgroundColor: Colors.light.backgroundSecondary,
-    padding: Spacing.md,
-    borderRadius: BorderRadius.md,
-    borderLeftWidth: 4,
-    borderLeftColor: Colors.light.info,
-  },
-  infoIcon: {
-    marginRight: Spacing.sm,
-    marginTop: 2,
-  },
-  infoText: {
-    flex: 1,
-    fontSize: Typography.fontSize.sm,
-    color: Colors.light.textSecondary,
-    lineHeight: 20,
   },
   buttonContainer: {
     padding: Spacing.xl,

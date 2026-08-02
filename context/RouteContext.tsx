@@ -1,7 +1,8 @@
+import { toast } from "@/context/ToastContext";
 import useUserLocation from "@/hooks/useUserLocation";
+import i18n from "@/i18n";
 import RoutesService from "@/services/routes/Routes.service";
 import { createContext, ReactNode, useContext, useEffect, useState } from "react";
-import { Alert } from "react-native";
 
 /**
  * Represents the route state of the application
@@ -76,7 +77,8 @@ export const RouteProvider = ({ children, routeId }: RouteProviderProps) => {
       const orderedPoints = routeData.points.sort((a, b) => a.index - b.index);
       routeData.points = orderedPoints;
       setRoute(routeData);
-      setCurrentPointIndex(orderedPoints.findIndex(point => point.status === 'CREATED') || null);
+      const pendingIndex = orderedPoints.findIndex(point => point.status === 'CREATED');
+      setCurrentPointIndex(pendingIndex === -1 ? null : pendingIndex);
     } catch (err) {
       setError('Failed to load route');
       console.error('Failed to fetch route:', err);
@@ -121,8 +123,8 @@ export const RouteProvider = ({ children, routeId }: RouteProviderProps) => {
   };
 
   const getCurrentPoint = () => {
-    if (!route) return null;
-    return route.points[currentPointIndex || 0] || null;
+    if (!route || currentPointIndex === null) return null;
+    return route.points[currentPointIndex] || null;
   };
 
   const getNextPoint = () => {
@@ -152,13 +154,14 @@ export const RouteProvider = ({ children, routeId }: RouteProviderProps) => {
 
     } catch (error) {
       console.error('Failed to complete delivery:', error);
-      // Alert.alert('Error', 'Failed to complete delivery. Please try again.');
+      // Rethrow so the screen can show feedback to the user
+      throw error;
     }
   };
 
   const startNavigation = async () => {
     if (!location) {
-          Alert.alert('Location Error', 'Unable to access your location. Please enable location services and try again.');
+          toast.error(i18n.t('unableToAccessLocation'));
           return;
         }
         if (!route) return;
@@ -171,6 +174,7 @@ export const RouteProvider = ({ children, routeId }: RouteProviderProps) => {
           await fetchRoute(route.id); // Refresh route data after starting navigation
         } catch (error) {
           console.error('Failed to start navigation:', error);
+          toast.error(i18n.t('genericError'));
         } finally {
           setIsLoading(false);
         }

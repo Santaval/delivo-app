@@ -1,4 +1,4 @@
-import { BorderRadius, Colors, Shadows, Spacing, Typography } from '@/constants';
+import { BorderRadius, Shadows, Spacing, Typography } from '@/constants';
 import { useThemeColor } from '@/hooks/useColorScheme';
 import { MaterialIcons } from '@expo/vector-icons';
 import React from 'react';
@@ -49,26 +49,26 @@ export function RouteCard({ route, onPress, onDetailsPress }: RouteCardProps) {
       case 'CREATED':
         return {
           label: t("created"),
-          backgroundColor: Colors.light.textTertiary + '20',
-          textColor: Colors.light.textTertiary,
+          backgroundColor: colors.textTertiary + '20',
+          textColor: colors.textTertiary,
         };
       case 'STARTED':
         return {
           label: t("inProgress"),
-          backgroundColor: Colors.light.primary + '20',
-          textColor: Colors.light.primary,
+          backgroundColor: colors.primary + '20',
+          textColor: colors.primary,
         };
       case 'COMPLETED':
         return {
           label: t("completed"),
-          backgroundColor: Colors.light.success + '20',
-          textColor: Colors.light.success,
+          backgroundColor: colors.success + '20',
+          textColor: colors.success,
         };
       default:
         return {
           label: 'UNKNOWN',
-          backgroundColor: Colors.light.textTertiary + '20',
-          textColor: Colors.light.textTertiary,
+          backgroundColor: colors.textTertiary + '20',
+          textColor: colors.textTertiary,
         };
     }
   };
@@ -132,14 +132,14 @@ export function RouteCard({ route, onPress, onDetailsPress }: RouteCardProps) {
             <MaterialIcons
               name="more-horiz"
               size={20}
-              color={colors.textSecondary || Colors.light.textSecondary}
+              color={colors.textSecondary}
             />
           </TouchableOpacity>
         </View>
 
         {/* Date */}
         <View style={styles.dateRow}>
-          <ThemedText style={styles.dateText}>
+          <ThemedText style={[styles.dateText, { color: colors.textSecondary }]}>
             {formatDate(route.createdAt)} • {formatDate(route.createdAt).includes('TODAY') ? formatTime(route.createdAt) : formatTime(route.createdAt)}
           </ThemedText>
         </View>
@@ -147,7 +147,7 @@ export function RouteCard({ route, onPress, onDetailsPress }: RouteCardProps) {
         {/* Progress */}
         <View style={styles.progressSection}>
           <View style={styles.progressHeader}>
-            <ThemedText style={styles.stopsText}>
+            <ThemedText style={[styles.stopsText, { color: colors.text }]}>
               {totalStops} Stops Total
             </ThemedText>
             <ThemedText style={[styles.progressText, { color: colors.primary }]}>
@@ -174,9 +174,9 @@ export function RouteCard({ route, onPress, onDetailsPress }: RouteCardProps) {
             <MaterialIcons
               name="schedule"
               size={16}
-              color={colors.textSecondary || Colors.light.textSecondary}
+              color={colors.textSecondary}
             />
-            <ThemedText style={styles.etaText}>
+            <ThemedText style={[styles.etaText, { color: colors.textSecondary }]}>
               ETA: {getEstimatedTime()}
             </ThemedText>
           </View>
@@ -192,7 +192,7 @@ export function RouteCard({ route, onPress, onDetailsPress }: RouteCardProps) {
             <MaterialIcons
               name="chevron-right"
               size={16}
-              color={colors.primary || Colors.light.primary}
+              color={colors.primary}
             />
           </TouchableOpacity>
         </View>
@@ -244,7 +244,6 @@ const styles = StyleSheet.create({
   },
   dateText: {
     fontSize: Typography.fontSize.sm,
-    color: Colors.light.textSecondary,
     fontWeight: Typography.fontWeight.medium,
   },
   progressSection: {
@@ -259,7 +258,6 @@ const styles = StyleSheet.create({
   stopsText: {
     fontSize: Typography.fontSize.base,
     fontWeight: Typography.fontWeight.semibold,
-    color: Colors.light.text,
   },
   progressText: {
     fontSize: Typography.fontSize.base,
@@ -289,7 +287,6 @@ const styles = StyleSheet.create({
   },
   etaText: {
     fontSize: Typography.fontSize.sm,
-    color: Colors.light.textSecondary,
   },
   detailsButton: {
     flexDirection: 'row',

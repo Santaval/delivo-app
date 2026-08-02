@@ -1,35 +1,41 @@
-import { useThemeColor } from '@/hooks/useColorScheme';
-import React from 'react';
-import { View as RNView, ViewProps } from 'react-native';
+import { useThemeColor } from "@/hooks/useColorScheme";
+import { View as RNView, ViewProps } from "react-native";
 
 export type ThemedViewProps = ViewProps & {
-  variant?: 'default' | 'surface' | 'card' | 'primary' | 'success' | 'warning' | 'danger';
+  variant?:
+    | "default"
+    | "surface"
+    | "card"
+    | "primary"
+    | "success"
+    | "warning"
+    | "danger";
   backgroundColor?: string;
 };
 
-export function ThemedView({ 
-  style, 
-  variant = 'default',
+export function ThemedView({
+  style,
+  variant = "default",
   backgroundColor,
-  ...rest 
+  ...rest
 }: ThemedViewProps) {
   const colors = useThemeColor();
 
   const getBackgroundColor = () => {
     if (backgroundColor) return backgroundColor;
-    
+
     switch (variant) {
-      case 'surface':
+      case "surface":
         return colors.surface;
-      case 'card':
+      case "card":
         return colors.surfaceSecondary;
-      case 'primary':
+      case "primary":
         return colors.primary;
-      case 'success':
+      case "success":
         return colors.success;
-      case 'warning':
+      case "warning":
         return colors.warning;
-      case 'danger':
+      case "danger":
         return colors.danger;
       default:
         return colors.background;
@@ -37,12 +43,9 @@ export function ThemedView({
   };
 
   return (
-    <RNView 
-      style={[
-        { backgroundColor: getBackgroundColor() },
-        style,
-      ]} 
-      {...rest} 
+    <RNView
+      style={[{ backgroundColor: getBackgroundColor() }, style]}
+      {...rest}
     />
   );
 }

@@ -1,3 +1,4 @@
+import i18n from "@/i18n";
 import StatsService from "@/services/stats/Stats.service";
 import { useEffect, useState } from "react";
 
@@ -6,22 +7,24 @@ const useFinancialSummary = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const result = await StatsService.financialSummary();
-        setData(result);
-      } catch (error) {
-        setError('Error fetching financial summary');
-      } finally {
-        setLoading(false);
-      }
-    };
+  const fetchData = async () => {
+    setLoading(true);
+    setError(null);
+    try {
+      const result = await StatsService.financialSummary();
+      setData(result);
+    } catch (err) {
+      setError(i18n.t('loadFailedError'));
+    } finally {
+      setLoading(false);
+    }
+  };
 
+  useEffect(() => {
     fetchData();
   }, []);
 
-  return { data, loading, error };
+  return { data, loading, error, refresh: fetchData };
 };
 
 export default useFinancialSummary;

@@ -1,76 +1,107 @@
 import { OrderItem } from "@/components";
+import i18n from "@/i18n";
 import OrdersService from "@/services/orders/Orders.service";
-import { useEffect, useState } from "react";
+import { useState } from "react";
+import useFocusRefetch from "./useFocusRefetch";
 
 const useOrder = (orderId: string) => {
   const [order, setOrder] = useState<Order | null>(null);
-  const [loading, setLoading] = useState(true);
+  const [isInitialLoading, setIsInitialLoading] = useState(true);
+  const [isRefreshing, setIsRefreshing] = useState(false);
+  const [isMutating, setIsMutating] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const fetchOrder = async () => {
+  const fetchOrder = async ({ silent }: { silent?: boolean } = {}) => {
     try {
-      setLoading(true);
+      setError(null);
       const orderData = await OrdersService.getOrderById(orderId);
       setOrder(orderData);
     } catch (err) {
-      setError('Failed to load order');
+      setError(i18n.t('loadFailedError'));
     } finally {
-      setLoading(false);
+      if (!silent) {
+        setIsInitialLoading(false);
+        setIsRefreshing(false);
+      }
     }
+  };
+
+  const refresh = async () => {
+    if (order) {
+      setIsRefreshing(true);
+    } else {
+      setIsInitialLoading(true);
+    }
+    await fetchOrder();
   };
 
   const addItems = async (orderItems: OrderItem[]) => {
     try {
       if (!order) return;
-      setLoading(true);
+      setIsMutating(true);
       for (const item of orderItems) {
         await OrdersService.addItemToOrder(order.id, {
           productId: item.product.id,
           quantity: item.quantity,
         });
       }
-      await fetchOrder();
+      await fetchOrder({ silent: true });
     } catch (err) {
       console.error('Failed to add products', err);
       setError('Failed to add products');
     } finally {
-      setLoading(false);
+      setIsMutating(false);
     }
   };
 
   const removeItem = async (itemId: string) => {
     try {
       if (!order) return;
-      setLoading(true);
+      setIsMutating(true);
       await OrdersService.removeItemFromOrder(order.id, itemId);
-      await fetchOrder();
+      await fetchOrder({ silent: true });
     } catch (err) {
       console.error('Failed to remove product', err);
       setError('Failed to remove product');
     } finally {
-      setLoading(false);
+      setIsMutating(false);
     }
   };
 
   const markAsDelivered = async () => {
     try {
       if (!order) return;
-      setLoading(true);
+      setIsMutating(true);
       await OrdersService.markAsDelivered(order.id);
-      await fetchOrder();
+      await fetchOrder({ silent: true });
     } catch (err) {
       console.error('Failed to mark as delivered', err);
       setError('Failed to mark as delivered');
     } finally {
-      setLoading(false);
+      setIsMutating(false);
     }
   };
 
-  useEffect(() => {
-    fetchOrder();
-  }, [orderId]);
+  // Recarga al volver a la pantalla (ej. después de una pantalla hija)
+  useFocusRefetch((isFirstFocus) => {
+    if (isFirstFocus) setIsInitialLoading(true);
+    fetchOrder({ silent: !isFirstFocus });
+  }, orderId);
 
-  return { order, loading, error, refresh: fetchOrder, addItems, removeItem, markAsDelivered };
+  const loading = isInitialLoading || isRefreshing || isMutating;
+
+  return {
+    order,
+    loading,
+    isInitialLoading,
+    isRefreshing,
+    isMutating,
+    error,
+    refresh,
+    addItems,
+    removeItem,
+    markAsDelivered,
+  };
 }
 
 export default useOrder;

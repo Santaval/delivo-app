@@ -1,37 +1,55 @@
+import i18n from "@/i18n";
 import ClientsService from "@/services/clients/Clients.service";
-import { useEffect, useState } from "react";
+import { useState } from "react";
+import useFocusRefetch from "./useFocusRefetch";
 
 const useClient = (clientId: string) => {
   const [client, setClient] = useState<Client | null>(null);
-  const [loading, setLoading] = useState(true);
+  const [isInitialLoading, setIsInitialLoading] = useState(true);
+  const [isRefreshing, setIsRefreshing] = useState(false);
+  const [isMutating, setIsMutating] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  useEffect(() => {
-    fetchClient();
-  }, [clientId]);
+  // Recarga al volver a la pantalla (ej. después de editar el cliente)
+  useFocusRefetch((isFirstFocus) => {
+    if (isFirstFocus) setIsInitialLoading(true);
+    fetchClient({ silent: !isFirstFocus });
+  }, clientId);
 
-  const fetchClient = async () => {
+  const fetchClient = async ({ silent = false }: { silent?: boolean } = {}) => {
     try {
       setError(null);
       const clientData = await ClientsService.getClientById(clientId);
       setClient(clientData);
 
       if (!clientData) {
-        setError('Client not found');
+        setError(i18n.t('clientNotFound'));
       }
     } catch (err) {
-      setError('Failed to load client information');
+      setError(i18n.t('loadFailedError'));
       console.error('Error fetching client:', err);
     } finally {
-      setLoading(false);
+      if (!silent) {
+        setIsInitialLoading(false);
+        setIsRefreshing(false);
+      }
     }
+  };
+
+  const refreshClient = async () => {
+    if (client) {
+      setIsRefreshing(true);
+    } else {
+      setIsInitialLoading(true);
+    }
+    await fetchClient();
   };
 
   const updateClient = async (data: Partial<Client>) => {
     if (!client) return;
 
     try {
-      setLoading(true);
+      setIsMutating(true);
       const updatedClient = await ClientsService.updateClient(clientId, { ...client, ...data });
       setClient(updatedClient);
       return updatedClient;
@@ -39,20 +57,20 @@ const useClient = (clientId: string) => {
       console.error('Failed to update client:', err);
       throw err;
     } finally {
-      setLoading(false);
+      setIsMutating(false);
     }
   };
 
   const deleteClient = async () => {
     try {
-      setLoading(true);
+      setIsMutating(true);
       await ClientsService.deleteClient(clientId);
       setClient(null);
     } catch (err) {
       console.error('Failed to delete client:', err);
       throw err;
     } finally {
-      setLoading(false);
+      setIsMutating(false);
     }
   };
 
@@ -60,7 +78,7 @@ const useClient = (clientId: string) => {
     if (!client) return;
 
     try {
-      setLoading(true);
+      setIsMutating(true);
       const updatedClientData = {
         ...client,
         lat: location.lat,
@@ -72,15 +90,20 @@ const useClient = (clientId: string) => {
       console.error('Failed to update client location:', error);
       throw error;
     } finally {
-      setLoading(false);
+      setIsMutating(false);
     }
   };
+
+  const loading = isInitialLoading || isRefreshing || isMutating;
 
   return {
     client,
     loading,
+    isInitialLoading,
+    isRefreshing,
+    isMutating,
     error,
-    refreshClient: fetchClient,
+    refreshClient,
     updateClient,
     deleteClient,
     updateLocation

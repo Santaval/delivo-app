@@ -1,11 +1,11 @@
 import { BorderRadius, Shadows, Spacing, Typography } from '@/constants';
+import { toast } from '@/context/ToastContext';
 import { useThemeColor } from '@/hooks/useColorScheme';
 import useProducts from '@/hooks/useProducts';
 import { MaterialIcons } from '@expo/vector-icons';
 import React, { useCallback, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
-  Alert,
   FlatList,
   Modal,
   Platform,
@@ -236,7 +236,7 @@ export function ProductSelect({
     } else {
       // New product selection
       if (selectedProducts.length >= maxItems) {
-        Alert.alert(t('maximumItems'), t('maxItemsMessage', { maxItems }));
+        toast.info(t('maxItemsMessage', { maxItems }));
         return;
       }
       

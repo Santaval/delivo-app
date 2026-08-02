@@ -1,15 +1,16 @@
 import { FormField } from '@/components/FormField';
 import { PrimaryButton } from '@/components/PrimaryButton';
 import { ThemedText } from '@/components/ThemedText';
-import { BorderRadius, Colors, Spacing, Typography } from '@/constants';
-import { useThemeColor } from '@/hooks/useColorScheme';
+import { BorderRadius, Spacing, Typography } from '@/constants';
+import { useToast } from '@/context/ToastContext';
+import { useColorScheme, useThemeColor } from '@/hooks/useColorScheme';
+import i18n from '@/i18n';
 import ProductsService from '@/services/products/Products.service';
 import { MaterialIcons } from '@expo/vector-icons';
 import { router } from 'expo-router';
 import React, { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
-  Alert,
   KeyboardAvoidingView,
   Platform,
   ScrollView,
@@ -24,14 +25,16 @@ import { z } from 'zod';
 
 // Zod validation schema
 const productSchema = z.object({
-  name: z.string().min(1, 'Product name is required').max(100, 'Product name too long'),
-  grossPrice: z.number().min(0.01, 'Gross price must be greater than 0'),
-  ivaRate: z.number().min(0, 'IVA rate cannot be negative').max(100, 'IVA rate cannot exceed 100%'),
+  name: z.string().min(1, i18n.t('productNameRequired')).max(100, i18n.t('nameTooLong')),
+  grossPrice: z.number().min(0.01, i18n.t('priceMustBeGreaterThanZero')),
+  ivaRate: z.number().min(0).max(100),
 });
 
 
 export default function AddProduct() {
   const colors = useThemeColor();
+  const scheme = useColorScheme();
+  const toast = useToast();
   const [isLoading, setIsLoading] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
   const { t } = useTranslation();
@@ -86,13 +89,12 @@ export default function AddProduct() {
 
   const handleSubmit = async () => {
     if (!validateForm()) {
-      Alert.alert(t('validationError'), t('pleaseCheckTheFormAndTryAgain'));
+      toast.show({ message: t('pleaseCheckTheFormAndTryAgain'), type: 'error' });
       return;
     }
 
     setIsLoading(true);
     try {
-      // TODO: Implement API call to create product
       const productData = {
         name: name.trim(),
         grossPrice,
@@ -100,27 +102,23 @@ export default function AddProduct() {
         ivaAmount
       };
 
-      
       await ProductsService.create(productData);
 
-      Alert.alert(
-        t('success'),
-        t('productCreatedSuccessfully'),
-        [{ text: t('ok'), onPress: () => router.back() }]
-      );
+      toast.show({ message: t('productCreatedSuccessfully'), type: 'success' });
+      router.back();
     } catch (error) {
-      Alert.alert(t('error'), t('failedToCreateProduct'));
+      toast.show({ message: t('failedToCreateProduct'), type: 'error' });
     } finally {
       setIsLoading(false);
     }
   };
 
   return (
-    <SafeAreaView style={styles.container}>
-      <StatusBar barStyle="dark-content" backgroundColor={colors.background} />
-      
+    <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]}>
+      <StatusBar barStyle={scheme === 'dark' ? 'light-content' : 'dark-content'} backgroundColor={colors.background} />
+
       {/* Custom Header */}
-      <View style={styles.header}>
+      <View style={[styles.header, { borderBottomColor: colors.border, backgroundColor: colors.background }]}>
         <TouchableOpacity
           onPress={() => router.back()}
           style={styles.backButton}
@@ -128,21 +126,21 @@ export default function AddProduct() {
         >
           <MaterialIcons name="arrow-back" size={24} color={colors.text} />
         </TouchableOpacity>
-        <ThemedText style={styles.headerTitle}>{t("productDetails")}</ThemedText>
+        <ThemedText style={[styles.headerTitle, { color: colors.text }]}>{t("productDetails")}</ThemedText>
         <View style={styles.placeholder} />
       </View>
-      
-      <KeyboardAvoidingView 
-        behavior={Platform.OS === 'ios' ? 'padding' : 'height'} 
+
+      <KeyboardAvoidingView
+        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
         style={styles.flex}
       >
-        <ScrollView 
-          style={styles.scrollView} 
+        <ScrollView
+          style={[styles.scrollView, { backgroundColor: colors.backgroundSecondary }]}
           contentContainerStyle={styles.content}
           showsVerticalScrollIndicator={false}
         >
           {/* Product Name Section */}
-          <View style={styles.section}>
+          <View style={[styles.section, { backgroundColor: colors.background }]}>
             <FormField
               value={name}
               onChangeText={setName}
@@ -154,14 +152,14 @@ export default function AddProduct() {
           </View>
 
           {/* Pricing & Tax Section */}
-          <View style={styles.section}>
-            <ThemedText style={styles.sectionTitle}>{t("pricingAndTax")}</ThemedText>
+          <View style={[styles.section, { backgroundColor: colors.background }]}>
+            <ThemedText style={[styles.sectionTitle, { color: colors.text }]}>{t("pricingAndTax")}</ThemedText>
 
               {/* Gross Price */}
               <View style={styles.priceField}>
-                <ThemedText style={styles.fieldLabel}>{t("grossPrice")} ({t("priceWithIva")})</ThemedText>
-                <View style={styles.currencyInput}>
-                  <ThemedText style={styles.currencySymbol}>₡</ThemedText>
+                <ThemedText style={[styles.fieldLabel, { color: colors.text }]}>{t("grossPrice")} ({t("priceWithIva")})</ThemedText>
+                <View style={[styles.currencyInput, { borderColor: colors.border, backgroundColor: colors.background }]}>
+                  <ThemedText style={[styles.currencySymbol, { color: colors.textSecondary }]}>₡</ThemedText>
                   <TextInput
                     style={[styles.priceInput, { color: colors.text }]}
                     value={grossPriceText}
@@ -173,20 +171,21 @@ export default function AddProduct() {
                   />
                 </View>
                 {errors.grossPrice && (
-                  <ThemedText style={styles.errorText}>{errors.grossPrice}</ThemedText>
+                  <ThemedText style={[styles.errorText, { color: colors.danger }]}>{errors.grossPrice}</ThemedText>
                 )}
               </View>
 
               {/* IVA Rate */}
               <View style={styles.ivaField}>
-                <ThemedText style={styles.fieldLabel}>{t("ivaRate")} (%)</ThemedText>
+                <ThemedText style={[styles.fieldLabel, { color: colors.text }]}>{t("ivaRate")} (%)</ThemedText>
                 <View style={styles.ivaSelector}>
                   {ivaOptions.map((rate) => (
                     <TouchableOpacity
                       key={rate}
                       style={[
                         styles.ivaOption,
-                        ivaRate === rate && styles.ivaOptionSelected,
+                        { borderColor: colors.border, backgroundColor: colors.background },
+                        ivaRate === rate && [styles.ivaOptionSelected, { backgroundColor: colors.primaryLight + '10' }],
                         { borderColor: ivaRate === rate ? colors.primary : colors.border }
                       ]}
                       onPress={() => setIvaRate(rate)}
@@ -194,6 +193,7 @@ export default function AddProduct() {
                     >
                       <ThemedText style={[
                         styles.ivaOptionText,
+                        { color: colors.text },
                         ivaRate === rate && { color: colors.primary }
                       ]}>
                         {rate}%
@@ -205,10 +205,10 @@ export default function AddProduct() {
 
             {/* IVA Amount */}
             <View style={styles.calculatedField}>
-              <ThemedText style={styles.fieldLabel}>{t("ivaAmount")}</ThemedText>
-              <View style={styles.currencyInput}>
-                <ThemedText style={styles.currencySymbol}>₡</ThemedText>
-                <ThemedText style={styles.calculatedValue}>
+              <ThemedText style={[styles.fieldLabel, { color: colors.text }]}>{t("ivaAmount")}</ThemedText>
+              <View style={[styles.currencyInput, { borderColor: colors.border, backgroundColor: colors.background }]}>
+                <ThemedText style={[styles.currencySymbol, { color: colors.textSecondary }]}>₡</ThemedText>
+                <ThemedText style={[styles.calculatedValue, { color: colors.textSecondary }]}>
                   {formatCurrency(ivaAmount)}
                 </ThemedText>
               </View>
@@ -216,21 +216,21 @@ export default function AddProduct() {
           </View>
 
           {/* Total Price Section */}
-          <View style={styles.totalSection}>
+          <View style={[styles.totalSection, { backgroundColor: colors.background, borderTopColor: colors.border }]}>
             <View style={styles.totalRow}>
-              <ThemedText style={styles.totalLabel}>{t("totalPrice")}</ThemedText>
-              <ThemedText style={styles.totalValue}>
+              <ThemedText style={[styles.totalLabel, { color: colors.text }]}>{t("totalPrice")}</ThemedText>
+              <ThemedText style={[styles.totalValue, { color: colors.primary }]}>
                 ₡{formatCurrency(grossPrice)}
               </ThemedText>
             </View>
-            <ThemedText style={styles.totalSubtext}>
+            <ThemedText style={[styles.totalSubtext, { color: colors.textSecondary }]}>
               {t("calculatedAutomaticallyFromNetPriceAndTaxRate")}
             </ThemedText>
           </View>
         </ScrollView>
 
         {/* Save Button */}
-        <View style={styles.buttonContainer}>
+        <View style={[styles.buttonContainer, { backgroundColor: colors.background, borderTopColor: colors.border }]}>
           <PrimaryButton
             title={isLoading ? t("savingProduct") : t("saveProduct")}
             onPress={handleSubmit}
@@ -247,7 +247,6 @@ export default function AddProduct() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: Colors.light.background,
   },
   header: {
     flexDirection: 'row',
@@ -256,8 +255,6 @@ const styles = StyleSheet.create({
     paddingHorizontal: Spacing.lg,
     paddingVertical: Spacing.md,
     borderBottomWidth: 1,
-    borderBottomColor: Colors.light.border,
-    backgroundColor: Colors.light.background,
   },
   backButton: {
     padding: Spacing.xs,
@@ -266,7 +263,6 @@ const styles = StyleSheet.create({
   headerTitle: {
     fontSize: Typography.fontSize.lg,
     fontWeight: Typography.fontWeight.semibold,
-    color: Colors.light.text,
   },
   placeholder: {
     width: 32, // Same as back button width for centering
@@ -276,13 +272,11 @@ const styles = StyleSheet.create({
   },
   scrollView: {
     flex: 1,
-    backgroundColor: Colors.light.backgroundSecondary,
   },
   content: {
     paddingBottom: Spacing.xl,
   },
   section: {
-    backgroundColor: Colors.light.background,
     marginBottom: Spacing.md,
     paddingHorizontal: Spacing.lg,
     paddingVertical: Spacing.lg,
@@ -291,7 +285,6 @@ const styles = StyleSheet.create({
   sectionTitle: {
     fontSize: Typography.fontSize.base,
     fontWeight: Typography.fontWeight.semibold,
-    color: Colors.light.text,
     marginBottom: Spacing.md,
   },
   pricingRow: {
@@ -308,22 +301,18 @@ const styles = StyleSheet.create({
   fieldLabel: {
     fontSize: Typography.fontSize.sm,
     fontWeight: Typography.fontWeight.medium,
-    color: Colors.light.text,
     marginBottom: Spacing.xs,
   },
   currencyInput: {
     flexDirection: 'row',
     alignItems: 'center',
     borderWidth: 1,
-    borderColor: Colors.light.border,
     borderRadius: BorderRadius.md,
     paddingHorizontal: Spacing.md,
     paddingVertical: Spacing.sm,
-    backgroundColor: Colors.light.background,
   },
   currencySymbol: {
     fontSize: Typography.fontSize.base,
-    color: Colors.light.textSecondary,
     marginRight: Spacing.xs,
   },
   priceInput: {
@@ -339,7 +328,6 @@ const styles = StyleSheet.create({
     flex: 1,
     fontSize: Typography.fontSize.base,
     fontWeight: Typography.fontWeight.medium,
-    color: Colors.light.textSecondary,
   },
   ivaSelector: {
     flexDirection: 'row',
@@ -348,27 +336,21 @@ const styles = StyleSheet.create({
   ivaOption: {
     flex: 1,
     borderWidth: 1,
-    borderColor: Colors.light.border,
     borderRadius: BorderRadius.md,
     paddingVertical: Spacing.sm,
     alignItems: 'center',
-    backgroundColor: Colors.light.background,
   },
   ivaOptionSelected: {
     borderWidth: 2,
-    backgroundColor: Colors.light.primaryLight + '10', // 10% opacity
   },
   ivaOptionText: {
     fontSize: Typography.fontSize.sm,
     fontWeight: Typography.fontWeight.medium,
-    color: Colors.light.text,
   },
   totalSection: {
-    backgroundColor: Colors.light.background,
     paddingHorizontal: Spacing.lg,
     paddingVertical: Spacing.lg,
     borderTopWidth: 1,
-    borderTopColor: Colors.light.border,
   },
   totalRow: {
     flexDirection: 'row',
@@ -379,27 +361,21 @@ const styles = StyleSheet.create({
   totalLabel: {
     fontSize: Typography.fontSize.lg,
     fontWeight: Typography.fontWeight.semibold,
-    color: Colors.light.text,
   },
   totalValue: {
     fontSize: Typography.fontSize.xl,
     fontWeight: Typography.fontWeight.bold,
-    color: Colors.light.primary,
   },
   totalSubtext: {
     fontSize: Typography.fontSize.xs,
-    color: Colors.light.textSecondary,
     fontStyle: 'italic',
   },
   buttonContainer: {
     padding: Spacing.lg,
-    backgroundColor: Colors.light.background,
     borderTopWidth: 1,
-    borderTopColor: Colors.light.border,
   },
   errorText: {
     fontSize: Typography.fontSize.xs,
-    color: Colors.light.danger,
     marginTop: Spacing.xs,
   },
 });

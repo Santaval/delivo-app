@@ -1,21 +1,23 @@
 import { FormField, LocationSearch, PrimaryButton, ThemedText, ThemedView, TopBar } from '@/components';
-import { Spacing, Typography } from '@/constants';
-import { Colors } from '@/constants/Colors';
+import { Spacing, Typography, Routes } from '@/constants';
+import { useToast } from '@/context/ToastContext';
+import { useThemeColor } from '@/hooks/useColorScheme';
+import i18n from '@/i18n';
 import ClientsService from '@/services/clients/Clients.service';
 import { useRouter } from 'expo-router';
 import React, { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Alert, KeyboardAvoidingView, Platform, ScrollView, StyleSheet, View } from 'react-native';
+import { KeyboardAvoidingView, Platform, ScrollView, StyleSheet, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { z } from 'zod';
 
 // Add Client Form with Zod validation
 const clientSchema = z.object({
-  name: z.string().min(1, 'Business name is required').min(2, 'Business name must be at least 2 characters'),
-  phoneNumber: z.string().min(1, 'Contact name is required').min(2, 'Contact name must be at least 2 characters'),
-  email: z.email().optional().nullable(),
-  lat: z.number().refine(val => val !== 0, { message: 'Please select a location' }),
-  lng: z.number().refine(val => val !== 0, { message: 'Please select a location' }),
+  name: z.string().min(1, i18n.t('clientNameIsRequired')).min(2, i18n.t('minTwoCharacters')),
+  phoneNumber: z.string().min(1, i18n.t('phoneNumberIsRequired')).min(2, i18n.t('minTwoCharacters')),
+  email: z.email(i18n.t('invalidEmail')).optional().nullable(),
+  lat: z.number().refine(val => val !== 0, { message: i18n.t('pleaseSelectALocation') }),
+  lng: z.number().refine(val => val !== 0, { message: i18n.t('pleaseSelectALocation') }),
 });
 
 type ClientFormData = z.infer<typeof clientSchema>;
@@ -23,6 +25,8 @@ type ClientFormData = z.infer<typeof clientSchema>;
 export default function AddClient() {
   const router = useRouter();
   const { t } = useTranslation();
+  const toast = useToast();
+  const colors = useThemeColor();
 
   const [formData, setFormData] = useState<ClientFormData>({
     name: '',
@@ -72,10 +76,11 @@ export default function AddClient() {
     try {
       const client = await ClientsService.createClient(formData);
 
-      router.push(`/clients/profile/${client.id}`);
+      // replace: el formulario ya enviado no debe quedar en el stack
+      router.replace(Routes.clientProfile(client.id));
     } catch (error) {
       console.error('Error creating client:', error);
-      Alert.alert(t('error'), t('failedToCreateClient'));
+      toast.show({ message: t('failedToCreateClient'), type: 'error' });
     } finally {
       setIsSubmitting(false);
     }
@@ -86,16 +91,18 @@ export default function AddClient() {
   };
 
   return (
-    <SafeAreaView style={styles.container}>
+    <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]}>
       <KeyboardAvoidingView
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
       >
         <TopBar
           title={t('addNewClient')}
+          showBack
+          backTo={Routes.clients}
         />
         <ScrollView showsVerticalScrollIndicator={false}>
           <ThemedView style={styles.content}>
-            <ThemedText style={styles.sectionTitle}>{t('contactDetails')}</ThemedText>
+            <ThemedText style={[styles.sectionTitle, { color: colors.text }]}>{t('contactDetails')}</ThemedText>
 
             <FormField
               label={t('clientName')}
@@ -167,9 +174,8 @@ export default function AddClient() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: Colors.light.background,
   },
-  
+
   content: {
     padding: Spacing.lg,
     paddingTop: Spacing.md,
@@ -177,7 +183,6 @@ const styles = StyleSheet.create({
   sectionTitle: {
     fontSize: Typography.fontSize.lg,
     fontWeight: Typography.fontWeight.semibold,
-    color: Colors.light.text,
     marginBottom: Spacing.md,
   },
   sectionSpacing: {

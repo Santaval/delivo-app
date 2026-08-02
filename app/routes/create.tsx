@@ -1,8 +1,10 @@
 import { FormField } from '@/components/FormField';
 import { PrimaryButton } from '@/components/PrimaryButton';
 import { ThemedText } from '@/components/ThemedText';
-import { BorderRadius, Colors, Spacing, Typography } from '@/constants';
-import { useThemeColor } from '@/hooks/useColorScheme';
+import { BorderRadius, Routes, Spacing, Typography } from '@/constants';
+import { useToast } from '@/context/ToastContext';
+import { useColorScheme, useThemeColor } from '@/hooks/useColorScheme';
+import i18n from '@/i18n';
 import RoutesService from '@/services/routes/Routes.service';
 import { MaterialIcons } from '@expo/vector-icons';
 import { router } from 'expo-router';
@@ -10,7 +12,6 @@ import moment from 'moment';
 import React, { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
-  Alert,
   KeyboardAvoidingView,
   Platform,
   ScrollView,
@@ -24,12 +25,14 @@ import { z } from 'zod';
 
 // Zod validation schema
 const routeSchema = z.object({
-  name: z.string().min(1, 'Route name is required').max(50, 'Route name too long'),
+  name: z.string().min(1, i18n.t('routeNameIsRequired')).max(50, i18n.t('nameTooLong')),
 });
 
 
 export default function CreateRoute() {
   const colors = useThemeColor();
+  const scheme = useColorScheme();
+  const toast = useToast();
   const [isLoading, setIsLoading] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
   const { t } = useTranslation();
@@ -66,7 +69,7 @@ export default function CreateRoute() {
 
   const handleSubmit = async () => {
     if (!validateForm()) {
-      Alert.alert(t('validationError'), t('pleaseCheckTheFormAndTryAgain'));
+      toast.show({ message: t('pleaseCheckTheFormAndTryAgain'), type: 'error' });
       return;
     }
 
@@ -76,12 +79,11 @@ export default function CreateRoute() {
         name: name.trim(),
       };
 
-      
       const route = await RoutesService.create(routeData);
 
-      router.replace(`/routes/view/${route.id}`);
+      router.replace(Routes.routeView(route.id));
     } catch (error) {
-      Alert.alert(t('error'), t('failedToCreateRoute'));
+      toast.show({ message: t('failedToCreateRoute'), type: 'error' });
     } finally {
       setIsLoading(false);
     }
@@ -101,11 +103,11 @@ export default function CreateRoute() {
   };
 
   return (
-    <SafeAreaView style={styles.container}>
-      <StatusBar barStyle="dark-content" backgroundColor={colors.background} />
-      
+    <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]}>
+      <StatusBar barStyle={scheme === 'dark' ? 'light-content' : 'dark-content'} backgroundColor={colors.background} />
+
       {/* Custom Header */}
-      <View style={styles.header}>
+      <View style={[styles.header, { borderBottomColor: colors.border, backgroundColor: colors.background }]}>
         <TouchableOpacity
           onPress={() => router.back()}
           style={styles.backButton}
@@ -113,22 +115,22 @@ export default function CreateRoute() {
         >
           <MaterialIcons name="arrow-back" size={24} color={colors.text} />
         </TouchableOpacity>
-        <ThemedText style={styles.headerTitle}>{t('createRoute')}</ThemedText>
+        <ThemedText style={[styles.headerTitle, { color: colors.text }]}>{t('createRoute')}</ThemedText>
         <View style={styles.placeholder} />
       </View>
-      
-      <KeyboardAvoidingView 
-        behavior={Platform.OS === 'ios' ? 'padding' : 'height'} 
+
+      <KeyboardAvoidingView
+        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
         style={styles.flex}
       >
-        <ScrollView 
-          style={styles.scrollView} 
+        <ScrollView
+          style={[styles.scrollView, { backgroundColor: colors.backgroundSecondary }]}
           contentContainerStyle={styles.content}
           showsVerticalScrollIndicator={false}
         >
           {/* Route Name Section */}
-          <View style={styles.section}>
-            <ThemedText style={styles.sectionTitle}>{t('routeDetails')}</ThemedText>
+          <View style={[styles.section, { backgroundColor: colors.background }]}>
+            <ThemedText style={[styles.sectionTitle, { color: colors.text }]}>{t('routeDetails')}</ThemedText>
             
             <View style={styles.nameFieldContainer}>
               <FormField
@@ -157,45 +159,45 @@ export default function CreateRoute() {
               </TouchableOpacity>
             </View>
 
-            <View style={styles.infoBox}>
-              <MaterialIcons 
-                name="info" 
-                size={16} 
-                color={colors.info || Colors.light.info} 
+            <View style={[styles.infoBox, { backgroundColor: colors.backgroundSecondary, borderLeftColor: colors.info }]}>
+              <MaterialIcons
+                name="info"
+                size={16}
+                color={colors.info}
                 style={styles.infoIcon}
               />
-              <ThemedText style={styles.infoText}>
+              <ThemedText style={[styles.infoText, { color: colors.textSecondary }]}>
                 {t('routeCreationTip')}
               </ThemedText>
             </View>
           </View>
 
           {/* Route Preview */}
-          <View style={styles.section}>
-            <ThemedText style={styles.sectionTitle}>{t('routePreview')}</ThemedText>
+          <View style={[styles.section, { backgroundColor: colors.background }]}>
+            <ThemedText style={[styles.sectionTitle, { color: colors.text }]}>{t('routePreview')}</ThemedText>
 
-            <View style={styles.previewCard}>
+            <View style={[styles.previewCard, { backgroundColor: colors.backgroundSecondary, borderColor: colors.border }]}>
               <View style={styles.previewHeader}>
                 <ThemedText style={[styles.previewRouteName, { color: colors.primary }]}>
                   #{name}
                 </ThemedText>
-                <View style={styles.statusBadge}>
-                  <ThemedText style={styles.statusText}>{t('created')}</ThemedText>
+                <View style={[styles.statusBadge, { backgroundColor: colors.textTertiary + '20' }]}>
+                  <ThemedText style={[styles.statusText, { color: colors.textTertiary }]}>{t('created')}</ThemedText>
                 </View>
               </View>
-              
-              <ThemedText style={styles.previewDate}>
+
+              <ThemedText style={[styles.previewDate, { color: colors.textSecondary }]}>
                 {moment().format('dddd • MMM DD, YYYY')}
               </ThemedText>
-              
+
               <View style={styles.previewStats}>
                 <View style={styles.statItem}>
-                  <ThemedText style={styles.statValue}>0</ThemedText>
-                  <ThemedText style={styles.statLabel}>{t('stops')}</ThemedText>
+                  <ThemedText style={[styles.statValue, { color: colors.text }]}>0</ThemedText>
+                  <ThemedText style={[styles.statLabel, { color: colors.textSecondary }]}>{t('stops')}</ThemedText>
                 </View>
                 <View style={styles.statItem}>
-                  <ThemedText style={styles.statValue}>-</ThemedText>
-                  <ThemedText style={styles.statLabel}>{t('eta')}</ThemedText>
+                  <ThemedText style={[styles.statValue, { color: colors.text }]}>-</ThemedText>
+                  <ThemedText style={[styles.statLabel, { color: colors.textSecondary }]}>{t('eta')}</ThemedText>
                 </View>
               </View>
             </View>
@@ -203,7 +205,7 @@ export default function CreateRoute() {
         </ScrollView>
 
         {/* Create Button */}
-        <View style={styles.buttonContainer}>
+        <View style={[styles.buttonContainer, { backgroundColor: colors.background, borderTopColor: colors.border }]}>
           <PrimaryButton
             title={isLoading ? t('creatingRoute') : t('createRoute')}
             onPress={handleSubmit}
@@ -220,7 +222,6 @@ export default function CreateRoute() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: Colors.light.background,
   },
   header: {
     flexDirection: 'row',
@@ -229,8 +230,6 @@ const styles = StyleSheet.create({
     paddingHorizontal: Spacing.lg,
     paddingVertical: Spacing.md,
     borderBottomWidth: 1,
-    borderBottomColor: Colors.light.border,
-    backgroundColor: Colors.light.background,
   },
   backButton: {
     padding: Spacing.xs,
@@ -239,7 +238,6 @@ const styles = StyleSheet.create({
   headerTitle: {
     fontSize: Typography.fontSize.lg,
     fontWeight: Typography.fontWeight.semibold,
-    color: Colors.light.text,
   },
   placeholder: {
     width: 32, // Same as back button width for centering
@@ -249,13 +247,11 @@ const styles = StyleSheet.create({
   },
   scrollView: {
     flex: 1,
-    backgroundColor: Colors.light.backgroundSecondary,
   },
   content: {
     paddingBottom: Spacing.xl,
   },
   section: {
-    backgroundColor: Colors.light.background,
     marginBottom: Spacing.md,
     paddingHorizontal: Spacing.lg,
     paddingVertical: Spacing.lg,
@@ -263,7 +259,6 @@ const styles = StyleSheet.create({
   sectionTitle: {
     fontSize: Typography.fontSize.base,
     fontWeight: Typography.fontWeight.semibold,
-    color: Colors.light.text,
     marginBottom: Spacing.md,
   },
   nameFieldContainer: {
@@ -287,11 +282,9 @@ const styles = StyleSheet.create({
   },
   infoBox: {
     flexDirection: 'row',
-    backgroundColor: Colors.light.backgroundSecondary,
     padding: Spacing.md,
     borderRadius: BorderRadius.md,
     borderLeftWidth: 4,
-    borderLeftColor: Colors.light.info,
   },
   infoIcon: {
     marginRight: Spacing.sm,
@@ -300,15 +293,12 @@ const styles = StyleSheet.create({
   infoText: {
     flex: 1,
     fontSize: Typography.fontSize.sm,
-    color: Colors.light.textSecondary,
     lineHeight: 20,
   },
   previewCard: {
-    backgroundColor: Colors.light.backgroundSecondary,
     borderRadius: BorderRadius.lg,
     padding: Spacing.lg,
     borderWidth: 1,
-    borderColor: Colors.light.border,
   },
   previewHeader: {
     flexDirection: 'row',
@@ -321,7 +311,6 @@ const styles = StyleSheet.create({
     fontWeight: Typography.fontWeight.bold,
   },
   statusBadge: {
-    backgroundColor: Colors.light.textTertiary + '20',
     paddingHorizontal: Spacing.sm,
     paddingVertical: Spacing.xs / 2,
     borderRadius: BorderRadius.sm,
@@ -329,13 +318,11 @@ const styles = StyleSheet.create({
   statusText: {
     fontSize: Typography.fontSize.xs,
     fontWeight: Typography.fontWeight.semibold,
-    color: Colors.light.textTertiary,
     textTransform: 'uppercase',
     letterSpacing: 0.5,
   },
   previewDate: {
     fontSize: Typography.fontSize.sm,
-    color: Colors.light.textSecondary,
     fontWeight: Typography.fontWeight.medium,
     marginBottom: Spacing.md,
   },
@@ -349,19 +336,15 @@ const styles = StyleSheet.create({
   statValue: {
     fontSize: Typography.fontSize.lg,
     fontWeight: Typography.fontWeight.bold,
-    color: Colors.light.text,
     marginBottom: 2,
   },
   statLabel: {
     fontSize: Typography.fontSize.xs,
-    color: Colors.light.textSecondary,
     textTransform: 'uppercase',
     letterSpacing: 0.5,
   },
   buttonContainer: {
     padding: Spacing.lg,
-    backgroundColor: Colors.light.background,
     borderTopWidth: 1,
-    borderTopColor: Colors.light.border,
   },
 });

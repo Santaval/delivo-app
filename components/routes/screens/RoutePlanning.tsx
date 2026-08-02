@@ -1,7 +1,8 @@
 import { FloatingActionButton, SwipeButton, TopBar } from '@/components';
 import Map from '@/components/maps/Map';
-import { BorderRadius, Colors, Spacing, Typography } from '@/constants';
+import { BorderRadius, Routes, Spacing, Typography } from '@/constants';
 import { useRoute } from '@/context/RouteContext';
+import { useThemeColor } from '@/hooks/useColorScheme';
 import { router } from 'expo-router';
 import React from 'react';
 import { useTranslation } from 'react-i18next';
@@ -12,25 +13,27 @@ export default function RoutePlanningScreen() {
 
   const { route, isLoading, error, startNavigation } = useRoute();
   const { t } = useTranslation();
-  
+  const colors = useThemeColor();
 
 
-  
+
+
+
 
   const renderStopItem = ({ item, index }: { item: RoutePoint; index: number }) => (
-    <View style={styles.stopItem}>
-      <View style={styles.stopNumber}>
-        <Text style={styles.stopNumberText}>{index + 1}</Text>
+    <View style={[styles.stopItem, { borderBottomColor: colors.border }]}>
+      <View style={[styles.stopNumber, { backgroundColor: colors.primary }]}>
+        <Text style={[styles.stopNumberText, { color: colors.textInverse }]}>{index + 1}</Text>
       </View>
-      
+
       <View style={styles.stopContent}>
-        <Text style={styles.stopName}>{item.order.client.name}</Text>
-        <Text style={styles.stopAddress}>
+        <Text style={[styles.stopName, { color: colors.text }]}>{item.order.client.name}</Text>
+        <Text style={[styles.stopAddress, { color: colors.textSecondary }]}>
           {/* Mock address - replace with actual client address */}
          {item.order.items.map((i) => i.name).join(", ")}
         </Text>
       </View>
-      
+
       {/* <View style={styles.stopTime}>
         <Text style={styles.timeText}>{formatEstimatedArrival(index)}</Text>
         <Text style={styles.timeLabel}>{t('arrivalEst')}</Text>
@@ -40,11 +43,11 @@ export default function RoutePlanningScreen() {
 
   if (isLoading) {
     return (
-      <SafeAreaView style={styles.container}>
-        <TopBar title={t('routeMap')} />
+      <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]}>
+        <TopBar title={t('routeMap')} showBack backTo={Routes.routes} />
         <View style={styles.centerContent}>
-          <ActivityIndicator size="large" color={Colors.light.primary} />
-          <Text style={styles.loadingText}>{t('loadingRoute')}</Text>
+          <ActivityIndicator size="large" color={colors.primary} />
+          <Text style={[styles.loadingText, { color: colors.textSecondary }]}>{t('loadingRoute')}</Text>
         </View>
       </SafeAreaView>
     );
@@ -52,23 +55,23 @@ export default function RoutePlanningScreen() {
 
   if (error || !route) {
     return (
-      <SafeAreaView style={styles.container}>
-        <TopBar title={t('routeMap')} />
+      <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]}>
+        <TopBar title={t('routeMap')} showBack backTo={Routes.routes} />
         <View style={styles.centerContent}>
-          <Text style={styles.errorText}>{error || t('routeNotFound')}</Text>
+          <Text style={[styles.errorText, { color: colors.danger }]}>{error || t('routeNotFound')}</Text>
         </View>
       </SafeAreaView>
     );
   }
 
   return (
-    <SafeAreaView style={styles.container}>
-      <TopBar title={route.name} />
-      
+    <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]}>
+      <TopBar title={route.name} showBack backTo={Routes.routes} />
+
       <View style={styles.content}>
         {/* Map Section */}
-        <View style={styles.mapContainer}>
-          <Map 
+        <View style={[styles.mapContainer, { backgroundColor: colors.backgroundSecondary }]}>
+          <Map
             markers={route.points.map((point, index) => ({
               coordinate: {
                 latitude: point.order.client.location.lat || 37.7749,
@@ -76,21 +79,22 @@ export default function RoutePlanningScreen() {
               },
               title: point.order.client.name,
               description: 'Delivery stop',
-              backgroundColor: Colors.light.primary,
+              backgroundColor: colors.primary,
             }))}
             polylines={route.polyline}
+            fitToMarkers
           />
         </View>
 
         {/* Planned Stops Section */}
-        <View style={styles.stopsContainer}>
+        <View style={[styles.stopsContainer, { backgroundColor: colors.background }]}>
           <View style={styles.stopsHeader}>
-            <Text style={styles.stopsTitle}>{t("plannedStops")}</Text>
-            <View style={styles.stopsCount}>
-              <Text style={styles.stopsCountText}>{route.points.length} {t("stopsTotal")}</Text>
+            <Text style={[styles.stopsTitle, { color: colors.text }]}>{t("plannedStops")}</Text>
+            <View style={[styles.stopsCount, { backgroundColor: colors.success + '20' }]}>
+              <Text style={[styles.stopsCountText, { color: colors.success }]}>{route.points.length} {t("stopsTotal")}</Text>
             </View>
           </View>
-          
+
           <FlatList
             data={route.points}
             keyExtractor={(item, index) => `${item.id}-${index}`}
@@ -98,22 +102,22 @@ export default function RoutePlanningScreen() {
             showsVerticalScrollIndicator={false}
             style={styles.stopsList}
           />
-          
-          <View style={styles.navigationButtonContainer}>
+
+          <View style={[styles.navigationButtonContainer, { borderTopColor: colors.border, backgroundColor: colors.background }]}>
             <SwipeButton
               onSwipeComplete={startNavigation}
               text={isLoading ? t("optimizingRoute") : t("slideToStartNavigation")}
               isLoading={isLoading}
               iconName="navigate"
-              backgroundColor={Colors.light.success}
+              backgroundColor={colors.success}
               style={styles.navigationButton}
             />
           </View>
         </View>
       </View>
-      <FloatingActionButton 
+      <FloatingActionButton
         icon="add"
-        onPress={() => router.push(`/routes/view/addOrders?routeId=${route.id}`)}
+        onPress={() => router.push(Routes.routeAddOrders(route.id))}
       />
     </SafeAreaView>
   );
@@ -122,14 +126,12 @@ export default function RoutePlanningScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: Colors.light.background,
   },
   content: {
     flex: 1,
   },
   mapContainer: {
     height: 250,
-    backgroundColor: Colors.light.backgroundSecondary,
   },
   map: {
     flex: 1,
@@ -143,17 +145,14 @@ const styles = StyleSheet.create({
   loadingText: {
     marginTop: Spacing.md,
     fontSize: Typography.fontSize.base,
-    color: Colors.light.textSecondary,
     textAlign: 'center',
   },
   errorText: {
     fontSize: Typography.fontSize.lg,
-    color: Colors.light.danger,
     textAlign: 'center',
   },
   stopsContainer: {
     flex: 1,
-    backgroundColor: Colors.light.background,
     borderTopLeftRadius: BorderRadius.xl,
     borderTopRightRadius: BorderRadius.xl,
     marginTop: -BorderRadius.xl,
@@ -169,10 +168,8 @@ const styles = StyleSheet.create({
   stopsTitle: {
     fontSize: Typography.fontSize.lg,
     fontWeight: Typography.fontWeight.bold,
-    color: Colors.light.text,
   },
   stopsCount: {
-    backgroundColor: Colors.light.success + '20',
     paddingHorizontal: Spacing.sm,
     paddingVertical: Spacing.xs / 2,
     borderRadius: BorderRadius.sm,
@@ -180,7 +177,6 @@ const styles = StyleSheet.create({
   stopsCountText: {
     fontSize: Typography.fontSize.sm,
     fontWeight: Typography.fontWeight.semibold,
-    color: Colors.light.success,
   },
   stopsList: {
     flex: 1,
@@ -191,13 +187,11 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     paddingVertical: Spacing.md,
     borderBottomWidth: 1,
-    borderBottomColor: Colors.light.border,
   },
   stopNumber: {
     width: 32,
     height: 32,
     borderRadius: 16,
-    backgroundColor: Colors.light.primary,
     justifyContent: 'center',
     alignItems: 'center',
     marginRight: Spacing.md,
@@ -205,7 +199,6 @@ const styles = StyleSheet.create({
   stopNumberText: {
     fontSize: Typography.fontSize.sm,
     fontWeight: Typography.fontWeight.bold,
-    color: Colors.light.textInverse,
   },
   stopContent: {
     flex: 1,
@@ -214,12 +207,10 @@ const styles = StyleSheet.create({
   stopName: {
     fontSize: Typography.fontSize.base,
     fontWeight: Typography.fontWeight.semibold,
-    color: Colors.light.text,
     marginBottom: 2,
   },
   stopAddress: {
     fontSize: Typography.fontSize.sm,
-    color: Colors.light.textSecondary,
   },
   stopTime: {
     alignItems: 'flex-end',
@@ -227,18 +218,14 @@ const styles = StyleSheet.create({
   timeText: {
     fontSize: Typography.fontSize.sm,
     fontWeight: Typography.fontWeight.semibold,
-    color: Colors.light.primary,
     marginBottom: 2,
   },
   timeLabel: {
     fontSize: Typography.fontSize.xs,
-    color: Colors.light.textSecondary,
   },
   navigationButtonContainer: {
     padding: Spacing.lg,
     borderTopWidth: 1,
-    borderTopColor: Colors.light.border,
-    backgroundColor: Colors.light.background,
   },
   navigationButton: {
     marginBottom: 0,
