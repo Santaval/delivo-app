@@ -1,6 +1,4 @@
-import { Routes } from "@/constants";
 import api from "@/services/api";
-import { router } from "expo-router";
 import * as SecureStore from "expo-secure-store";
 import { createContext, useContext, useEffect, useState } from "react";
 import { useAuth } from "./AuthContext";
@@ -10,6 +8,10 @@ interface CompaniesContextType {
   selectCompany: (companyId: string) => Promise<void>;
   activeCompany: Company | null;
   isLoadingActiveCompany: boolean;
+  /** Signed-in user has no companies yet — the layout routes to company creation. */
+  needsCompanyCreation: boolean;
+  /** Signed-in user has companies but none is active — the layout routes to selection. */
+  needsCompanySelection: boolean;
 }
 
 const CompaniesContext = createContext<CompaniesContextType>({
@@ -17,6 +19,8 @@ const CompaniesContext = createContext<CompaniesContextType>({
   selectCompany: async () => {},
   activeCompany: null,
   isLoadingActiveCompany: true,
+  needsCompanyCreation: false,
+  needsCompanySelection: false,
 });
 
 export const CompaniesProvider = ({
@@ -63,9 +67,9 @@ export const CompaniesProvider = ({
         return;
       }
 
-      // If user has no companies, redirect to add company page
+      // If user has no companies, there's nothing to resolve — the guard in
+      // app/_layout.tsx sends them to company creation.
       if (!user.companies || user.companies.length === 0) {
-        router.push(Routes.companiesAdd);
         setIsLoadingActiveCompany(false);
         return;
       }
@@ -84,9 +88,10 @@ export const CompaniesProvider = ({
       try {
         const storedCompanyId = await SecureStore.getItemAsync("activeCompany");
 
-        // If no stored company ID, redirect to company selection
+        // No stored company ID — nothing to resolve. The guard in
+        // app/_layout.tsx sends the user to company selection.
         if (!storedCompanyId) {
-          router.push(Routes.companiesSelect);
+          setActiveCompany(null);
           return;
         }
 
@@ -94,7 +99,7 @@ export const CompaniesProvider = ({
         const company = companies.find((c) => c.id === storedCompanyId);
         if (!company) {
           await SecureStore.deleteItemAsync("activeCompany"); // Clean up invalid stored ID
-          router.push(Routes.companiesSelect);
+          setActiveCompany(null);
           return;
         }
 
@@ -111,6 +116,11 @@ export const CompaniesProvider = ({
     loadActiveCompany();
   }, [companies, authState.isLoading, user]);
 
+  const needsCompanyCreation =
+    !isLoadingActiveCompany && !activeCompany && companies.length === 0;
+  const needsCompanySelection =
+    !isLoadingActiveCompany && !activeCompany && companies.length > 0;
+
   return (
     <CompaniesContext.Provider
       value={{
@@ -118,6 +128,8 @@ export const CompaniesProvider = ({
         selectCompany,
         activeCompany,
         isLoadingActiveCompany,
+        needsCompanyCreation,
+        needsCompanySelection,
       }}
     >
       {children}

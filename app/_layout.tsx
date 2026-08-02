@@ -1,9 +1,10 @@
 import { ErrorBoundary } from "@/components/feedback/ErrorBoundary";
 import { OfflineBanner } from "@/components/feedback/OfflineBanner";
 import config from "@/config/env";
+import { Routes } from "@/constants";
 import { AuthProvider, useAuth } from "@/context/AuthContext";
 import { CompaniesProvider, useCompanies } from "@/context/CompaniesContext";
-import { PlanLimitProvider } from "@/context/PlanLimitContext";
+import { PlanLimitProvider, usePlanLimit } from "@/context/PlanLimitContext";
 import { PurchasesProvider } from "@/context/PurchasesContext";
 import { ToastProvider } from "@/context/ToastContext";
 import RevenueCatService from "@/services/purchases/RevenueCat.service";
@@ -11,7 +12,7 @@ import MapboxGL from "@rnmapbox/maps";
 import * as Sentry from '@sentry/react-native';
 import * as SplashScreen from 'expo-splash-screen';
 import { ObserveRoot } from 'expo-observe';
-import { Stack } from "expo-router";
+import { router, Stack } from "expo-router";
 import 'moment/locale/es';
 import { useEffect } from "react";
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
@@ -31,15 +32,27 @@ MapboxGL.setAccessToken(config.mapboxAccessToken);
 RevenueCatService.configure();
 SplashScreen.preventAutoHideAsync();
 
+/**
+ * The 402 interceptor only flips state in PlanLimitContext; the navigation to
+ * the plan-limit route is decided here, next to the route tree.
+ */
+function PlanLimitNavigator() {
+  const { shouldShowPlanLimit } = usePlanLimit();
+  useEffect(() => {
+    if (shouldShowPlanLimit) router.push(Routes.planLimit);
+  }, [shouldShowPlanLimit]);
+  return null;
+}
+
 function RootNavigator() {
   const { authState } = useAuth();
-  const { activeCompany, isLoadingActiveCompany, companies } = useCompanies();
+  const { activeCompany, isLoadingActiveCompany, needsCompanySelection } =
+    useCompanies();
   // Auth must resolve first; the company only matters once we know there is a session.
   const isBootstrapping = authState.isLoading || (authState.authenticated && isLoadingActiveCompany);
 
   const isAuthenticated = authState.authenticated;
   const hasActiveCompany = !!activeCompany;
-  const hasCompanies = companies.length > 0;
 
   // The navigator stays mounted while bootstrapping — the native splash covers
   // it, so nothing intermediate is visible, and the router is ready to receive
@@ -64,8 +77,10 @@ function RootNavigator() {
         </Stack.Protected>
 
         {/* Signed in without an active company: onboarding. `select` is declared
-            first so a user who already has companies lands there instead of `add`. */}
-        <Stack.Protected guard={isAuthenticated && !hasActiveCompany && hasCompanies}>
+            first so a user who already has companies lands there instead of `add`.
+            `add` stays available through the whole onboarding state (including
+            while the company is still resolving) so the stack is never empty. */}
+        <Stack.Protected guard={needsCompanySelection}>
           <Stack.Screen name="companies/select" />
         </Stack.Protected>
         <Stack.Protected guard={isAuthenticated && !hasActiveCompany}>
@@ -91,6 +106,7 @@ function RootNavigator() {
           <Stack.Screen name="routes/view/addOrders" />
         </Stack.Protected>
       </Stack>
+      <PlanLimitNavigator />
       <OfflineBanner />
     </ErrorBoundary>
   );

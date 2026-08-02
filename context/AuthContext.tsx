@@ -1,9 +1,7 @@
-import { Routes } from "@/constants";
 import { toast } from "@/context/ToastContext";
 import i18n from "@/i18n";
 import api, { setOnUnauthorized } from "@/services/api";
 import AuthService from "@/services/auth/Auth.service";
-import { router } from "expo-router";
 import * as SecureStore from "expo-secure-store";
 import { createContext, useContext, useEffect, useState } from "react";
 import { Observe } from "expo-observe";
@@ -188,7 +186,8 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         try {
           await handleLogout();
           toast.info(i18n.t("sessionExpired"));
-          router.replace(Routes.root);
+          // Clearing `authenticated` above is enough — the guard in
+          // app/_layout.tsx redirects to the login screen.
         } finally {
           handling = false;
         }
@@ -226,8 +225,8 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     try {
       setLoading(true);
       await handleLogout();
-      // Reset the navigation stack and redirect to login
-      router.replace(Routes.root);
+      // Clearing `authenticated` above is enough — the guard in
+      // app/_layout.tsx redirects to the login screen.
     } catch (error) {
       setError(error instanceof Error ? error.message : "Logout failed");
       throw error;
