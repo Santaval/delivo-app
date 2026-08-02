@@ -12,7 +12,6 @@ import { useTranslation } from 'react-i18next';
 import { StyleSheet, TouchableOpacity, View } from 'react-native';
 
 type DrawerEntry = {
-  name: string; // nombre de ruta del drawer, para calcular el foco
   labelKey: string;
   href: Href;
   icon: React.ComponentProps<typeof MaterialIcons>['name'];
@@ -20,11 +19,12 @@ type DrawerEntry = {
 
 /** Destinos secundarios. Los 4 destinos de la tab bar están deliberadamente
  *  ausentes: el drawer no debe duplicar la tab bar. Para agregar uno nuevo:
- *  una entrada acá + app/(drawer)/<name>.tsx + <Drawer.Screen name="<name>" />. */
+ *  una entrada acá + una ruta bajo app/ (p.ej. app/<name>.tsx) + un
+ *  <Stack.Screen name="<name>" /> en app/_layout.tsx. */
 const DRAWER_ENTRIES: DrawerEntry[] = [
-  { name: 'bills', labelKey: 'bills', href: Routes.bills, icon: 'receipt' },
-  { name: 'products', labelKey: 'products', href: Routes.products, icon: 'inventory-2' },
-  { name: 'account', labelKey: 'account', href: Routes.account, icon: 'person' },
+  { labelKey: 'bills', href: Routes.bills, icon: 'receipt' },
+  { labelKey: 'products', href: Routes.products, icon: 'inventory-2' },
+  { labelKey: 'account', href: Routes.account, icon: 'person' },
 ];
 
 export function AppDrawerContent(props: DrawerContentComponentProps) {
@@ -33,8 +33,6 @@ export function AppDrawerContent(props: DrawerContentComponentProps) {
   const { user } = useAuth();
   const { activeCompany } = useCompanies();
   const { isPro } = usePurchases();
-
-  const focusedName = props.state.routes[props.state.index]?.name;
 
   return (
     <DrawerContentScrollView {...props}>
@@ -67,34 +65,21 @@ export function AppDrawerContent(props: DrawerContentComponentProps) {
         {t('navigation')}
       </ThemedText>
 
-      {DRAWER_ENTRIES.map((entry) => {
-        const focused = entry.name === focusedName;
-        return (
-          <TouchableOpacity
-            key={entry.name}
-            style={[
-              styles.row,
-              { backgroundColor: focused ? colors.backgroundTertiary : 'transparent' },
-            ]}
-            accessibilityRole="button"
-            accessibilityLabel={t(entry.labelKey)}
-            accessibilityState={{ selected: focused }}
-            onPress={() => {
-              router.navigate(entry.href); // navigate, NO push: DrawerRouter no tiene caso PUSH
-              props.navigation.closeDrawer(); // el router solo cierra solo si cambia el índice
-            }}
-          >
-            <MaterialIcons
-              name={entry.icon}
-              size={24}
-              color={focused ? colors.primary : colors.textSecondary}
-            />
-            <ThemedText style={[styles.rowLabel, focused && { color: colors.primary }]}>
-              {t(entry.labelKey)}
-            </ThemedText>
-          </TouchableOpacity>
-        );
-      })}
+      {DRAWER_ENTRIES.map((entry) => (
+        <TouchableOpacity
+          key={entry.labelKey}
+          style={styles.row}
+          accessibilityRole="button"
+          accessibilityLabel={t(entry.labelKey)}
+          onPress={() => {
+            router.push(entry.href); // push: son rutas del stack raíz, no hermanas del drawer
+            props.navigation.closeDrawer(); // el drawer sigue montado debajo del push, hay que cerrarlo explícitamente
+          }}
+        >
+          <MaterialIcons name={entry.icon} size={24} color={colors.textSecondary} />
+          <ThemedText style={styles.rowLabel}>{t(entry.labelKey)}</ThemedText>
+        </TouchableOpacity>
+      ))}
     </DrawerContentScrollView>
   );
 }

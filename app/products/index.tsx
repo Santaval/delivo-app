@@ -3,7 +3,6 @@ import { ProductsList } from "@/components/products/ProductsList";
 import { SearchBar } from "@/components/SearchBar";
 import { ThemedView } from "@/components/ThemedView";
 import { Routes, Spacing } from "@/constants";
-import { useDrawer } from "@/hooks";
 import useProducts from "@/hooks/useProducts";
 import { router } from "expo-router";
 import { useTranslation } from "react-i18next";
@@ -20,7 +19,6 @@ export default function Products() {
     searchProducts,
   } = useProducts();
   const { t } = useTranslation();
-  const { openDrawer } = useDrawer();
 
   const handlePress = (productId: string) => {
     router.push(Routes.productView(productId));
@@ -28,7 +26,7 @@ export default function Products() {
 
   return (
     <SafeAreaView style={[styles.container]}>
-      <TopBar title={t("products")} onMenuPress={openDrawer} />
+      <TopBar title={t("products")} showBack backTo={Routes.home} />
 
       <ThemedView style={{ flex: 1, backgroundColor: "transparent" }}>
         {/* Search Section */}

@@ -7,7 +7,7 @@ import { MaterialCommunityIcons, MaterialIcons } from '@expo/vector-icons';
 import { router } from 'expo-router';
 import React from 'react';
 import { useTranslation } from 'react-i18next';
-import { StyleSheet, View } from 'react-native';
+import { ScrollView, StyleSheet, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 export default function Home() {
@@ -53,6 +53,12 @@ export default function Home() {
   return (
     <SafeAreaView style={styles.container}>
       <TopBar {...topBarProps} />
+      {/* The page scrolls as a whole: income card + chart + actions overflow a
+          compact screen, and the iOS tab bar is absolutely positioned over it. */}
+      <ScrollView
+        contentContainerStyle={styles.content}
+        showsVerticalScrollIndicator={false}
+      >
       {isGettingStarted ? (
         <View style={styles.gettingStarted}>
           <EmptyState
@@ -115,6 +121,7 @@ export default function Home() {
 
         ]}
       />
+      </ScrollView>
     </SafeAreaView>
   )
 }
@@ -124,6 +131,11 @@ const styles = StyleSheet.create({
     flex: 1,
     padding: Spacing.lg,
     gap: Spacing['3xl']
+  },
+  content: {
+    gap: Spacing['3xl'],
+    // Clears the tab bar, which sits `position: 'absolute'` over the scene on iOS.
+    paddingBottom: Spacing['6xl'],
   },
   skeletonCard: {
     height: 120,

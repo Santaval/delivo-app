@@ -1,7 +1,6 @@
 import { SearchBar, TopBar } from '@/components';
 import { BillsList } from '@/components/bills/BillsList';
 import { Routes, Spacing } from '@/constants';
-import { useDrawer } from '@/hooks';
 import useBills from '@/hooks/useBills';
 import { router } from 'expo-router';
 import React from 'react';
@@ -12,14 +11,14 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 export default function Bills() {
   const { bills, loading, error, refresh, search } = useBills();
   const { t } = useTranslation();
-  const { openDrawer } = useDrawer();
 
 
   return (
     <SafeAreaView style={styles.container}>
       <TopBar
         title={t('bills')}
-        onMenuPress={openDrawer}
+        showBack
+        backTo={Routes.home}
       />
 
       <SearchBar

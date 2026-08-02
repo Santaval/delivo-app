@@ -1,11 +1,10 @@
 import { ThemedText } from '@/components/ThemedText';
 import { TopBar } from '@/components/TopBar';
-import { Spacing, Typography } from '@/constants';
+import { Routes, Spacing, Typography } from '@/constants';
 import { useAuth } from '@/context/AuthContext';
 import { useCompanies } from '@/context/CompaniesContext';
 import { usePurchases } from '@/context/PurchasesContext';
 import { useToast } from '@/context/ToastContext';
-import { useDrawer } from '@/hooks';
 import { useThemeColor } from '@/hooks/useColorScheme';
 import { confirmDestructive } from '@/utils/confirm';
 import { MaterialIcons } from '@expo/vector-icons';
@@ -25,7 +24,6 @@ export default function AccountScreen() {
   const { t } = useTranslation();
   const toast = useToast();
   const colors = useThemeColor();
-  const { openDrawer } = useDrawer();
   const {
     isPro,
     isLoading,
@@ -63,7 +61,7 @@ export default function AccountScreen() {
 
   return (
     <SafeAreaView style={styles.container}>
-      <TopBar title={t('account')} onMenuPress={openDrawer} />
+      <TopBar title={t('account')} showBack backTo={Routes.home} />
       <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
 
         {/* Header */}
