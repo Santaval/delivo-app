@@ -82,6 +82,7 @@ export default function RoutePlanningScreen() {
               backgroundColor: colors.primary,
             }))}
             polylines={route.polyline}
+            fitToMarkers
           />
         </View>
 
