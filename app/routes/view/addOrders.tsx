@@ -90,7 +90,7 @@ export default function AddOrders() {
         RoutesService.addPoint(routeId, orderId),
       );
       await Promise.all(promises);
-      router.push(Routes.routeView(routeId));
+      router.replace(Routes.routeView(routeId));
     } catch (err) {
       toast.show({ message: t("failedToAddOrdersToRoute"), type: "error" });
     } finally {
