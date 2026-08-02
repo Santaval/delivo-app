@@ -8,7 +8,7 @@ import ClientCompactCard from '@/components/clients/ClientCompactCard';
 import CurrencyText from '@/components/currency/CurrencyText';
 import AddProductsModal from '@/components/orders/AddProductsModal';
 import RecordPaymentModal from '@/components/orders/RecordPaymentModal';
-import { BorderRadius, Shadows, Spacing, Typography } from '@/constants';
+import { BorderRadius, BillsViewParams, Shadows, Spacing, Typography } from '@/constants';
 import { Colors } from '@/constants/Colors';
 import { useThemeColor } from '@/hooks/useColorScheme';
 import useOrder from '@/hooks/useOrder';
@@ -107,7 +107,7 @@ const StatusBadge: React.FC<StatusBadgeProps> = ({ status }) => {
 };
 
 export default function OrderDetailsPage() {
-  const { id } = useLocalSearchParams<{ id: string }>();
+  const { id } = useLocalSearchParams<BillsViewParams>();
   const colors = useThemeColor();
   const { t } = useTranslation();
   const { order, loading, error, refresh, addItems } = useOrder(id);

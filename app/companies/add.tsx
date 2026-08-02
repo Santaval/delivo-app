@@ -16,7 +16,7 @@ import {
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { FormField, PrimaryButton, ThemedText } from "../../components";
-import { BorderRadius, Colors, Spacing, Typography } from "../../constants";
+import { BorderRadius, Colors, Routes, Spacing, Typography } from "../../constants";
 
 export default function AddCompanyPage() {
   const { t } = useTranslation();
@@ -40,7 +40,7 @@ export default function AddCompanyPage() {
       // which is what triggers the RevenueCat login for it.
       await selectCompany(company.id);
       await refreshUser();
-      router.replace("/companies/select");
+      router.replace(Routes.companiesSelect);
     } catch (error) {
       toast.show({ message: t("failedToCreateCompany"), type: "error" });
     } finally {

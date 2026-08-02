@@ -8,7 +8,7 @@ import ClientCompactCard from '@/components/clients/ClientCompactCard';
 import CurrencyText from '@/components/currency/CurrencyText';
 import AddProductsModal from '@/components/orders/AddProductsModal';
 import OrderStatusBadge from '@/components/orders/OrderStatusBadge';
-import { BorderRadius, Shadows, Spacing, Typography } from '@/constants';
+import { BorderRadius, OrdersViewParams, Routes, Shadows, Spacing, Typography } from '@/constants';
 import { Colors } from '@/constants/Colors';
 import { useThemeColor } from '@/hooks/useColorScheme';
 import useOrder from '@/hooks/useOrder';
@@ -85,7 +85,7 @@ const LineItemRow: React.FC<LineItemRowProps> = ({ item, onRemove }) => {
 
 
 export default function OrderDetailsPage() {
-  const { id } = useLocalSearchParams<{ id: string }>();
+  const { id } = useLocalSearchParams<OrdersViewParams>();
   const colors = useThemeColor();
   const { t } = useTranslation();
   const { order, loading, error, refresh, addItems, removeItem, markAsDelivered } = useOrder(id);
@@ -95,7 +95,7 @@ export default function OrderDetailsPage() {
   const onMarkAsDelivered = async () => {
     try {
       await markAsDelivered();
-      router.replace(`/bills/view/${id}`);
+      router.replace(Routes.billView(id));
     } catch (error) {
       console.error('Failed to mark as delivered', error);
     }

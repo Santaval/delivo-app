@@ -12,7 +12,7 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { PrimaryButton, ThemedText, ThemedView } from '../../components';
 import { toast } from '../../context/ToastContext';
-import { BorderRadius, Colors, Shadows, Spacing, Typography } from '../../constants';
+import { BorderRadius, Colors, Routes, Shadows, Spacing, Typography } from '../../constants';
 import { useCompanies } from '../../context/CompaniesContext';
 
 export default function CompanySelectPage() {
@@ -22,14 +22,14 @@ export default function CompanySelectPage() {
   const handleSelectCompany = async (companyId: string) => {
     try {
       await selectCompany(companyId);
-      router.replace('/');
+      router.replace(Routes.root);
     } catch (error) {
       toast.error(t('failedToSelectCompany'));
     }
   };
 
   const handleAddNewCompany = () => {
-    router.push('/companies/add');
+    router.push(Routes.companiesAdd);
   };
 
   const getCompanyInitials = (name: string) => {

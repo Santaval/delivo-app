@@ -1,6 +1,6 @@
 import { FloatingActionButton, SwipeButton, TopBar } from '@/components';
 import Map from '@/components/maps/Map';
-import { BorderRadius, Colors, Spacing, Typography } from '@/constants';
+import { BorderRadius, Colors, Routes, Spacing, Typography } from '@/constants';
 import { useRoute } from '@/context/RouteContext';
 import { router } from 'expo-router';
 import React from 'react';
@@ -113,7 +113,7 @@ export default function RoutePlanningScreen() {
       </View>
       <FloatingActionButton 
         icon="add"
-        onPress={() => router.push(`/routes/view/addOrders?routeId=${route.id}`)}
+        onPress={() => router.push(Routes.routeAddOrders(route.id))}
       />
     </SafeAreaView>
   );

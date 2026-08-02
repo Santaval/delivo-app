@@ -10,7 +10,7 @@ import ClientBills from "@/components/clients/ClientBills";
 import ClientCompactCard from "@/components/clients/ClientCompactCard";
 import ClientLocationView from "@/components/clients/ClientLocationView";
 import ClientOrders from "@/components/clients/ClientOrders";
-import { BorderRadius, Shadows, Spacing, Typography } from "@/constants";
+import { BorderRadius, ClientsProfileParams, Routes, Shadows, Spacing, Typography } from "@/constants";
 import { Colors } from "@/constants/Colors";
 import useClient from "@/hooks/useClient";
 import { useThemeColor } from "@/hooks/useColorScheme";
@@ -34,7 +34,7 @@ import { SafeAreaView } from "react-native-safe-area-context";
 type TabType = "bills" | "location" | "orders";
 
 export default function ClientProfile() {
-  const { id } = useLocalSearchParams<{ id: string }>();
+  const { id } = useLocalSearchParams<ClientsProfileParams>();
   const colors = useThemeColor();
   const { client, loading, error, refreshClient, updateLocation, deleteClient } =
     useClient(id);
@@ -69,7 +69,7 @@ export default function ClientProfile() {
   };
 
   const handleEdit = () => {
-    router.push(`/clients/edit/${id}`);
+    router.push(Routes.clientEdit(id));
   };
 
   const handleDelete = () => {
@@ -237,7 +237,7 @@ export default function ClientProfile() {
       <FloatingActionButton
         icon="add-shopping-cart"
         onPress={() => {
-          router.push(`/orders/create?clientId=${client.id}`);
+          router.push(Routes.orderCreate(client.id));
         }}
       />
     </SafeAreaView>

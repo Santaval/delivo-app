@@ -1,3 +1,4 @@
+import { Routes } from "@/constants";
 import api from "@/services/api";
 import { router } from "expo-router";
 import * as SecureStore from "expo-secure-store";
@@ -64,7 +65,7 @@ export const CompaniesProvider = ({
 
       // If user has no companies, redirect to add company page
       if (!user.companies || user.companies.length === 0) {
-        router.push("/companies/add");
+        router.push(Routes.companiesAdd);
         setIsLoadingActiveCompany(false);
         return;
       }
@@ -85,7 +86,7 @@ export const CompaniesProvider = ({
 
         // If no stored company ID, redirect to company selection
         if (!storedCompanyId) {
-          router.push("/companies/select");
+          router.push(Routes.companiesSelect);
           return;
         }
 
@@ -93,7 +94,7 @@ export const CompaniesProvider = ({
         const company = companies.find((c) => c.id === storedCompanyId);
         if (!company) {
           await SecureStore.deleteItemAsync("activeCompany"); // Clean up invalid stored ID
-          router.push("/companies/select");
+          router.push(Routes.companiesSelect);
           return;
         }
 

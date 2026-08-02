@@ -1,3 +1,4 @@
+import { Routes } from '@/constants';
 import { setOnPlanLimitExceeded } from '@/services/api';
 import type { PlanLimitPayload } from '@/services/errors/PlanLimit';
 import { router } from 'expo-router';
@@ -34,7 +35,7 @@ export function PlanLimitProvider({ children }: { children: React.ReactNode }) {
     if (isShowing.current) return;
     isShowing.current = true;
     setPayload(next);
-    router.push('/plan-limit');
+    router.push(Routes.planLimit);
   }, []);
 
   // Only releases the guard — `payload` is left in place so the screen doesn't

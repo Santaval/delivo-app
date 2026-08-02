@@ -1,5 +1,5 @@
 import { EmptyState, ErrorState, IncomeCard, IncomeTrendsChart, PrimaryButton, QuickLinks, SkeletonBox, TopBar } from '@/components';
-import { BorderRadius, Spacing } from '@/constants';
+import { BorderRadius, Routes, Spacing } from '@/constants';
 import { useThemeColor } from '@/hooks';
 import useFinancialSummary from '@/hooks/useFinanancialSummary';
 import { MaterialCommunityIcons, MaterialIcons } from '@expo/vector-icons';
@@ -49,12 +49,12 @@ export default function Home() {
             title={t('gettingStartedTitle')}
             subtitle={t('gettingStartedSubtitle')}
             actionLabel={t('addFirstClient')}
-            onAction={() => router.push('/clients/add')}
+            onAction={() => router.push(Routes.clientsAdd)}
           />
           <PrimaryButton
             title={t('addFirstProduct')}
             variant="outline"
-            onPress={() => router.push('/products/add')}
+            onPress={() => router.push(Routes.productsAdd)}
             style={styles.secondaryCta}
           />
         </View>
@@ -83,7 +83,7 @@ export default function Home() {
             id: 'clients',
             title: t('clients'),
             subtitle: t('viewDetailedClientInformation'),
-            onPress: () => router.push('/(tabs)/clients'),
+            onPress: () => router.push(Routes.tabClients),
           },
 
           {
@@ -91,7 +91,7 @@ export default function Home() {
             id: 'orders',
             title: t('orders'),
             subtitle: t('viewDetailedOrderInformation'),
-            onPress: () => router.push('/(tabs)/orders'),
+            onPress: () => router.push(Routes.tabOrders),
           },
 
           {
@@ -99,7 +99,7 @@ export default function Home() {
             id: 'invoices',
             title: t('bills'),
             subtitle: t('viewDetailedBillInformation'),
-            onPress: () => router.push('/(tabs)/bills'),
+            onPress: () => router.push(Routes.tabBills),
           },
 
           {
@@ -107,7 +107,7 @@ export default function Home() {
             id: 'products',
             title: t('products'),
             subtitle: t('viewDetailedProductInformation'),
-            onPress: () => router.push('/(tabs)/products'),
+            onPress: () => router.push(Routes.tabProducts),
           },
 
           {
@@ -115,7 +115,7 @@ export default function Home() {
             id: 'routes',
             title: t('routes'),
             subtitle: t('viewDetailedRouteInformation'),
-            onPress: () => router.push('/(tabs)/routes'),
+            onPress: () => router.push(Routes.tabRoutes),
           },
 
         ]}

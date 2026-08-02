@@ -1,7 +1,7 @@
 import { FormField } from '@/components/FormField';
 import { PrimaryButton } from '@/components/PrimaryButton';
 import { ThemedText } from '@/components/ThemedText';
-import { BorderRadius, Colors, Spacing, Typography } from '@/constants';
+import { BorderRadius, Colors, Routes, Spacing, Typography } from '@/constants';
 import { useToast } from '@/context/ToastContext';
 import { useThemeColor } from '@/hooks/useColorScheme';
 import i18n from '@/i18n';
@@ -80,7 +80,7 @@ export default function CreateRoute() {
 
       const route = await RoutesService.create(routeData);
 
-      router.replace(`/routes/view/${route.id}`);
+      router.replace(Routes.routeView(route.id));
     } catch (error) {
       toast.show({ message: t('failedToCreateRoute'), type: 'error' });
     } finally {

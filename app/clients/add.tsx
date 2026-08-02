@@ -1,5 +1,5 @@
 import { FormField, LocationSearch, PrimaryButton, ThemedText, ThemedView, TopBar } from '@/components';
-import { Spacing, Typography } from '@/constants';
+import { Spacing, Typography, Routes } from '@/constants';
 import { Colors } from '@/constants/Colors';
 import { useToast } from '@/context/ToastContext';
 import i18n from '@/i18n';
@@ -75,7 +75,7 @@ export default function AddClient() {
     try {
       const client = await ClientsService.createClient(formData);
 
-      router.push(`/clients/profile/${client.id}`);
+      router.push(Routes.clientProfile(client.id));
     } catch (error) {
       console.error('Error creating client:', error);
       toast.show({ message: t('failedToCreateClient'), type: 'error' });

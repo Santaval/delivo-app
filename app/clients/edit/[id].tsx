@@ -2,7 +2,7 @@ import { LoadingState } from '@/components/feedback/LoadingState';
 import { FormField } from '@/components/FormField';
 import { PrimaryButton } from '@/components/PrimaryButton';
 import { ThemedText } from '@/components/ThemedText';
-import { BorderRadius, Colors, Spacing, Typography } from '@/constants';
+import { BorderRadius, ClientsEditParams, Colors, Spacing, Typography } from '@/constants';
 import { useToast } from '@/context/ToastContext';
 import { useThemeColor } from '@/hooks/useColorScheme';
 import useClient from '@/hooks/useClient';
@@ -30,7 +30,7 @@ const clientSchema = z.object({
 });
 
 export default function ClientEditScreen() {
-  const { id } = useLocalSearchParams<{ id: string }>();
+  const { id } = useLocalSearchParams<ClientsEditParams>();
   const colors = useThemeColor();
   const { t } = useTranslation();
   const toast = useToast();

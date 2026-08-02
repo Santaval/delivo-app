@@ -1,5 +1,5 @@
 import { SwipeButton, TopBar } from '@/components';
-import { BorderRadius, Colors, Spacing, Typography } from '@/constants';
+import { BorderRadius, Colors, RouteAddOrdersParams, Spacing, Typography } from '@/constants';
 import { useToast } from '@/context/ToastContext';
 import useOrders from '@/hooks/useOrders';
 import RoutesService from '@/services/routes/Routes.service';
@@ -27,7 +27,7 @@ export default function AddOrders() {
   const [selectedOrders, setSelectedOrders] = useState<Set<string>>(new Set());
   const [isAddingToRoute, setIsAddingToRoute] = useState(false);
 
-  const { routeId } = useLocalSearchParams<{ routeId: string }>();
+  const { routeId } = useLocalSearchParams<RouteAddOrdersParams>();
 
   // Filter and search orders
   const filteredOrders = useMemo(() => {

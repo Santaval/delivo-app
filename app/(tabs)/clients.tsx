@@ -1,5 +1,5 @@
 import { ClientCard, EmptyState, ErrorState, FloatingActionButton, ListSkeleton, SearchBar, TopBar } from '@/components';
-import { Spacing } from '@/constants';
+import { Routes, Spacing } from '@/constants';
 import useClients from '@/hooks/useClients';
 import { router } from 'expo-router';
 import React from 'react';
@@ -12,7 +12,7 @@ export default function Clients() {
   const { t } = useTranslation();
 
   const handleAddClient = () => {
-    router.push('/clients/add');
+    router.push(Routes.clientsAdd);
   };
 
   return (
@@ -44,7 +44,7 @@ export default function Clients() {
               key={client.id}
               name={client.name}
               phone={client.phoneNumber}
-              onPress={() => router.push(`/clients/profile/${client.id}`)}
+              onPress={() => router.push(Routes.clientProfile(client.id))}
             />
           ))
         ) : (

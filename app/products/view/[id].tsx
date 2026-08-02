@@ -5,7 +5,7 @@ import {
     ProductMetaCard,
     ProductPricingCard,
 } from "@/components/products";
-import { Spacing, Typography } from "@/constants";
+import { ProductsViewParams, Routes, Spacing, Typography } from "@/constants";
 import { Colors } from "@/constants/Colors";
 import { useToast } from "@/context/ToastContext";
 import { useThemeColor } from "@/hooks/useColorScheme";
@@ -23,14 +23,14 @@ import {
 import { SafeAreaView } from "react-native-safe-area-context";
 
 export default function ProductDetail() {
-  const { id } = useLocalSearchParams<{ id: string }>();
+  const { id } = useLocalSearchParams<ProductsViewParams>();
   const colors = useThemeColor();
   const { t } = useTranslation();
   const toast = useToast();
   const { product, loading, error, refresh, remove } = useProduct(id);
 
   const handleEdit = () => {
-    router.push({ pathname: "/products/edit/[id]", params: { id } });
+    router.push(Routes.productEdit(id));
   };
 
   const handleDelete = async () => {

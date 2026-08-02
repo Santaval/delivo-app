@@ -1,6 +1,6 @@
 import { FloatingActionButton, TopBar } from '@/components';
 import { RoutesList } from '@/components/RoutesList';
-import { Spacing } from '@/constants';
+import { Routes, Spacing } from '@/constants';
 import useRoutes from '@/hooks/useRoutes';
 import { router } from 'expo-router';
 import React from 'react';
@@ -8,12 +8,12 @@ import { useTranslation } from 'react-i18next';
 import { StyleSheet } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
-export default function Routes() {
+export default function RoutesScreen() {
   const { routes, loading, error, refresh } = useRoutes();
   const { t } = useTranslation();
 
   const handleAddRoute = () => {
-    router.push('/routes/create');
+    router.push(Routes.routesCreate);
   };
 
 
@@ -31,7 +31,7 @@ export default function Routes() {
       <RoutesList
         routes={routes}
         onRoutePress={(routeId) => {
-          router.push(`/routes/view/${routeId}`);
+          router.push(Routes.routeView(routeId));
         }}
 
         isRefreshing={loading && routes.length > 0}

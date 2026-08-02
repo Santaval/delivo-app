@@ -2,7 +2,7 @@ import { FloatingActionButton, TopBar } from "@/components";
 import { ProductsList } from "@/components/products/ProductsList";
 import { SearchBar } from "@/components/SearchBar";
 import { ThemedView } from "@/components/ThemedView";
-import { Colors, Spacing, Typography } from "@/constants";
+import { Colors, Routes, Spacing, Typography } from "@/constants";
 import useProducts from "@/hooks/useProducts";
 import { router } from "expo-router";
 import React, { useState } from "react";
@@ -24,10 +24,7 @@ export default function Products() {
   );
 
   const handlePress = (productId: string) => {
-    router.push({
-      pathname: "/products/view/[id]",
-      params: { id: productId }
-    });
+    router.push(Routes.productView(productId));
   };
 
   return (
@@ -52,12 +49,12 @@ export default function Products() {
           loading={loading && products.length === 0}
           error={error}
           onRefresh={refresh}
-          onCreateFirst={() => router.push("/products/add")}
+          onCreateFirst={() => router.push(Routes.productsAdd)}
         />
       </ThemedView>
       <FloatingActionButton
         icon="add"
-        onPress={() => router.push("/products/add")}
+        onPress={() => router.push(Routes.productsAdd)}
       />
     </SafeAreaView>
   );

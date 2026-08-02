@@ -1,6 +1,6 @@
 import { PrimaryButton, TopBar } from '@/components';
 import Map from '@/components/maps/Map';
-import { BorderRadius, Colors, Spacing, Typography } from '@/constants';
+import { BorderRadius, Colors, Routes, Spacing, Typography } from '@/constants';
 import { useRoute } from '@/context/RouteContext';
 import { Ionicons } from '@expo/vector-icons';
 import { router } from 'expo-router';
@@ -38,7 +38,7 @@ export default function RouteFinishedScreen() {
 
   const handleFinishRoute = () => {
     // Navigate back to routes list
-    router.push('/(tabs)/routes');
+    router.push(Routes.tabRoutes);
   };
 
 

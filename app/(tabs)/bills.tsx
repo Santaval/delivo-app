@@ -1,6 +1,6 @@
 import { SearchBar, TopBar } from '@/components';
 import { BillsList } from '@/components/bills/BillsList';
-import { Spacing } from '@/constants';
+import { Routes, Spacing } from '@/constants';
 import useBills from '@/hooks/useBills';
 import { router } from 'expo-router';
 import React from 'react';
@@ -26,7 +26,7 @@ export default function Bills() {
       />
 
       <BillsList
-        onOrderPress={(orderId) => router.push(`/bills/view/${orderId}`)}
+        onOrderPress={(orderId) => router.push(Routes.billView(orderId))}
         orders={bills}
         isRefreshing={loading && bills.length > 0}
         loading={loading && bills.length === 0}

@@ -1,3 +1,4 @@
+import { Routes } from "@/constants";
 import useCustomerBills from "@/hooks/useCustomerBills";
 import { router } from "expo-router";
 import React from "react";
@@ -17,7 +18,7 @@ export default function ClientBills(props: Props) {
       orders={bills}
       isRefreshing={loading}
       onRefresh={refreshBills}
-      onOrderPress={(orderId) => router.push(`/bills/view/${orderId}`)}
+      onOrderPress={(orderId) => router.push(Routes.billView(orderId))}
     />
   );
 }

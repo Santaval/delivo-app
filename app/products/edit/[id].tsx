@@ -2,7 +2,7 @@ import { LoadingState } from '@/components/feedback/LoadingState';
 import { FormField } from '@/components/FormField';
 import { PrimaryButton } from '@/components/PrimaryButton';
 import { ThemedText } from '@/components/ThemedText';
-import { BorderRadius, Colors, Spacing, Typography } from '@/constants';
+import { BorderRadius, Colors, ProductsEditParams, Spacing, Typography } from '@/constants';
 import { useToast } from '@/context/ToastContext';
 import { useThemeColor } from '@/hooks/useColorScheme';
 import useProduct from '@/hooks/useProduct';
@@ -31,7 +31,7 @@ const productSchema = z.object({
 });
 
 export default function ProductEditScreen() {
-  const { id } = useLocalSearchParams<{ id: string }>();
+  const { id } = useLocalSearchParams<ProductsEditParams>();
   const colors = useThemeColor();
   const { t } = useTranslation();
   const toast = useToast();

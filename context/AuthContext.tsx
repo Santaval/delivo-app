@@ -1,3 +1,4 @@
+import { Routes } from "@/constants";
 import { toast } from "@/context/ToastContext";
 import i18n from "@/i18n";
 import api, { setOnUnauthorized } from "@/services/api";
@@ -188,7 +189,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         try {
           await handleLogout();
           toast.info(i18n.t("sessionExpired"));
-          router.replace("/");
+          router.replace(Routes.root);
         } finally {
           handling = false;
         }
@@ -227,7 +228,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       setLoading(true);
       await handleLogout();
       // Reset the navigation stack and redirect to login
-      router.replace("/");
+      router.replace(Routes.root);
     } catch (error) {
       setError(error instanceof Error ? error.message : "Logout failed");
       throw error;

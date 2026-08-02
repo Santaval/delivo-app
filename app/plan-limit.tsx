@@ -1,5 +1,5 @@
 import { PrimaryButton, ThemedText, ThemedView } from "@/components";
-import { Spacing, Typography } from "@/constants";
+import { Routes, Spacing, Typography } from "@/constants";
 import { usePlanLimit } from "@/context/PlanLimitContext";
 import { usePurchases } from "@/context/PurchasesContext";
 import { useToast } from "@/context/ToastContext";
@@ -48,7 +48,7 @@ export default function PlanLimitScreen() {
 
   const dismiss = useCallback(() => {
     if (router.canGoBack()) router.back();
-    else router.replace("/");
+    else router.replace(Routes.root);
   }, []);
 
   // Fires for both purchases and restores; only leave once the entitlement is live

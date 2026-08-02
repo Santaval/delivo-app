@@ -1,6 +1,6 @@
 import { PrimaryButton, ThemedText, ThemedView } from '@/components';
 import PaymentMethodSelect from '@/components/PaymentMethodSelect';
-import { BorderRadius, Shadows, Spacing, Typography } from '@/constants';
+import { BorderRadius, Routes, Shadows, Spacing, Typography } from '@/constants';
 import { useThemeColor } from '@/hooks/useColorScheme';
 import OrdersService from '@/services/orders/Orders.service';
 import { MaterialIcons } from '@expo/vector-icons';
@@ -93,7 +93,7 @@ const RecordPaymentModal: React.FC<RecordPaymentModalProps> = ({
     // Close modal first, then navigate
     onClose();
     setTimeout(() => {
-      router.push('/payment-methods/add');
+      router.push(Routes.paymentMethodsAdd);
     }, 300); // Small delay to ensure modal is closed
   };
 

@@ -1,6 +1,6 @@
 import { FloatingActionButton, SearchBar, TopBar } from '@/components';
 import { OrdersList } from '@/components/OrdersList';
-import { Spacing } from '@/constants';
+import { Routes, Spacing } from '@/constants';
 import useOrders from '@/hooks/useOrders';
 import { router } from 'expo-router';
 import React from 'react';
@@ -13,7 +13,7 @@ export default function Orders() {
   const { t } = useTranslation();
 
   const handleAddOrder = () => {
-    router.push('/orders/create');
+    router.push(Routes.ordersCreate);
   };
 
   return (
@@ -29,7 +29,7 @@ export default function Orders() {
       />
 
       <OrdersList
-        onOrderPress={(orderId) => router.push(`/orders/view/${orderId}`)}
+        onOrderPress={(orderId) => router.push(Routes.orderView(orderId))}
         orders={orders}
         isRefreshing={loading && orders.length > 0}
         loading={loading && orders.length === 0}

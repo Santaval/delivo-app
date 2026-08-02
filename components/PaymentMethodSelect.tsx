@@ -1,5 +1,5 @@
 import { ThemedText } from '@/components';
-import { BorderRadius, Shadows, Spacing, Typography } from '@/constants';
+import { BorderRadius, Routes, Shadows, Spacing, Typography } from '@/constants';
 import { useThemeColor } from '@/hooks/useColorScheme';
 import usePaymentMethods from '@/hooks/usePaymentMethods';
 import { MaterialIcons } from '@expo/vector-icons';
@@ -42,7 +42,7 @@ const PaymentMethodSelect: React.FC<PaymentMethodSelectProps> = ({
     if (onAddNew) {
       onAddNew();
     } else {
-      router.push('/payment-methods/add');
+      router.push(Routes.paymentMethodsAdd);
     }
   };
 

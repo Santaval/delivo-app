@@ -6,7 +6,7 @@ import CurrentStopHeader from '@/components/routes/CurrentStopHeader';
 import DeliveryActionButtons from '@/components/routes/DeliveryActionButtons';
 import DeliveryMap from '@/components/routes/DeliveryMap';
 import DeliveryTabs, { Tab } from '@/components/routes/DeliveryTabs';
-import { BorderRadius, Colors, Spacing, Typography } from '@/constants';
+import { BorderRadius, Colors, Routes, Spacing, Typography } from '@/constants';
 import { useRoute } from '@/context/RouteContext';
 import { useToast } from '@/context/ToastContext';
 import useUserLocation from '@/hooks/useUserLocation';
@@ -125,7 +125,7 @@ export default function RouteDeliveryScreen() {
               {/* Delivery Notes */}
               <OrderCard
                 order={currentPoint.order}
-                onPress={() => {router.push(`/orders/view/${currentPoint.order.id}`)}}
+                onPress={() => {router.push(Routes.orderView(currentPoint.order.id))}}
               />
 
               {/* Complete Delivery Button */}

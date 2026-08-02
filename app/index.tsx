@@ -3,7 +3,7 @@ import Logo from "@/components/Logo";
 import { SocialButton } from "@/components/SocialButton";
 import { ThemedText } from "@/components/ThemedText";
 import { ThemedView } from "@/components/ThemedView";
-import { Spacing, Typography } from "@/constants";
+import { Routes, Spacing, Typography } from "@/constants";
 import { useAuth } from "@/context/AuthContext";
 import { useCompanies } from "@/context/CompaniesContext";
 import { useAppleAuth } from "@/hooks/useAppleAuth";
@@ -32,7 +32,7 @@ export default function Index() {
   useEffect(() => {
     if (authState.isLoading) return; // Still loading
     if (authState.authenticated && activeCompany) {
-      router.replace('/(tabs)/home');
+      router.replace(Routes.home);
     }
   }, [authState, activeCompany]);
 
