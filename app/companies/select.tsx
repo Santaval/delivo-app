@@ -21,8 +21,9 @@ export default function CompanySelectPage() {
 
   const handleSelectCompany = async (companyId: string) => {
     try {
+      // No redirect here: once the company resolves into activeCompany the
+      // guard in app/_layout.tsx swaps this screen for the app stack.
       await selectCompany(companyId);
-      router.replace(Routes.root);
     } catch (error) {
       toast.error(t('failedToSelectCompany'));
     }

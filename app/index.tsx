@@ -3,24 +3,20 @@ import Logo from "@/components/Logo";
 import { SocialButton } from "@/components/SocialButton";
 import { ThemedText } from "@/components/ThemedText";
 import { ThemedView } from "@/components/ThemedView";
-import { Routes, Spacing, Typography } from "@/constants";
+import { Spacing, Typography } from "@/constants";
 import { useAuth } from "@/context/AuthContext";
-import { useCompanies } from "@/context/CompaniesContext";
 import { useAppleAuth } from "@/hooks/useAppleAuth";
 import { useThemeColor } from "@/hooks/useColorScheme";
 import { useGoogleAuth } from "@/hooks/useGoogleAuh";
 import config from "@/config/env";
-import { router } from "expo-router";
 import { StatusBar } from "expo-status-bar";
 import * as WebBrowser from "expo-web-browser";
-import { useEffect } from "react";
 import { useTranslation } from "react-i18next";
 import { ActivityIndicator, StyleSheet, View } from "react-native";
 
 export default function Index() {
   const colors = useThemeColor();
   const { authState } = useAuth();
-  const { activeCompany } = useCompanies();
   const { onGoogleSignIn, isLoading  } = useGoogleAuth();
   const { onAppleSignIn } = useAppleAuth();
   const { t } = useTranslation();
@@ -28,11 +24,6 @@ export default function Index() {
   const handleGoogleSignIn = async () => {
     await onGoogleSignIn();
   };
-
-  useEffect(() => {
-    if (authState.isLoading) return;
-    if (authState.authenticated && activeCompany) router.replace(Routes.home);
-  }, [authState, activeCompany]);
 
   if (authState.isLoading || authState.authenticated) {
     return (

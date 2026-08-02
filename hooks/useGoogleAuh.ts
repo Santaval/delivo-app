@@ -1,7 +1,5 @@
-import { Routes } from "@/constants";
 import { useAuth } from "@/context/AuthContext";
 import * as Google from "expo-auth-session/providers/google";
-import { router } from "expo-router";
 import * as WebBrowser from "expo-web-browser";
 import { useEffect, useState } from "react";
 
@@ -36,8 +34,6 @@ export const useGoogleAuth = () => {
         try {
           if (!authentication.idToken) return;
           await handleGoogleSignIn(authentication.idToken);
-          router.push(Routes.home);
-          
         } catch (error) {
           console.error("Failed to process Google sign in:", error);
         }

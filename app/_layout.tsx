@@ -33,9 +33,13 @@ SplashScreen.preventAutoHideAsync();
 
 function RootNavigator() {
   const { authState } = useAuth();
-  const { isLoadingActiveCompany } = useCompanies();
+  const { activeCompany, isLoadingActiveCompany, companies } = useCompanies();
   // Auth must resolve first; the company only matters once we know there is a session.
   const isBootstrapping = authState.isLoading || (authState.authenticated && isLoadingActiveCompany);
+
+  const isAuthenticated = authState.authenticated;
+  const hasActiveCompany = !!activeCompany;
+  const hasCompanies = companies.length > 0;
 
   // The navigator stays mounted while bootstrapping — the native splash covers
   // it, so nothing intermediate is visible, and the router is ready to receive
@@ -46,7 +50,47 @@ function RootNavigator() {
 
   return (
     <ErrorBoundary>
-      <Stack screenOptions={{ headerShown: false }} />
+      {/* Single source of truth for route access. Every file under app/ must be
+          declared here — an undeclared route is auto-registered by expo-router
+          and would stay unguarded. Declaration order also matters: when the
+          focused screen's guard turns false, expo-router falls back to the
+          first still-available screen in declaration order, so the order below
+          determines where each auth/company state lands the user. */}
+      <Stack screenOptions={{ headerShown: false }}>
+        {/* Signed out: the login screen and the OAuth callback are the only reachable routes */}
+        <Stack.Protected guard={!isAuthenticated}>
+          <Stack.Screen name="index" />
+          <Stack.Screen name="oauthredirect" />
+        </Stack.Protected>
+
+        {/* Signed in without an active company: onboarding. `select` is declared
+            first so a user who already has companies lands there instead of `add`. */}
+        <Stack.Protected guard={isAuthenticated && !hasActiveCompany && hasCompanies}>
+          <Stack.Screen name="companies/select" />
+        </Stack.Protected>
+        <Stack.Protected guard={isAuthenticated && !hasActiveCompany}>
+          <Stack.Screen name="companies/add" />
+        </Stack.Protected>
+
+        {/* Fully signed in */}
+        <Stack.Protected guard={isAuthenticated && hasActiveCompany}>
+          <Stack.Screen name="(tabs)" />
+          <Stack.Screen name="bills/view/[id]" />
+          <Stack.Screen name="clients/add" />
+          <Stack.Screen name="clients/edit/[id]" />
+          <Stack.Screen name="clients/profile/[id]" />
+          <Stack.Screen name="orders/create" />
+          <Stack.Screen name="orders/view/[id]" />
+          <Stack.Screen name="payment-methods/add" />
+          <Stack.Screen name="plan-limit" />
+          <Stack.Screen name="products/add" />
+          <Stack.Screen name="products/edit/[id]" />
+          <Stack.Screen name="products/view/[id]" />
+          <Stack.Screen name="routes/create" />
+          <Stack.Screen name="routes/view/[id]" />
+          <Stack.Screen name="routes/view/addOrders" />
+        </Stack.Protected>
+      </Stack>
       <OfflineBanner />
     </ErrorBoundary>
   );

@@ -3,7 +3,6 @@ import { useCompanies } from "@/context/CompaniesContext";
 import { useToast } from "@/context/ToastContext";
 import CompaniesService from "@/services/companies/Companies.service";
 import { MaterialIcons } from "@expo/vector-icons";
-import { router } from "expo-router";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import {
@@ -16,7 +15,7 @@ import {
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { FormField, PrimaryButton, ThemedText } from "../../components";
-import { BorderRadius, Colors, Routes, Spacing, Typography } from "../../constants";
+import { BorderRadius, Colors, Spacing, Typography } from "../../constants";
 
 export default function AddCompanyPage() {
   const { t } = useTranslation();
@@ -40,7 +39,8 @@ export default function AddCompanyPage() {
       // which is what triggers the RevenueCat login for it.
       await selectCompany(company.id);
       await refreshUser();
-      router.replace(Routes.companiesSelect);
+      // No redirect here: once the company resolves into activeCompany the
+      // guard in app/_layout.tsx swaps this screen for the app stack.
     } catch (error) {
       toast.show({ message: t("failedToCreateCompany"), type: "error" });
     } finally {
