@@ -40,14 +40,14 @@ export default function RouteFinishedScreen() {
 
   const handleFinishRoute = () => {
     // Navigate back to routes list
-    router.push(Routes.tabRoutes);
+    router.push(Routes.routes);
   };
 
 
   if (isLoading) {
     return (
       <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]}>
-        <TopBar title={t('routeFinished')} showBack backTo={Routes.tabRoutes} />
+        <TopBar title={t('routeFinished')} showBack backTo={Routes.routes} />
         <View style={styles.centerContent}>
           <ActivityIndicator size="large" color={colors.primary} />
           <Text style={[styles.loadingText, { color: colors.textSecondary }]}>{t('loadingRouteSummary')}</Text>
@@ -59,7 +59,7 @@ export default function RouteFinishedScreen() {
   if (error || !route) {
     return (
       <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]}>
-        <TopBar title={t('routeFinished')} showBack backTo={Routes.tabRoutes} />
+        <TopBar title={t('routeFinished')} showBack backTo={Routes.routes} />
         <View style={styles.centerContent}>
           <Text style={[styles.errorText, { color: colors.danger }]}>{error || t('routeNotFound')}</Text>
         </View>
@@ -69,7 +69,7 @@ export default function RouteFinishedScreen() {
 
   return (
     <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]}>
-      <TopBar title={t('routeSummary')} showBack backTo={Routes.tabRoutes} />
+      <TopBar title={t('routeSummary')} showBack backTo={Routes.routes} />
 
       <ScrollView style={styles.content} showsVerticalScrollIndicator={false}>
         {/* Success Header */}

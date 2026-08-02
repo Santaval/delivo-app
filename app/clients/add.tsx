@@ -98,7 +98,7 @@ export default function AddClient() {
         <TopBar
           title={t('addNewClient')}
           showBack
-          backTo={Routes.tabClients}
+          backTo={Routes.clients}
         />
         <ScrollView showsVerticalScrollIndicator={false}>
           <ThemedView style={styles.content}>

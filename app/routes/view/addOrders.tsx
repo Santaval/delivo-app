@@ -212,7 +212,7 @@ export default function AddOrders() {
         <TopBar
           title={t("addOrdersToRoute")}
           showBack
-          backTo={Routes.tabRoutes}
+          backTo={Routes.routes}
         />
         <View style={styles.centerContent}>
           <ActivityIndicator size="large" color={colors.primary} />
@@ -232,7 +232,7 @@ export default function AddOrders() {
         <TopBar
           title={t("addOrdersToRoute")}
           showBack
-          backTo={Routes.tabRoutes}
+          backTo={Routes.routes}
         />
         <View style={styles.centerContent}>
           <Text style={[styles.errorText, { color: colors.danger }]}>
@@ -250,7 +250,7 @@ export default function AddOrders() {
       <TopBar
         title={t("addOrdersToRoute")}
         showBack
-        backTo={Routes.tabRoutes}
+        backTo={Routes.routes}
       />
 
       <View style={styles.content}>

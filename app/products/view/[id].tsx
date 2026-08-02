@@ -45,7 +45,7 @@ export default function ProductDetail() {
   if (loading) {
     return (
       <ThemedView style={[styles.container, { backgroundColor: colors.backgroundSecondary }]}>
-        <TopBar title={t("productDetail")} showBack backTo={Routes.tabProducts} />
+        <TopBar title={t("productDetail")} showBack backTo={Routes.products} />
         <LoadingState message={t('loading')} />
       </ThemedView>
     );
@@ -54,7 +54,7 @@ export default function ProductDetail() {
   if (error || !product) {
     return (
       <ThemedView style={[styles.container, { backgroundColor: colors.backgroundSecondary }]}>
-        <TopBar title={t("productDetail")} showBack backTo={Routes.tabProducts} />
+        <TopBar title={t("productDetail")} showBack backTo={Routes.products} />
         <View style={styles.centerContent}>
           <MaterialIcons name="error-outline" size={48} color={colors.danger} />
           <ThemedText style={[styles.errorText, { color: colors.danger }]}>
@@ -72,7 +72,7 @@ export default function ProductDetail() {
 
   return (
     <SafeAreaView style={[styles.container, { backgroundColor: colors.backgroundSecondary }]}>
-      <TopBar title={t("productDetail")} showBack backTo={Routes.tabProducts} />
+      <TopBar title={t("productDetail")} showBack backTo={Routes.products} />
 
       <ScrollView
         style={styles.scrollView}

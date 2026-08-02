@@ -52,7 +52,7 @@ export default function CreateOrder() {
       <TopBar
         title={t('createOrder')}
         showBack
-        backTo={Routes.tabOrders}
+        backTo={Routes.orders}
       />
       <ClientSelect
         label={t("assignedClient").toUpperCase()}

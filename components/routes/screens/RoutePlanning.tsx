@@ -44,7 +44,7 @@ export default function RoutePlanningScreen() {
   if (isLoading) {
     return (
       <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]}>
-        <TopBar title={t('routeMap')} showBack backTo={Routes.tabRoutes} />
+        <TopBar title={t('routeMap')} showBack backTo={Routes.routes} />
         <View style={styles.centerContent}>
           <ActivityIndicator size="large" color={colors.primary} />
           <Text style={[styles.loadingText, { color: colors.textSecondary }]}>{t('loadingRoute')}</Text>
@@ -56,7 +56,7 @@ export default function RoutePlanningScreen() {
   if (error || !route) {
     return (
       <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]}>
-        <TopBar title={t('routeMap')} showBack backTo={Routes.tabRoutes} />
+        <TopBar title={t('routeMap')} showBack backTo={Routes.routes} />
         <View style={styles.centerContent}>
           <Text style={[styles.errorText, { color: colors.danger }]}>{error || t('routeNotFound')}</Text>
         </View>
@@ -66,7 +66,7 @@ export default function RoutePlanningScreen() {
 
   return (
     <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]}>
-      <TopBar title={route.name} showBack backTo={Routes.tabRoutes} />
+      <TopBar title={route.name} showBack backTo={Routes.routes} />
 
       <View style={styles.content}>
         {/* Map Section */}

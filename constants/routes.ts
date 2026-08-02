@@ -11,12 +11,16 @@ export type OrdersCreateParams = { clientId?: string };
 export type RouteAddOrdersParams = { routeId: string };
 
 export const Routes = {
-  home: "/(tabs)/home" as Href,
-  tabClients: "/(tabs)/clients" as Href,
-  tabOrders: "/(tabs)/orders" as Href,
-  tabBills: "/(tabs)/bills" as Href,
-  tabProducts: "/(tabs)/products" as Href,
-  tabRoutes: "/(tabs)/routes" as Href,
+  // Drawer > tabs
+  home: "/home" as Href,
+  orders: "/orders" as Href,
+  routes: "/routes" as Href,
+  clients: "/clients" as Href,
+
+  // Solo drawer
+  bills: "/bills" as Href,
+  products: "/products" as Href,
+  account: "/account" as Href,
 
   clientsAdd: "/clients/add" as Href,
   productsAdd: "/products/add" as Href,

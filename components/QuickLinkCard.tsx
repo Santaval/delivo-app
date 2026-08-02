@@ -29,6 +29,8 @@ export function QuickLinkCard({
       style={styles.container}
       onPress={onPress}
       activeOpacity={0.7}
+      accessibilityRole="button"
+      accessibilityLabel={`${title}. ${subtitle}`}
     >
       <ThemedView style={styles.content}>
         {/* Icon */}

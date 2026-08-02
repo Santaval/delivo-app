@@ -137,7 +137,7 @@ export default function OrderDetailsPage() {
         <TopBar
           title={t('invoiceDetails')}
           showBack
-          backTo={Routes.tabBills}
+          backTo={Routes.bills}
         />
         <View style={styles.centerContent}>
           <ActivityIndicator size="large" color={colors.primary} />
@@ -155,7 +155,7 @@ export default function OrderDetailsPage() {
         <TopBar
           title={t('invoiceDetails')}
           showBack
-          backTo={Routes.tabBills}
+          backTo={Routes.bills}
         />
         <View style={styles.centerContent}>
           <MaterialIcons name="error-outline" size={48} color={colors.danger} />
@@ -178,7 +178,7 @@ export default function OrderDetailsPage() {
       <TopBar
         title={t('invoiceDetails')}
         showBack
-        backTo={Routes.tabBills}
+        backTo={Routes.bills}
       />
 
       <View style={styles.contentWrapper}>

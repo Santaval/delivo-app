@@ -18,6 +18,8 @@ export type TopBarProps = {
   onUserPress?: () => void;
   showBack?: boolean;
   backTo?: Href;
+  /** Renderiza la hamburguesa a la izquierda. Solo desde pantallas bajo app/(drawer)/. */
+  onMenuPress?: () => void;
 };
 
 export function TopBar({
@@ -27,9 +29,10 @@ export function TopBar({
   showNotification = true,
   notificationCount,
   onNotificationPress,
-  onUserPress = () => {},
+  onUserPress,
   showBack = false,
-  backTo
+  backTo,
+  onMenuPress,
 }: TopBarProps) {
   const colors = useThemeColor();
   const { t } = useTranslation();
@@ -43,78 +46,86 @@ export function TopBar({
 
   return (
     <ThemedView style={styles.container}>
-      {/* Left side - back button (stacked screens) or user info */}
+      {/* Left side - back button wins over the hamburger if both are passed */}
       {showBack ? (
-        <View style={styles.userSection}>
-          <TouchableOpacity
-            onPress={handleBackPress}
-            accessibilityRole="button"
-            accessibilityLabel={t('back')}
-            hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
-            style={styles.backButton}
-          >
-            <MaterialIcons name="arrow-back-ios" size={28} color={colors.primary} />
-          </TouchableOpacity>
-          <View style={styles.userInfo}>
-            <ThemedText style={styles.title}>
-              {title}
-            </ThemedText>
-            {userName && (
-              <ThemedText variant="caption" style={styles.userName}>
-                {userName}
-              </ThemedText>
-            )}
-          </View>
-        </View>
-      ) : (
         <TouchableOpacity
-          style={styles.userSection}
-          onPress={onUserPress}
-          activeOpacity={0.7}
-        >
-          <Image
-            source={userImage || require('@/assets/images/user-placeholder.png')}
-            style={styles.userImage}
-            resizeMode="cover"
-          />
-          <View style={styles.userInfo}>
-            <ThemedText style={styles.title}>
-              {title}
-            </ThemedText>
-            {userName && (
-              <ThemedText variant="caption" style={styles.userName}>
-                {userName}
-              </ThemedText>
-            )}
-          </View>
-        </TouchableOpacity>
-      )}
-
-      {/* Right side - Notification (only rendered when a handler exists) */}
-      {showNotification && onNotificationPress && (
-        <TouchableOpacity
-          style={styles.notificationContainer}
-          onPress={onNotificationPress}
-          activeOpacity={0.7}
+          onPress={handleBackPress}
           accessibilityRole="button"
-          accessibilityLabel={t('notifications')}
+          accessibilityLabel={t('back')}
+          hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
+          style={styles.iconButton}
         >
-          <View style={styles.notificationIcon}>
-            <MaterialCommunityIcons
-              name="bell"
-              size={24}
-              color={colors.text}
-            />
-            {notificationCount !== undefined && notificationCount > 0 && (
-              <View style={[styles.badge, { backgroundColor: colors.danger }]}>
-                <ThemedText style={styles.badgeText}>
-                  {notificationCount > 99 ? '99+' : notificationCount.toString()}
-                </ThemedText>
-              </View>
-            )}
-          </View>
+          <MaterialIcons name="arrow-back-ios" size={28} color={colors.primary} />
         </TouchableOpacity>
-      )}
+      ) : onMenuPress ? (
+        <TouchableOpacity
+          onPress={onMenuPress}
+          accessibilityRole="button"
+          accessibilityLabel={t('openMenu')}
+          accessibilityHint={t('openMenuHint')}
+          hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
+          style={styles.iconButton}
+        >
+          <MaterialIcons name="menu" size={28} color={colors.primary} />
+        </TouchableOpacity>
+      ) : null}
+
+      <View style={styles.userInfo}>
+        <ThemedText style={styles.title}>
+          {title}
+        </ThemedText>
+        {userName && (
+          <ThemedText variant="caption" style={styles.userName}>
+            {userName}
+          </ThemedText>
+        )}
+      </View>
+
+      <View style={styles.rightSection}>
+        {/* Notification (only rendered when a handler exists) */}
+        {showNotification && onNotificationPress && (
+          <TouchableOpacity
+            style={styles.notificationContainer}
+            onPress={onNotificationPress}
+            activeOpacity={0.7}
+            accessibilityRole="button"
+            accessibilityLabel={t('notifications')}
+          >
+            <View style={styles.notificationIcon}>
+              <MaterialCommunityIcons
+                name="bell"
+                size={24}
+                color={colors.text}
+              />
+              {notificationCount !== undefined && notificationCount > 0 && (
+                <View style={[styles.badge, { backgroundColor: colors.danger }]}>
+                  <ThemedText style={styles.badgeText}>
+                    {notificationCount > 99 ? '99+' : notificationCount.toString()}
+                  </ThemedText>
+                </View>
+              )}
+            </View>
+          </TouchableOpacity>
+        )}
+
+        {/* Account avatar (only rendered when a handler exists) */}
+        {onUserPress && (
+          <TouchableOpacity
+            style={styles.avatarButton}
+            onPress={onUserPress}
+            activeOpacity={0.7}
+            accessibilityRole="button"
+            accessibilityLabel={t('account')}
+            hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
+          >
+            <Image
+              source={userImage || require('@/assets/images/user-placeholder.png')}
+              style={styles.userImage}
+              resizeMode="cover"
+            />
+          </TouchableOpacity>
+        )}
+      </View>
     </ThemedView>
   );
 }
@@ -128,27 +139,32 @@ const styles = StyleSheet.create({
     paddingVertical: Spacing.md,
     backgroundColor: 'transparent',
   },
-  userSection: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    flex: 1,
-  },
   userImage: {
     width: 40,
     height: 40,
     borderRadius: 20,
-    marginRight: Spacing.md,
     backgroundColor: '#f0f0f0', // Fallback background
   },
-  backButton: {
+  iconButton: {
     minWidth: 44,
     minHeight: 44,
     justifyContent: 'center',
     alignItems: 'flex-start',
     marginRight: Spacing.xs,
   },
+  avatarButton: {
+    minWidth: 44,
+    minHeight: 44,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
   userInfo: {
     flex: 1,
+  },
+  rightSection: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: Spacing.sm,
   },
   title: {
     fontSize: Typography.fontSize.lg,
