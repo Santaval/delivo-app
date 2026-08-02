@@ -1,5 +1,3 @@
-
-
 interface Config {
   apiUrl: string;
   apiKey: string;
@@ -24,12 +22,14 @@ const config: Config = {
   companyId: process.env.EXPO_PUBLIC_COMPANY_ID as string,
   mapboxAccessToken: process.env.EXPO_PUBLIC_MAPBOX_ACCESS_TOKEN as string,
   revenueCatIosKey: process.env.EXPO_PUBLIC_REVENUECAT_IOS_KEY as string,
-  revenueCatAndroidKey: process.env.EXPO_PUBLIC_REVENUECAT_ANDROID_KEY as string,
-  termsUrl: process.env.EXPO_PUBLIC_TERMS_URL || 'https://delivo.savaldev.com/terms',
-  privacyUrl: process.env.EXPO_PUBLIC_PRIVACY_URL || 'https://delivo.savaldev.com/privacy',
+  revenueCatAndroidKey: process.env
+    .EXPO_PUBLIC_REVENUECAT_ANDROID_KEY as string,
+  termsUrl: process.env.EXPO_PUBLIC_TERMS_URL || "https://appdelivo.com/terms",
+  privacyUrl:
+    process.env.EXPO_PUBLIC_PRIVACY_URL || "https://appdelivo.com/privacy",
   env: "development",
   isDevelopment: true,
   isProduction: false,
 };
 
-export default config; 
+export default config;
