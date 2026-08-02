@@ -1,5 +1,5 @@
 import { PrimaryButton, ThemedText, TopBar } from '@/components';
-import { BorderRadius, Spacing, Typography } from '@/constants';
+import { BorderRadius, Routes, Spacing, Typography } from '@/constants';
 import { useToast } from '@/context/ToastContext';
 import { useThemeColor } from '@/hooks/useColorScheme';
 import PaymentMethodsService from '@/services/paymentMethods/PaymentMethods.service';
@@ -45,7 +45,7 @@ export default function AddPaymentMethodScreen() {
 
   return (
     <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]}>
-      <TopBar title={t('newMethod')} />
+      <TopBar title={t('newMethod')} showBack backTo={Routes.home} />
 
       <KeyboardAvoidingView
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}

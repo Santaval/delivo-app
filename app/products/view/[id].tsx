@@ -46,7 +46,7 @@ export default function ProductDetail() {
   if (loading) {
     return (
       <ThemedView style={styles.container}>
-        <TopBar title={t("productDetail")} />
+        <TopBar title={t("productDetail")} showBack backTo={Routes.tabProducts} />
         <LoadingState message={t('loading')} />
       </ThemedView>
     );
@@ -55,7 +55,7 @@ export default function ProductDetail() {
   if (error || !product) {
     return (
       <ThemedView style={styles.container}>
-        <TopBar title={t("productDetail")} />
+        <TopBar title={t("productDetail")} showBack backTo={Routes.tabProducts} />
         <View style={styles.centerContent}>
           <MaterialIcons name="error-outline" size={48} color={colors.danger} />
           <ThemedText style={[styles.errorText, { color: colors.danger }]}>
@@ -73,7 +73,7 @@ export default function ProductDetail() {
 
   return (
     <SafeAreaView style={styles.container}>
-      <TopBar title={t("productDetail")} />
+      <TopBar title={t("productDetail")} showBack backTo={Routes.tabProducts} />
 
       <ScrollView
         style={styles.scrollView}

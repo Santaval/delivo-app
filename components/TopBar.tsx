@@ -1,9 +1,7 @@
-import { Spacing, Typography } from '@/constants';
-import { useAuth } from '@/context/AuthContext';
+import { Routes, Spacing, Typography } from '@/constants';
 import { useThemeColor } from '@/hooks/useColorScheme';
-import { confirmDestructive } from '@/utils/confirm';
 import { MaterialCommunityIcons, MaterialIcons } from '@expo/vector-icons';
-import { Link, RelativePathString } from 'expo-router';
+import { Href, useRouter } from 'expo-router';
 import React from 'react';
 import { Image, StyleSheet, TouchableOpacity, View } from 'react-native';
 import { useTranslation } from 'react-i18next';
@@ -18,7 +16,8 @@ export type TopBarProps = {
   notificationCount?: number;
   onNotificationPress?: () => void;
   onUserPress?: () => void;
-  goBackTo?: string
+  showBack?: boolean;
+  backTo?: Href;
 };
 
 export function TopBar({
@@ -29,49 +28,67 @@ export function TopBar({
   notificationCount,
   onNotificationPress,
   onUserPress = () => {},
-  goBackTo
+  showBack = false,
+  backTo
 }: TopBarProps) {
   const colors = useThemeColor();
-  const { logout } = useAuth();
   const { t } = useTranslation();
+  const router = useRouter();
 
-  const handleLogoutPress = () => {
-    confirmDestructive({
-      title: t('signOut'),
-      message: t('signOutConfirmMessage'),
-      confirmLabel: t('signOut'),
-      onConfirm: logout,
-    });
+  const handleBackPress = () => {
+    if (router.canGoBack()) router.back();
+    else if (backTo) router.replace(backTo);
+    else router.replace(Routes.home);
   };
 
   return (
     <ThemedView style={styles.container}>
-      {/* Left side - User info */}
-      <TouchableOpacity
-        style={styles.userSection}
-        onPress={onUserPress}
-        activeOpacity={0.7}
-      >
-        {!goBackTo ? <Image
-          source={userImage || require('@/assets/images/user-placeholder.png')}
-          style={styles.userImage}
-          resizeMode="cover"
-        /> :
-        <Link href={goBackTo as RelativePathString} accessibilityRole="link" accessibilityLabel={t('back')}>
-          <MaterialIcons name="arrow-back-ios" size={28} color={colors.primary}  />
-        </Link>
-        }
-        <View style={styles.userInfo}>
-          <ThemedText style={styles.title}>
-            {title}
-          </ThemedText>
-          {userName && (
-            <ThemedText variant="caption" style={styles.userName}>
-              {userName}
+      {/* Left side - back button (stacked screens) or user info */}
+      {showBack ? (
+        <View style={styles.userSection}>
+          <TouchableOpacity
+            onPress={handleBackPress}
+            accessibilityRole="button"
+            accessibilityLabel={t('back')}
+            hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
+            style={styles.backButton}
+          >
+            <MaterialIcons name="arrow-back-ios" size={28} color={colors.primary} />
+          </TouchableOpacity>
+          <View style={styles.userInfo}>
+            <ThemedText style={styles.title}>
+              {title}
             </ThemedText>
-          )}
+            {userName && (
+              <ThemedText variant="caption" style={styles.userName}>
+                {userName}
+              </ThemedText>
+            )}
+          </View>
         </View>
-      </TouchableOpacity>
+      ) : (
+        <TouchableOpacity
+          style={styles.userSection}
+          onPress={onUserPress}
+          activeOpacity={0.7}
+        >
+          <Image
+            source={userImage || require('@/assets/images/user-placeholder.png')}
+            style={styles.userImage}
+            resizeMode="cover"
+          />
+          <View style={styles.userInfo}>
+            <ThemedText style={styles.title}>
+              {title}
+            </ThemedText>
+            {userName && (
+              <ThemedText variant="caption" style={styles.userName}>
+                {userName}
+              </ThemedText>
+            )}
+          </View>
+        </TouchableOpacity>
+      )}
 
       {/* Right side - Notification (only rendered when a handler exists) */}
       {showNotification && onNotificationPress && (
@@ -83,10 +100,10 @@ export function TopBar({
           accessibilityLabel={t('notifications')}
         >
           <View style={styles.notificationIcon}>
-            <MaterialCommunityIcons 
-              name="bell" 
-              size={24} 
-              color={colors.text} 
+            <MaterialCommunityIcons
+              name="bell"
+              size={24}
+              color={colors.text}
             />
             {notificationCount !== undefined && notificationCount > 0 && (
               <View style={[styles.badge, { backgroundColor: colors.danger }]}>
@@ -98,14 +115,6 @@ export function TopBar({
           </View>
         </TouchableOpacity>
       )}
-
-      <TouchableOpacity
-        onPress={handleLogoutPress}
-        accessibilityRole="button"
-        accessibilityLabel={t('signOut')}
-      >
-        <MaterialIcons key="logout" name="logout" size={24} color={colors.text} />
-      </TouchableOpacity>
     </ThemedView>
   );
 }
@@ -130,6 +139,13 @@ const styles = StyleSheet.create({
     borderRadius: 20,
     marginRight: Spacing.md,
     backgroundColor: '#f0f0f0', // Fallback background
+  },
+  backButton: {
+    minWidth: 44,
+    minHeight: 44,
+    justifyContent: 'center',
+    alignItems: 'flex-start',
+    marginRight: Spacing.xs,
   },
   userInfo: {
     flex: 1,

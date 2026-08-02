@@ -1,5 +1,5 @@
 import { SwipeButton, TopBar } from '@/components';
-import { BorderRadius, Colors, RouteAddOrdersParams, Spacing, Typography } from '@/constants';
+import { BorderRadius, Colors, RouteAddOrdersParams, Routes, Spacing, Typography } from '@/constants';
 import { useToast } from '@/context/ToastContext';
 import useOrders from '@/hooks/useOrders';
 import RoutesService from '@/services/routes/Routes.service';
@@ -164,7 +164,7 @@ export default function AddOrders() {
   if (loading) {
     return (
       <SafeAreaView style={styles.container}>
-        <TopBar title={t('addOrdersToRoute')} />
+        <TopBar title={t('addOrdersToRoute')} showBack backTo={Routes.tabRoutes} />
         <View style={styles.centerContent}>
           <ActivityIndicator size="large" color={Colors.light.primary} />
           <Text style={styles.loadingText}>{t('loadingOrders')}</Text>
@@ -176,7 +176,7 @@ export default function AddOrders() {
   if (error) {
     return (
       <SafeAreaView style={styles.container}>
-        <TopBar title={t('addOrdersToRoute')} />
+        <TopBar title={t('addOrdersToRoute')} showBack backTo={Routes.tabRoutes} />
         <View style={styles.centerContent}>
           <Text style={styles.errorText}>{error}</Text>
         </View>
@@ -186,8 +186,8 @@ export default function AddOrders() {
 
   return (
     <SafeAreaView style={styles.container}>
-      <TopBar title={t('addOrdersToRoute')} />
-      
+      <TopBar title={t('addOrdersToRoute')} showBack backTo={Routes.tabRoutes} />
+
       <View style={styles.content}>
         {/* Search Bar */}
         <View style={styles.searchContainer}>

@@ -8,7 +8,7 @@ import ClientCompactCard from '@/components/clients/ClientCompactCard';
 import CurrencyText from '@/components/currency/CurrencyText';
 import AddProductsModal from '@/components/orders/AddProductsModal';
 import RecordPaymentModal from '@/components/orders/RecordPaymentModal';
-import { BorderRadius, BillsViewParams, Shadows, Spacing, Typography } from '@/constants';
+import { BorderRadius, BillsViewParams, Routes, Shadows, Spacing, Typography } from '@/constants';
 import { Colors } from '@/constants/Colors';
 import { useThemeColor } from '@/hooks/useColorScheme';
 import useOrder from '@/hooks/useOrder';
@@ -137,6 +137,8 @@ export default function OrderDetailsPage() {
       <ThemedView style={styles.container}>
         <TopBar
           title={t('invoiceDetails')}
+          showBack
+          backTo={Routes.tabBills}
         />
         <View style={styles.centerContent}>
           <ActivityIndicator size="large" color={colors.primary} />
@@ -153,6 +155,8 @@ export default function OrderDetailsPage() {
       <ThemedView style={styles.container}>
         <TopBar
           title={t('invoiceDetails')}
+          showBack
+          backTo={Routes.tabBills}
         />
         <View style={styles.centerContent}>
           <MaterialIcons name="error-outline" size={48} color={colors.danger} />
@@ -174,6 +178,8 @@ export default function OrderDetailsPage() {
       style={styles.container}>
       <TopBar
         title={t('invoiceDetails')}
+        showBack
+        backTo={Routes.tabBills}
       />
 
       <ScrollView

@@ -111,6 +111,8 @@ export default function OrderDetailsPage() {
       <ThemedView style={styles.container}>
         <TopBar
           title={t('invoiceDetails')}
+          showBack
+          backTo={Routes.tabOrders}
         />
         <View style={styles.centerContent}>
           <ActivityIndicator size="large" color={colors.primary} />
@@ -127,6 +129,8 @@ export default function OrderDetailsPage() {
       <ThemedView style={styles.container}>
         <TopBar
           title={t('invoiceDetails')}
+          showBack
+          backTo={Routes.tabOrders}
         />
         <View style={styles.centerContent}>
           <MaterialIcons name="error-outline" size={48} color={colors.danger} />
@@ -148,6 +152,8 @@ export default function OrderDetailsPage() {
       style={styles.container}>
       <TopBar
         title={t('invoiceDetails')}
+        showBack
+        backTo={Routes.tabOrders}
       />
 
       <ScrollView

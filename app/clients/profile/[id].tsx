@@ -106,7 +106,7 @@ export default function ClientProfile() {
   if (loading) {
     return (
       <ThemedView style={styles.container}>
-        <TopBar title={t("clientProfile")} />
+        <TopBar title={t("clientProfile")} showBack backTo={Routes.tabClients} />
         <LoadingState message={t('loading')} />
       </ThemedView>
     );
@@ -115,7 +115,7 @@ export default function ClientProfile() {
   if (error || !client) {
     return (
       <ThemedView style={styles.container}>
-        <TopBar title={t("clientProfile")} />
+        <TopBar title={t("clientProfile")} showBack backTo={Routes.tabClients} />
         <View style={styles.centerContent}>
           <MaterialIcons name="error-outline" size={48} color={colors.danger} />
           <ThemedText style={[styles.errorText, { color: colors.danger }]}>
@@ -133,7 +133,7 @@ export default function ClientProfile() {
 
   return (
     <SafeAreaView style={styles.container}>
-      <TopBar title={t("clientProfile")} />
+      <TopBar title={t("clientProfile")} showBack backTo={Routes.tabClients} />
 
       <ScrollView
         style={styles.scrollView}

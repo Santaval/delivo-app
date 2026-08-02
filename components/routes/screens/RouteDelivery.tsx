@@ -69,7 +69,7 @@ export default function RouteDeliveryScreen() {
   if (isLoading) {
     return (
       <SafeAreaView style={styles.container}>
-        <TopBar title={t('delivery')} />
+        <TopBar title={t('delivery')} showBack backTo={Routes.tabRoutes} />
         <View style={styles.centerContent}>
           <ActivityIndicator size="large" color={Colors.light.primary} />
           <Text style={styles.loadingText}>{t("loadingDelivery")}</Text>
@@ -81,7 +81,7 @@ export default function RouteDeliveryScreen() {
   if (error || !route || !currentPoint) {
     return (
       <SafeAreaView style={styles.container}>
-        <TopBar title={t('delivery')} />
+        <TopBar title={t('delivery')} showBack backTo={Routes.tabRoutes} />
         <View style={styles.centerContent}>
           <Text style={styles.errorText}>{error || t('noActiveDeliveryFound')}</Text>
         </View>
@@ -93,8 +93,8 @@ export default function RouteDeliveryScreen() {
 
   return (
     <SafeAreaView style={styles.container}>
-      <TopBar title={t('currentDelivery')} />
-      
+      <TopBar title={t('currentDelivery')} showBack backTo={Routes.tabRoutes} />
+
       <View style={styles.content}>
         {/* Map Section */}
         <DeliveryMap
