@@ -20,6 +20,7 @@ import { router, useLocalSearchParams } from "expo-router";
 import React, { useState } from "react";
 import { useTranslation } from "react-i18next";
 import {
+  ActivityIndicator,
   Alert,
   Linking,
   RefreshControl,
@@ -36,7 +37,7 @@ type TabType = "bills" | "location" | "orders";
 export default function ClientProfile() {
   const { id } = useLocalSearchParams<ClientsProfileParams>();
   const colors = useThemeColor();
-  const { client, loading, error, refreshClient, updateLocation, deleteClient } =
+  const { client, isInitialLoading, isMutating, error, refreshClient, updateLocation, deleteClient } =
     useClient(id);
   const [activeTab, setActiveTab] = useState<TabType>("bills");
   const {
@@ -103,7 +104,7 @@ export default function ClientProfile() {
     }
   };
 
-  if (loading) {
+  if (isInitialLoading) {
     return (
       <ThemedView style={styles.container}>
         <TopBar title={t("clientProfile")} showBack backTo={Routes.tabClients} />
@@ -112,7 +113,7 @@ export default function ClientProfile() {
     );
   }
 
-  if (error || !client) {
+  if (!client) {
     return (
       <ThemedView style={styles.container}>
         <TopBar title={t("clientProfile")} showBack backTo={Routes.tabClients} />
@@ -135,104 +136,116 @@ export default function ClientProfile() {
     <SafeAreaView style={styles.container}>
       <TopBar title={t("clientProfile")} showBack backTo={Routes.tabClients} />
 
-      <ScrollView
-        style={styles.scrollView}
-        contentContainerStyle={styles.content}
-        refreshControl={
-          <RefreshControl
-            refreshing={ordersLoading}
-            onRefresh={refreshOrders}
-            colors={[colors.primary]}
-            tintColor={colors.primary}
-          />
-        }
-        showsVerticalScrollIndicator={false}
-      >
-        {/* Client Info Card */}
-        <ClientCompactCard client={client} />
-
-        {/* Edit / Delete actions */}
-        <View style={styles.actionsRow}>
-          <TouchableOpacity
-            style={[styles.actionButton, { borderColor: colors.border }]}
-            onPress={handleEdit}
-            activeOpacity={0.7}
-          >
-            <MaterialIcons name="edit" size={18} color={colors.primary} />
-            <Text style={[styles.actionButtonText, { color: colors.primary }]}>
-              {t("edit")}
-            </Text>
-          </TouchableOpacity>
-          <TouchableOpacity
-            style={[styles.actionButton, { borderColor: colors.danger + "55" }]}
-            onPress={handleDelete}
-            activeOpacity={0.7}
-          >
-            <MaterialIcons name="delete-outline" size={18} color={colors.danger} />
-            <Text style={[styles.actionButtonText, { color: colors.danger }]}>
-              {t("delete")}
-            </Text>
-          </TouchableOpacity>
-        </View>
-
-        {/* Tabs */}
-        <View style={styles.tabsContainer}>
-          <TouchableOpacity
-            style={[styles.tab, activeTab === "orders" && styles.activeTab]}
-            onPress={() => setActiveTab("orders")}
-          >
-            <Text
-              style={[
-                styles.tabText,
-                activeTab === "orders" && styles.activeTabText,
-              ]}
-            >
-              {t("orders")}
-            </Text>
-          </TouchableOpacity>
-          <TouchableOpacity
-            style={[styles.tab, activeTab === "bills" && styles.activeTab]}
-            onPress={() => setActiveTab("bills")}
-          >
-            <Text
-              style={[
-                styles.tabText,
-                activeTab === "bills" && styles.activeTabText,
-              ]}
-            >
-              {t("bills")}
-            </Text>
-          </TouchableOpacity>
-
-          <TouchableOpacity
-            style={[styles.tab, activeTab === "location" && styles.activeTab]}
-            onPress={() => setActiveTab("location")}
-          >
-            <Text
-              style={[
-                styles.tabText,
-                activeTab === "location" && styles.activeTabText,
-              ]}
-            >
-              {t("location")}
-            </Text>
-          </TouchableOpacity>
-        </View>
-
-        {/* Tab Content */}
-        {activeTab === "bills" && <ClientBills clientId={client.id} />}
-
-        {activeTab === "orders" && <ClientOrders clientId={client.id} />}
-
-        {activeTab === "location" && (
-          <View style={styles.tabContent}>
-            <ClientLocationView
-              client={client}
-              onUpdateLocation={updateLocation}
+      <View style={styles.contentWrapper}>
+        <ScrollView
+          style={styles.scrollView}
+          contentContainerStyle={styles.content}
+          refreshControl={
+            <RefreshControl
+              refreshing={ordersLoading}
+              onRefresh={refreshOrders}
+              colors={[colors.primary]}
+              tintColor={colors.primary}
             />
+          }
+          showsVerticalScrollIndicator={false}
+        >
+          {/* Client Info Card */}
+          <ClientCompactCard client={client} />
+
+          {/* Edit / Delete actions */}
+          <View style={styles.actionsRow}>
+            <TouchableOpacity
+              style={[styles.actionButton, { borderColor: colors.border }]}
+              onPress={handleEdit}
+              activeOpacity={0.7}
+            >
+              <MaterialIcons name="edit" size={18} color={colors.primary} />
+              <Text style={[styles.actionButtonText, { color: colors.primary }]}>
+                {t("edit")}
+              </Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              style={[styles.actionButton, { borderColor: colors.danger + "55" }]}
+              onPress={handleDelete}
+              activeOpacity={0.7}
+              disabled={isMutating}
+            >
+              <MaterialIcons name="delete-outline" size={18} color={colors.danger} />
+              <Text style={[styles.actionButtonText, { color: colors.danger }]}>
+                {t("delete")}
+              </Text>
+            </TouchableOpacity>
+          </View>
+
+          {/* Tabs */}
+          <View style={styles.tabsContainer}>
+            <TouchableOpacity
+              style={[styles.tab, activeTab === "orders" && styles.activeTab]}
+              onPress={() => setActiveTab("orders")}
+            >
+              <Text
+                style={[
+                  styles.tabText,
+                  activeTab === "orders" && styles.activeTabText,
+                ]}
+              >
+                {t("orders")}
+              </Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              style={[styles.tab, activeTab === "bills" && styles.activeTab]}
+              onPress={() => setActiveTab("bills")}
+            >
+              <Text
+                style={[
+                  styles.tabText,
+                  activeTab === "bills" && styles.activeTabText,
+                ]}
+              >
+                {t("bills")}
+              </Text>
+            </TouchableOpacity>
+
+            <TouchableOpacity
+              style={[styles.tab, activeTab === "location" && styles.activeTab]}
+              onPress={() => setActiveTab("location")}
+            >
+              <Text
+                style={[
+                  styles.tabText,
+                  activeTab === "location" && styles.activeTabText,
+                ]}
+              >
+                {t("location")}
+              </Text>
+            </TouchableOpacity>
+          </View>
+
+          {/* Tab Content */}
+          {activeTab === "bills" && <ClientBills clientId={client.id} />}
+
+          {activeTab === "orders" && <ClientOrders clientId={client.id} />}
+
+          {activeTab === "location" && (
+            <View style={styles.tabContent}>
+              <ClientLocationView
+                client={client}
+                onUpdateLocation={updateLocation}
+              />
+            </View>
+          )}
+        </ScrollView>
+        {isMutating && (
+          <View
+            style={styles.mutatingOverlay}
+            pointerEvents="auto"
+            accessibilityLabel={t('updating')}
+          >
+            <ActivityIndicator size="large" color={colors.primary} />
           </View>
         )}
-      </ScrollView>
+      </View>
 
       <FloatingActionButton
         icon="add-shopping-cart"
@@ -252,6 +265,15 @@ const styles = StyleSheet.create({
   },
   scrollView: {
     flex: 1,
+  },
+  contentWrapper: {
+    flex: 1,
+  },
+  mutatingOverlay: {
+    ...StyleSheet.absoluteFill,
+    backgroundColor: 'rgba(0,0,0,0.15)',
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   content: {
     paddingBottom: Spacing.xl * 4, // Extra space for contact buttons

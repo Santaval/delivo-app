@@ -110,7 +110,7 @@ export default function OrderDetailsPage() {
   const { id } = useLocalSearchParams<BillsViewParams>();
   const colors = useThemeColor();
   const { t } = useTranslation();
-  const { order, loading, error, refresh, addItems } = useOrder(id);
+  const { order, isInitialLoading, isRefreshing, isMutating, error, refresh, addItems } = useOrder(id);
   const [showPaymentModal, setShowPaymentModal] = useState(false);
   const [showAddProductsModal, setShowAddProductsModal] = useState(false);
 
@@ -132,7 +132,7 @@ export default function OrderDetailsPage() {
   };
 
 
-  if (loading) {
+  if (isInitialLoading) {
     return (
       <ThemedView style={styles.container}>
         <TopBar
@@ -150,7 +150,7 @@ export default function OrderDetailsPage() {
     );
   }
 
-  if (error || !order) {
+  if (!order) {
     return (
       <ThemedView style={styles.container}>
         <TopBar
@@ -182,135 +182,154 @@ export default function OrderDetailsPage() {
         backTo={Routes.tabBills}
       />
 
-      <ScrollView
-        style={styles.scrollView}
-        contentContainerStyle={styles.content}
-        refreshControl={
-          <RefreshControl
-            refreshing={loading}
-            onRefresh={refresh}
-            colors={[colors.primary]}
-            tintColor={colors.primary}
+      <View style={styles.contentWrapper}>
+        <ScrollView
+          style={styles.scrollView}
+          contentContainerStyle={styles.content}
+          refreshControl={
+            <RefreshControl
+              refreshing={isRefreshing}
+              onRefresh={refresh}
+              colors={[colors.primary]}
+              tintColor={colors.primary}
+            />
+          }
+          showsVerticalScrollIndicator={false}
+        >
+          {/* Invoice Header */}
+          <ThemedView style={[styles.headerCard, { backgroundColor: colors.surface }]}>
+            <View style={styles.headerContent}>
+              <View>
+                <ThemedText style={[styles.invoiceNumber, { color: colors.text }]}>
+                  {generateInvoiceNumber(order.number)}
+                </ThemedText>
+                <ThemedText style={[styles.invoiceDate, { color: colors.textSecondary }]}>
+                  {t('issuedOn')} {formatDate(order.createdAt || '')}
+                </ThemedText>
+              </View>
+              <StatusBadge status={order.status} />
+            </View>
+          </ThemedView>
+
+          <ClientCompactCard
+            client={order.client}
           />
-        }
-        showsVerticalScrollIndicator={false}
-      >
-        {/* Invoice Header */}
-        <ThemedView style={[styles.headerCard, { backgroundColor: colors.surface }]}>
-          <View style={styles.headerContent}>
-            <View>
-              <ThemedText style={[styles.invoiceNumber, { color: colors.text }]}>
-                {generateInvoiceNumber(order.number)}
+
+          {/* Line Items */}
+          <ThemedView style={[styles.lineItemsCard, { backgroundColor: colors.surface }]}>
+            <View style={styles.lineItemContent}>
+              <ThemedText style={[styles.sectionTitle, { color: colors.text }]}>
+               { t("lineItems")}
               </ThemedText>
-              <ThemedText style={[styles.invoiceDate, { color: colors.textSecondary }]}>
-                {t('issuedOn')} {formatDate(order.createdAt || '')}
-              </ThemedText>
+
             </View>
-            <StatusBadge status={order.status} />
-          </View>
-        </ThemedView>
 
-        <ClientCompactCard
-          client={order.client}
-        />
-
-        {/* Line Items */}
-        <ThemedView style={[styles.lineItemsCard, { backgroundColor: colors.surface }]}>
-          <View style={styles.lineItemContent}>
-            <ThemedText style={[styles.sectionTitle, { color: colors.text }]}>
-             { t("lineItems")}
-            </ThemedText>
-
-          </View>
-
-          {/* Header */}
-          <View style={[styles.lineItemHeader, { borderBottomColor: colors.border }]}>
-            <View style={styles.headerLeft}>
-              <ThemedText style={[styles.headerText, { color: colors.textSecondary }]}>
-                {t("productName")}
-              </ThemedText>
-              <ThemedText style={[styles.headerText, { color: colors.textSecondary }]}>
-                {t("unitPrice")}
-              </ThemedText>
+            {/* Header */}
+            <View style={[styles.lineItemHeader, { borderBottomColor: colors.border }]}>
+              <View style={styles.headerLeft}>
+                <ThemedText style={[styles.headerText, { color: colors.textSecondary }]}>
+                  {t("productName")}
+                </ThemedText>
+                <ThemedText style={[styles.headerText, { color: colors.textSecondary }]}>
+                  {t("unitPrice")}
+                </ThemedText>
+              </View>
+              <View style={styles.headerRight}>
+                <ThemedText style={[styles.headerText, { color: colors.textSecondary }]}>
+                  {t("quantity")}
+                </ThemedText>
+                <ThemedText style={[styles.headerText, { color: colors.textSecondary }]}>
+                  {t("total")}
+                </ThemedText>
+              </View>
             </View>
-            <View style={styles.headerRight}>
-              <ThemedText style={[styles.headerText, { color: colors.textSecondary }]}>
-                {t("quantity")}
-              </ThemedText>
-              <ThemedText style={[styles.headerText, { color: colors.textSecondary }]}>
-                {t("total")}
-              </ThemedText>
-            </View>
-          </View>
 
-          {/* Items */}
-          {order.items.map((item, index) => (
-            <LineItemRow
-              key={`${item.productId}-${index}`}
-              item={item}
-              index={index}
-              total={item.pricing.totalPrice * item.quantity}
-            />
-          ))}
+            {/* Items */}
+            {order.items.map((item, index) => (
+              <LineItemRow
+                key={`${item.productId}-${index}`}
+                item={item}
+                index={index}
+                total={item.pricing.totalPrice * item.quantity}
+              />
+            ))}
 
-         {order.deliveryStatus !== "DELIVERED" && (
-           <PrimaryButton
-             onPress={() => setShowAddProductsModal(true)}
-             title={'+ ' + t("addProducts")}
-             variant='outline'
-             style={{marginTop: Spacing.md}}
-           />
-         )}
+           {order.deliveryStatus !== "DELIVERED" && (
+             <PrimaryButton
+               onPress={() => setShowAddProductsModal(true)}
+               title={'+ ' + t("addProducts")}
+               variant='outline'
+               style={{marginTop: Spacing.md}}
+               disabled={isMutating}
+             />
+           )}
           
-        </ThemedView>
+          </ThemedView>
 
-        {/* Financial Summary */}
-        <ThemedView style={[styles.summaryCard, { backgroundColor: colors.surface }]}>
-          <ThemedText style={[styles.sectionTitle, { color: colors.text }]}>
-            {t("financialSummary")}
-          </ThemedText>
-
-          <View style={styles.summaryRow}>
-            <ThemedText style={[styles.summaryLabel, { color: colors.textSecondary }]}>
-              {t("subtotal")}
+          {/* Financial Summary */}
+          <ThemedView style={[styles.summaryCard, { backgroundColor: colors.surface }]}>
+            <ThemedText style={[styles.sectionTitle, { color: colors.text }]}>
+              {t("financialSummary")}
             </ThemedText>
-            <CurrencyText style={[styles.summaryValue, { color: colors.text }]} amount={order.pricing.subtotal} />
-          </View>
 
-          <View style={styles.summaryRow}>
-            <ThemedText style={[styles.summaryLabel, { color: colors.textSecondary }]}>
-              {t("ivaAmount")} ({((order.pricing.ivaTotal / order.pricing.subtotal) * 100).toFixed(0)}%)
-            </ThemedText>
-            <CurrencyText style={[styles.summaryValue, { color: colors.text }]} amount={order.pricing.ivaTotal} />
-          </View>
+            <View style={styles.summaryRow}>
+              <ThemedText style={[styles.summaryLabel, { color: colors.textSecondary }]}>
+                {t("subtotal")}
+              </ThemedText>
+              <CurrencyText style={[styles.summaryValue, { color: colors.text }]} amount={order.pricing.subtotal} />
+            </View>
 
-          <View style={[styles.summaryRow, styles.totalRow, { borderTopColor: colors.border }]}>
-            <ThemedText style={[styles.totalLabel, { color: colors.text }]}>
-              {t("grandTotal")}
-            </ThemedText>
-            <CurrencyText style={[styles.totalValue, { color: colors.primary }]} amount={order.pricing.total} />
-          </View>
-          <View style={[styles.summaryRow, styles.totalRow, { borderTopColor: colors.border }]}>
-            <ThemedText style={[styles.totalLabel, { color: colors.text }]}>
-              {t("pending")}
-            </ThemedText>
-            <CurrencyText style={[styles.totalValue, { color: colors.danger }]} amount={order.pricing.total - order.paid} />
-          </View>
-        </ThemedView>
+            <View style={styles.summaryRow}>
+              <ThemedText style={[styles.summaryLabel, { color: colors.textSecondary }]}>
+                {t("ivaAmount")} ({((order.pricing.ivaTotal / order.pricing.subtotal) * 100).toFixed(0)}%)
+              </ThemedText>
+              <CurrencyText style={[styles.summaryValue, { color: colors.text }]} amount={order.pricing.ivaTotal} />
+            </View>
 
-        {/* Action Buttons */}
-        <View style={styles.actionButtons}>
+            <View style={[styles.summaryRow, styles.totalRow, { borderTopColor: colors.border }]}>
+              <ThemedText style={[styles.totalLabel, { color: colors.text }]}>
+                {t("grandTotal")}
+              </ThemedText>
+              <CurrencyText style={[styles.totalValue, { color: colors.primary }]} amount={order.pricing.total} />
+            </View>
+            <View style={[styles.summaryRow, styles.totalRow, { borderTopColor: colors.border }]}>
+              <ThemedText style={[styles.totalLabel, { color: colors.text }]}>
+                {t("pending")}
+              </ThemedText>
+              <CurrencyText style={[styles.totalValue, { color: colors.danger }]} amount={order.pricing.total - order.paid} />
+            </View>
+          </ThemedView>
 
-          {order.status !== 'PAID' && (
-            <PrimaryButton
-              title={t('addPayment')}
-              onPress={() => setShowPaymentModal(true)}
-              style={styles.actionButton}
-              variant="primary"
-            />
-          )}
-        </View>
-      </ScrollView>
+          {/* Action Buttons */}
+          <View style={styles.actionButtons}>
+
+            {/* A failed mutation no longer replaces the screen, so surface it here */}
+            {error && (
+              <ThemedText style={[styles.errorMessage, { color: colors.danger }]}>
+                {error}
+              </ThemedText>
+            )}
+
+            {order.status !== 'PAID' && (
+              <PrimaryButton
+                title={t('addPayment')}
+                onPress={() => setShowPaymentModal(true)}
+                style={styles.actionButton}
+                variant="primary"
+              />
+            )}
+          </View>
+        </ScrollView>
+        {isMutating && (
+          <View
+            style={styles.mutatingOverlay}
+            pointerEvents="auto"
+            accessibilityLabel={t('updating')}
+          >
+            <ActivityIndicator size="large" color={colors.primary} />
+          </View>
+        )}
+      </View>
 
       <AddProductsModal
         onClose={() => setShowAddProductsModal(false)}
@@ -342,6 +361,15 @@ const styles = StyleSheet.create({
   },
   scrollView: {
     flex: 1,
+  },
+  contentWrapper: {
+    flex: 1,
+  },
+  mutatingOverlay: {
+    ...StyleSheet.absoluteFill,
+    backgroundColor: 'rgba(0,0,0,0.15)',
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   content: {
     padding: Spacing.lg,
@@ -511,5 +539,10 @@ const styles = StyleSheet.create({
   },
   actionButton: {
     marginBottom: Spacing.sm,
+  },
+  errorMessage: {
+    fontSize: Typography.fontSize.sm,
+    textAlign: 'center',
+    marginBottom: Spacing.md,
   },
 });
