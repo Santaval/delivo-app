@@ -324,5 +324,7 @@
   "planResource_routes": "rutas",
   "planResource_bills": "facturas",
   "planResource_companies": "empresas",
-  "planForCompany": "Plan para: {{company}}"
+  "planForCompany": "Plan para: {{company}}",
+  "createProduct": "Crear producto",
+  "createProductSubtitle": "Agrega un producto nuevo"
 }
