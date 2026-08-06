@@ -13,7 +13,7 @@
       "bundleIdentifier": "com.tributcr.savaldev",
       "infoPlist": {
         "ITSAppUsesNonExemptEncryption": false,
-        "NSLocationWhenInUseUsageDescription": "This app needs access to your location to show you on the map."
+        "NSLocationWhenInUseUsageDescription": "Delivo uses your location while the app is open to show your live position on the delivery map, calculate routes from where you are, and let you save a client's address using your current position. For example, when you start a delivery, your location sets the starting point for turn-by-turn directions to your first stop and updates your position on the map as you drive."
       }
     },
     "android": {
@@ -58,6 +58,13 @@
         }
       ],
       "expo-web-browser",
+      [
+        "expo-location",
+        {
+          "locationAlwaysAndWhenInUsePermission": false,
+          "locationAlwaysPermission": false
+        }
+      ],
       "expo-localization",
       "expo-font",
       "expo-image",
