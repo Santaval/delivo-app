@@ -97,4 +97,19 @@ export default class AuthService extends BaseApiService {
       throw new Error(axiosError.response?.data?.message || axiosError.message);
     }
   }
+
+  /**
+   * Permanently deletes the currently authenticated user's account.
+   *
+   * @returns A promise that resolves when the account has been deleted.
+   * @throws An error if the request fails, with the error message from the API response.
+   */
+  static async deleteAccount(): Promise<void> {
+    try {
+      await this.delete<void>(`/me`);
+    } catch (error) {
+      const axiosError = error as AxiosError<ApiErrorResponse>;
+      throw new Error(axiosError.response?.data?.message || axiosError.message);
+    }
+  }
 }
