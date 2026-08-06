@@ -13,7 +13,7 @@
       "bundleIdentifier": "com.tributcr.savaldev",
       "infoPlist": {
         "ITSAppUsesNonExemptEncryption": false,
-        "NSLocationWhenInUseUsageDescription": "Delivo uses your location while the app is open to show your live position on the delivery map, calculate routes from where you are, and let you save a client's address using your current position. For example, when you start a delivery, your location sets the starting point for turn-by-turn directions to your first stop and updates your position on the map as you drive."
+        "NSLocationWhenInUseUsageDescription": "Delivo utiliza tu ubicación mientras la aplicación está abierta para mostrar tu posición en tiempo real en el mapa de reparto, calcular rutas desde donde te encuentras y permitirte guardar la dirección de un cliente utilizando tu ubicación actual. Por ejemplo, al iniciar un reparto, tu ubicación establece el punto de partida para las indicaciones paso a paso hacia tu primera parada y actualiza tu posición en el mapa a medida que conduces."
       }
     },
     "android": {
