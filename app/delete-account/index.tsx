@@ -1,9 +1,8 @@
 import { PrimaryButton, ThemedText } from "@/components";
 import { TopBar } from "@/components/TopBar";
-import { Routes, Spacing, Typography } from "@/constants";
 import config from "@/config/env";
+import { Routes, Spacing, Typography } from "@/constants";
 import { useThemeColor } from "@/hooks/useColorScheme";
-import { MaterialIcons } from "@expo/vector-icons";
 import { router } from "expo-router";
 import * as WebBrowser from "expo-web-browser";
 import { useTranslation } from "react-i18next";
@@ -23,30 +22,30 @@ export default function DeleteAccountScreen() {
   return (
     <SafeAreaView style={styles.container}>
       <TopBar title={t("deleteAccount")} showBack backTo={Routes.account} />
-      <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
+      <ScrollView
+        contentContainerStyle={styles.scrollContent}
+        showsVerticalScrollIndicator={false}
+      >
         <ThemedText variant="title" style={styles.title}>
           {t("deleteAccountWhatHappensTitle")}
         </ThemedText>
 
         <View style={styles.bulletList}>
           <View style={styles.bulletRow}>
-            <MaterialIcons name="warning" size={22} color={colors.warning} />
             <ThemedText style={styles.bulletText}>
-              {t("deleteAccountBulletData")}
+              - {t("deleteAccountBulletData")}
             </ThemedText>
           </View>
 
           <View style={styles.bulletRow}>
-            <MaterialIcons name="warning" size={22} color={colors.warning} />
             <ThemedText style={styles.bulletText}>
-              {t("deleteAccountBulletSubscription")}
+              - {t("deleteAccountBulletSubscription")}
             </ThemedText>
           </View>
 
           <View style={styles.bulletRow}>
-            <MaterialIcons name="warning" size={22} color={colors.warning} />
             <ThemedText style={styles.bulletText}>
-              {termsBefore}
+              - {termsBefore}
               <ThemedText
                 variant="link"
                 onPress={() => WebBrowser.openBrowserAsync(config.termsUrl)}

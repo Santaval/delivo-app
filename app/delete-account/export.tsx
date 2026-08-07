@@ -29,11 +29,22 @@ export default function DeleteAccountExportScreen() {
 
   return (
     <SafeAreaView style={styles.container}>
-      <TopBar title={t("deleteAccountExportTitle")} showBack backTo={Routes.deleteAccount} />
-      <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
+      <TopBar
+        title={t("deleteAccountExportTitle")}
+        showBack
+        backTo={Routes.deleteAccount}
+      />
+      <ScrollView
+        contentContainerStyle={styles.scrollContent}
+        showsVerticalScrollIndicator={false}
+      >
         <View style={styles.bulletList}>
           <View style={styles.bulletRow}>
-            <MaterialIcons name="mail-outline" size={22} color={colors.primary} />
+            <MaterialIcons
+              name="mail-outline"
+              size={22}
+              color={colors.primary}
+            />
             <ThemedText style={styles.bulletText}>
               {emailBefore}
               <ThemedText
@@ -48,14 +59,17 @@ export default function DeleteAccountExportScreen() {
           </View>
 
           <View style={styles.bulletRow}>
-            <MaterialIcons name="warning" size={22} color={colors.warning} />
             <ThemedText style={styles.bulletText}>
               {t("deleteAccountExportNoRecovery")}
             </ThemedText>
           </View>
 
           <View style={styles.bulletRow}>
-            <MaterialIcons name="schedule" size={22} color={colors.textSecondary} />
+            <MaterialIcons
+              name="schedule"
+              size={22}
+              color={colors.textSecondary}
+            />
             <ThemedText style={styles.bulletText}>
               {t("deleteAccountExport30Days")}
             </ThemedText>
