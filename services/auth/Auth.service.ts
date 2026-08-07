@@ -104,9 +104,11 @@ export default class AuthService extends BaseApiService {
    * @returns A promise that resolves when the account has been deleted.
    * @throws An error if the request fails, with the error message from the API response.
    */
-  static async deleteAccount(): Promise<void> {
+  static async deleteAccount(appleAuthCode?: string): Promise<void> {
     try {
-      await this.delete<void>(`/me`);
+      await this.post<void>(`/me`, {
+        appleAuthCode,
+      });
     } catch (error) {
       const axiosError = error as AxiosError<ApiErrorResponse>;
       throw new Error(axiosError.response?.data?.message || axiosError.message);

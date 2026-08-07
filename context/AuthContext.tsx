@@ -81,7 +81,6 @@ const AuthContext = createContext<AuthContextType>({
  */
 export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const [user, setUser] = useState<User | null>(null);
-  const [authMail, setAuthMail] = useState<string>("");
   const [authState, setAuthState] = useState<AuthState>(initialState);
 
   /**
@@ -288,7 +287,10 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
    * logs out (e.g. from the "done" screen), matching the account-deletion flow.
    */
   const deleteAccount = async (): Promise<void> => {
-    await AuthService.deleteAccount();
+    const appleAuthCode = await SecureStore.getItemAsync("appleAuthCode");
+    await AuthService.deleteAccount(appleAuthCode || undefined);
+    // delete the apple auth code if it exists
+    await SecureStore.deleteItemAsync("appleAuthCode");
     // La cuenta ya no existe: el id de empresa guardado nunca volverá a ser válido.
     await SecureStore.deleteItemAsync("activeCompany");
   };
