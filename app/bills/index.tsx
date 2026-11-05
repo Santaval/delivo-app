@@ -3,15 +3,28 @@ import { BillsList } from '@/components/bills/BillsList';
 import { Routes, Spacing } from '@/constants';
 import useBills from '@/hooks/useBills';
 import { router } from 'expo-router';
-import React from 'react';
+import React, { useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
 import { StyleSheet } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 export default function Bills() {
-  const { bills, loading, error, refresh, search } = useBills();
+  const {
+    bills,
+    counts,
+    status,
+    setStatus,
+    search,
+    loading,
+    refreshing,
+    loadingMore,
+    error,
+    refresh,
+    loadMore,
+  } = useBills('PENDING');
   const { t } = useTranslation();
 
+  const openBill = useCallback((orderId: string) => router.push(Routes.billView(orderId)), []);
 
   return (
     <SafeAreaView style={styles.container}>
@@ -28,14 +41,18 @@ export default function Bills() {
       />
 
       <BillsList
-        onOrderPress={(orderId) => router.push(Routes.billView(orderId))}
         orders={bills}
-        isRefreshing={loading && bills.length > 0}
-        loading={loading && bills.length === 0}
+        status={status}
+        onStatusChange={setStatus}
+        counts={counts}
+        onOrderPress={openBill}
+        isRefreshing={refreshing}
+        loading={loading}
         error={error}
         onRefresh={refresh}
+        onEndReached={loadMore}
+        loadingMore={loadingMore}
       />
-      
     </SafeAreaView>
   )
 }
