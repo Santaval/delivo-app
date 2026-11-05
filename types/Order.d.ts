@@ -23,3 +23,18 @@ interface OrderItem extends Product {
   quantity: number;
   productId: string;
 }
+type BillsStatusFilter = OrderStatus | "ALL";
+
+type BillsCounts = Record<BillsStatusFilter, number>;
+
+interface BillsPage {
+  data: Order[];
+  pagination: {
+    page: number;
+    pageSize: number;
+    total: number;
+    totalPages: number;
+    hasNextPage: boolean;
+  };
+  counts: BillsCounts;
+}
