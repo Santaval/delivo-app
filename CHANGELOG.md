@@ -9,6 +9,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- Bills pagination
+
+### Fixed
+
+- Bills screen performance
+
+## [1.2.2] - 2023-08-06
+
+### Added
+
 - Account deletion feature
 
 ### Fixed
