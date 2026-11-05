@@ -90,14 +90,18 @@ jobs:
 
       # --environment pulls the EXPO_PUBLIC_* variables from EAS (the local .env
       # is gitignored), so they must be defined there for each environment.
+      # iOS and Android are published separately because "--platform all" also
+      # exports web, which @rnmapbox/maps can't bundle (needs mapbox-gl).
       - name: Publish update
         env:
           CHANNEL: ${{ steps.target.outputs.channel }}
           MESSAGE: ${{ inputs.message || github.event.head_commit.message }}
         run: |
-          eas update \
-            --channel "$CHANNEL" \
-            --environment "$CHANNEL" \
-            --platform all \
-            --message "${MESSAGE:-Update from ${GITHUB_SHA::7}}" \
-            --non-interactive
+          for platform in ios android; do
+            eas update \
+              --channel "$CHANNEL" \
+              --environment "$CHANNEL" \
+              --platform "$platform" \
+              --message "${MESSAGE:-Update from ${GITHUB_SHA::7}}" \
+              --non-interactive
+          done
