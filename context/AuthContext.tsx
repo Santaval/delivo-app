@@ -44,6 +44,8 @@ interface AuthContextType {
   updateUser: (userData: Partial<User>) => Promise<void>;
   /** Function to refresh user data */
   refreshUser: () => Promise<void>;
+  /** Function to permanently delete the current account */
+  deleteAccount: () => Promise<void>;
 }
 
 /**
@@ -69,6 +71,7 @@ const AuthContext = createContext<AuthContextType>({
   clearError: () => {},
   updateUser: async () => {},
   refreshUser: async () => {},
+  deleteAccount: async () => {},
 });
 
 /**
@@ -78,7 +81,6 @@ const AuthContext = createContext<AuthContextType>({
  */
 export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const [user, setUser] = useState<User | null>(null);
-  const [authMail, setAuthMail] = useState<string>("");
   const [authState, setAuthState] = useState<AuthState>(initialState);
 
   /**
@@ -279,6 +281,20 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     }
   };
 
+  /**
+   * Permanently deletes the current account. Only clears the persisted
+   * company id — the session itself stays active until the caller explicitly
+   * logs out (e.g. from the "done" screen), matching the account-deletion flow.
+   */
+  const deleteAccount = async (): Promise<void> => {
+    const appleAuthCode = await SecureStore.getItemAsync("appleAuthCode");
+    await AuthService.deleteAccount(appleAuthCode || undefined);
+    // delete the apple auth code if it exists
+    await SecureStore.deleteItemAsync("appleAuthCode");
+    // La cuenta ya no existe: el id de empresa guardado nunca volverá a ser válido.
+    await SecureStore.deleteItemAsync("activeCompany");
+  };
+
   return (
     <AuthContext.Provider
       value={{
@@ -291,6 +307,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         clearError,
         updateUser,
         refreshUser,
+        deleteAccount,
       }}
     >
       {children}

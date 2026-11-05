@@ -2,7 +2,7 @@
   "expo": {
     "name": "Delivo",
     "slug": "tributcr-app",
-    "version": "1.2.0",
+    "version": "1.2.3",
     "orientation": "portrait",
     "icon": "./assets/images/logo.png",
     "scheme": "com.tributcr.savaldev",
@@ -13,7 +13,7 @@
       "bundleIdentifier": "com.tributcr.savaldev",
       "infoPlist": {
         "ITSAppUsesNonExemptEncryption": false,
-        "NSLocationWhenInUseUsageDescription": "This app needs access to your location to show you on the map."
+        "NSLocationWhenInUseUsageDescription": "Delivo utiliza tu ubicación mientras la aplicación está abierta para mostrar tu posición en tiempo real en el mapa de reparto, calcular rutas desde donde te encuentras y permitirte guardar la dirección de un cliente utilizando tu ubicación actual. Por ejemplo, al iniciar un reparto, tu ubicación establece el punto de partida para las indicaciones paso a paso hacia tu primera parada y actualiza tu posición en el mapa a medida que conduces."
       }
     },
     "android": {
@@ -43,10 +43,7 @@
           "image": "./assets/images/logo.png",
           "imageWidth": 200,
           "resizeMode": "contain",
-          "backgroundColor": "#ffffff",
-          "dark": {
-            "backgroundColor": "#000000"
-          }
+          "backgroundColor": "#ffffff"
         }
       ],
       [
@@ -58,6 +55,13 @@
         }
       ],
       "expo-web-browser",
+      [
+        "expo-location",
+        {
+          "locationAlwaysAndWhenInUsePermission": false,
+          "locationAlwaysPermission": false
+        }
+      ],
       "expo-localization",
       "expo-font",
       "expo-image",

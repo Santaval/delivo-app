@@ -8,6 +8,7 @@ import { useToast } from '@/context/ToastContext';
 import { useThemeColor } from '@/hooks/useColorScheme';
 import { confirmDestructive } from '@/utils/confirm';
 import { MaterialIcons } from '@expo/vector-icons';
+import { router } from 'expo-router';
 import { useTranslation } from 'react-i18next';
 import {
   ActivityIndicator,
@@ -178,6 +179,17 @@ export default function AccountScreen() {
 
         {/* Divider */}
         <View style={[styles.divider, { backgroundColor: colors.border }]} />
+
+        {/* Delete Account */}
+        <TouchableOpacity
+          style={[styles.actionButton, styles.outlineButton, { borderColor: colors.danger }]}
+          onPress={() => router.push(Routes.deleteAccount)}
+        >
+          <MaterialIcons name="delete-forever" size={20} color={colors.danger} />
+          <ThemedText style={[styles.outlineButtonText, { color: colors.danger }]}>
+            {t('deleteAccount')}
+          </ThemedText>
+        </TouchableOpacity>
 
         {/* Sign Out */}
         <TouchableOpacity style={[styles.actionButton, styles.dangerButton]} onPress={handleLogout}>

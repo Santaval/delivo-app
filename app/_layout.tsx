@@ -124,6 +124,10 @@ function RootNavigator() {
           <Stack.Screen name="clients/add" />
           <Stack.Screen name="clients/edit/[id]" />
           <Stack.Screen name="clients/profile/[id]" />
+          <Stack.Screen name="delete-account/confirm" />
+          <Stack.Screen name="delete-account/done" />
+          <Stack.Screen name="delete-account/export" />
+          <Stack.Screen name="delete-account/index" />
           <Stack.Screen name="orders/create" />
           <Stack.Screen name="orders/view/[id]" />
           <Stack.Screen name="payment-methods/add" />
