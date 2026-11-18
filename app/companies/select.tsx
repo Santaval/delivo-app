@@ -3,12 +3,12 @@ import {
   ActivityIndicator,
   StatusBar,
   StyleSheet,
-  TouchableOpacity,
   View,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { ThemedText, ThemedView } from "../../components";
-import { BorderRadius, Shadows, Spacing, Typography } from "../../constants";
+import { CompanyList } from "../../components/companies/CompanyList";
+import { Spacing, Typography } from "../../constants";
 import { useCompanies } from "../../context/CompaniesContext";
 import { toast } from "../../context/ToastContext";
 import { useColorScheme, useThemeColor } from "../../hooks/useColorScheme";
@@ -27,14 +27,6 @@ export default function CompanySelectPage() {
     } catch (error) {
       toast.error(t("failedToSelectCompany"));
     }
-  };
-
-  const getCompanyInitials = (name: string) => {
-    return name
-      .split(" ")
-      .map((word) => word.charAt(0).toUpperCase())
-      .join("")
-      .substring(0, 2);
   };
 
   if (!companies || companies.length === 0) {
@@ -78,61 +70,11 @@ export default function CompanySelectPage() {
           </ThemedText>
         </View>
 
-        <View style={styles.companiesList}>
-          {companies.map((company) => {
-            const isSelected = activeCompany?.id === company.id;
-            return (
-              <TouchableOpacity
-                key={company.id}
-                style={[
-                  styles.companyCard,
-                  {
-                    backgroundColor: colors.surface,
-                    borderColor: colors.border,
-                  },
-                  isSelected && {
-                    borderColor: colors.primary,
-                    backgroundColor: colors.surface,
-                  },
-                ]}
-                onPress={() => handleSelectCompany(company.id)}
-                activeOpacity={0.8}
-              >
-                <View style={styles.companyContent}>
-                  <View
-                    style={[
-                      styles.companyAvatar,
-                      {
-                        backgroundColor: isSelected
-                          ? colors.primary
-                          : colors.backgroundTertiary,
-                      },
-                    ]}
-                  >
-                    <ThemedText
-                      style={[
-                        styles.companyAvatarText,
-                        {
-                          color: isSelected ? colors.textInverse : colors.text,
-                        },
-                      ]}
-                    >
-                      {getCompanyInitials(company.name)}
-                    </ThemedText>
-                  </View>
-
-                  <View style={styles.companyInfo}>
-                    <ThemedText
-                      style={[styles.companyName, { color: colors.text }]}
-                    >
-                      {company.name}
-                    </ThemedText>
-                  </View>
-                </View>
-              </TouchableOpacity>
-            );
-          })}
-        </View>
+        <CompanyList
+          companies={companies}
+          activeCompanyId={activeCompany?.id}
+          onSelect={handleSelectCompany}
+        />
       </ThemedView>
     </SafeAreaView>
   );
@@ -164,57 +106,5 @@ const styles = StyleSheet.create({
   subtitle: {
     fontSize: Typography.fontSize.base,
     lineHeight: 22,
-  },
-  companiesList: {
-    flex: 1,
-    paddingHorizontal: Spacing.xl,
-  },
-  companyCard: {
-    borderRadius: BorderRadius.lg,
-    marginBottom: Spacing.md,
-    borderWidth: 1.5,
-    ...Shadows.small,
-  },
-  companyContent: {
-    flexDirection: "row",
-    alignItems: "center",
-    padding: Spacing.lg,
-  },
-  companyAvatar: {
-    width: 48,
-    height: 48,
-    borderRadius: 8,
-    justifyContent: "center",
-    alignItems: "center",
-    marginRight: Spacing.md,
-  },
-  companyAvatarText: {
-    fontSize: Typography.fontSize.base,
-    fontWeight: Typography.fontWeight.bold,
-  },
-  companyInfo: {
-    flex: 1,
-  },
-  companyName: {
-    fontSize: Typography.fontSize.base,
-    fontWeight: Typography.fontWeight.semibold,
-  },
-  selectionIndicator: {
-    width: 24,
-    height: 24,
-    justifyContent: "center",
-    alignItems: "center",
-  },
-  selectedDot: {
-    width: 8,
-    height: 8,
-    borderRadius: 4,
-  },
-  addButtonContainer: {
-    padding: Spacing.xl,
-    paddingTop: Spacing.lg,
-  },
-  addButton: {
-    width: "100%",
   },
 });

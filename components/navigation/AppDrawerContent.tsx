@@ -5,10 +5,15 @@ import { useCompanies } from '@/context/CompaniesContext';
 import { usePurchases } from '@/context/PurchasesContext';
 import { useThemeColor } from '@/hooks/useColorScheme';
 import { MaterialIcons } from '@expo/vector-icons';
-import { DrawerContentScrollView, type DrawerContentComponentProps } from 'expo-router/drawer';
+import {
+  DrawerContentScrollView,
+  useDrawerStatus,
+  type DrawerContentComponentProps,
+} from 'expo-router/drawer';
 import type { Href } from 'expo-router';
 import { router } from 'expo-router';
 import { useTranslation } from 'react-i18next';
+import { useEffect } from 'react';
 import { StyleSheet, TouchableOpacity, View } from 'react-native';
 
 type DrawerEntry = {
@@ -31,9 +36,18 @@ const DRAWER_ENTRIES: DrawerEntry[] = [
 export function AppDrawerContent(props: DrawerContentComponentProps) {
   const colors = useThemeColor();
   const { t } = useTranslation();
-  const { user } = useAuth();
-  const { activeCompany } = useCompanies();
+  const { user, syncUserIfStale } = useAuth();
+  const { activeCompany, companies } = useCompanies();
   const { isPro } = usePurchases();
+
+  // Pick up membership changes (added to / removed from a company) whenever the
+  // drawer is opened; throttled inside syncUserIfStale.
+  const isDrawerOpen = useDrawerStatus() === 'open';
+  useEffect(() => {
+    if (isDrawerOpen) syncUserIfStale();
+  }, [isDrawerOpen, syncUserIfStale]);
+
+  const canSwitchCompany = companies.length > 1;
 
   return (
     <DrawerContentScrollView {...props}>
@@ -53,9 +67,26 @@ export function AppDrawerContent(props: DrawerContentComponentProps) {
             )}
           </View>
           {activeCompany?.name && (
-            <ThemedText variant="caption" style={[styles.company, { color: colors.textSecondary }]} numberOfLines={1}>
-              {activeCompany.name}
-            </ThemedText>
+            canSwitchCompany ? (
+              <TouchableOpacity
+                style={styles.companyRow}
+                accessibilityRole="button"
+                accessibilityLabel={`${t('switchCompany')}: ${activeCompany.name}`}
+                onPress={() => {
+                  router.push(Routes.companiesSwitch);
+                  props.navigation.closeDrawer();
+                }}
+              >
+                <ThemedText variant="caption" style={[styles.company, styles.companyName, { color: colors.textSecondary }]} numberOfLines={1}>
+                  {activeCompany.name}
+                </ThemedText>
+                <MaterialIcons name="swap-horiz" size={18} color={colors.primary} />
+              </TouchableOpacity>
+            ) : (
+              <ThemedText variant="caption" style={[styles.company, { color: colors.textSecondary }]} numberOfLines={1}>
+                {activeCompany.name}
+              </ThemedText>
+            )
           )}
         </View>
       </View>
@@ -125,6 +156,15 @@ const styles = StyleSheet.create({
   },
   company: {
     marginTop: Spacing.xs / 2,
+  },
+  companyRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: Spacing.xs,
+    minHeight: 32,
+  },
+  companyName: {
+    flexShrink: 1,
   },
   divider: {
     height: 1,

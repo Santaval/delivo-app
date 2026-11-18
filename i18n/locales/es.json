@@ -400,5 +400,8 @@
   "leaveCompanySoleOwner": "Eres el único propietario de esta empresa. Para salir, primero transfiere la propiedad o elimina tu cuenta desde Cuenta.",
   "leaveCompanySoleOwnerFailed": "No puedes salir: eres el único propietario de la empresa.",
   "failedToLeaveCompany": "No se pudo salir de la empresa. Intenta de nuevo.",
-  "leftCompany": "Saliste de {{company}}"
+  "leftCompany": "Saliste de {{company}}",
+  "switchCompany": "Cambiar de empresa",
+  "switchCompanySubtitle": "Elige con qué empresa quieres trabajar.",
+  "addedToCompany": "Te agregaron a {{company}}"
 }

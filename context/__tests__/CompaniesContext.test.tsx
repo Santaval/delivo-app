@@ -1,4 +1,5 @@
 import { CompaniesProvider, useCompanies } from '@/context/CompaniesContext';
+import { toast } from '@/context/ToastContext';
 import api from '@/services/api';
 import { act, renderHook, waitFor } from '@testing-library/react-native';
 import * as SecureStore from 'expo-secure-store';
@@ -7,6 +8,9 @@ import React from 'react';
 const mockUseAuth = jest.fn();
 jest.mock('@/context/AuthContext', () => ({
   useAuth: () => mockUseAuth(),
+}));
+jest.mock('@/context/ToastContext', () => ({
+  toast: { info: jest.fn(), success: jest.fn(), error: jest.fn() },
 }));
 jest.mock('expo-secure-store', () => ({
   getItemAsync: jest.fn(),
@@ -100,3 +104,74 @@ describe('CompaniesContext — dropping the active company', () => {
     expect(api.defaults.headers.common['x-company-id']).toBe('a');
   });
 });
+
+describe('CompaniesContext — background refresh and "added to a company" toast', () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+    Object.keys(store).forEach((k) => delete store[k]);
+    delete api.defaults.headers.common['x-company-id'];
+    mockedStore.getItemAsync.mockImplementation(async (k) => store[k] ?? null);
+    mockedStore.setItemAsync.mockImplementation(async (k, v) => {
+      store[k] = v;
+    });
+    mockedStore.deleteItemAsync.mockImplementation(async (k) => {
+      delete store[k];
+    });
+  });
+
+  it('does not toast on the first load', async () => {
+    store.activeCompany = 'a';
+    mockUseAuth.mockReturnValue(authFor([company('a'), company('b')]));
+    const { result } = renderHook(() => useCompanies(), { wrapper });
+    await waitFor(() => expect(result.current.activeCompany?.id).toBe('a'));
+    expect(toast.info).not.toHaveBeenCalled();
+  });
+
+  it('toasts when a refresh brings a new company', async () => {
+    store.activeCompany = 'a';
+    mockUseAuth.mockReturnValue(authFor([company('a')]));
+    const { result, rerender } = renderHook(() => useCompanies(), { wrapper });
+    await waitFor(() => expect(result.current.activeCompany?.id).toBe('a'));
+
+    mockUseAuth.mockReturnValue(authFor([company('a'), company('b')]));
+    await act(async () => rerender({}));
+
+    await waitFor(() => expect(toast.info).toHaveBeenCalledTimes(1));
+    expect((toast.info as jest.Mock).mock.calls[0][0]).toContain('Empresa b');
+  });
+
+  it('does not toast for a company this device just created and selected', async () => {
+    mockUseAuth.mockReturnValue(authFor([]));
+    const { result, rerender } = renderHook(() => useCompanies(), { wrapper });
+    await waitFor(() => expect(result.current.isLoadingActiveCompany).toBe(false));
+    // A different user object, still with no companies: arms the baseline
+    mockUseAuth.mockReturnValue(authFor([]));
+    await act(async () => rerender({}));
+
+    await act(async () => {
+      await result.current.selectCompany('new');
+    });
+    mockUseAuth.mockReturnValue(authFor([company('new')]));
+    await act(async () => rerender({}));
+
+    await waitFor(() => expect(result.current.activeCompany?.id).toBe('new'));
+    expect(toast.info).not.toHaveBeenCalled();
+  });
+
+  it('a background refresh keeps the app out of the loading state and keeps the same activeCompany object', async () => {
+    store.activeCompany = 'a';
+    mockUseAuth.mockReturnValue(authFor([company('a'), company('b')]));
+    const { result, rerender } = renderHook(() => useCompanies(), { wrapper });
+    await waitFor(() => expect(result.current.activeCompany?.id).toBe('a'));
+    const before = result.current.activeCompany;
+
+    const seen: boolean[] = [];
+    mockUseAuth.mockReturnValue(authFor([company('a'), company('b')]));
+    await act(async () => rerender({}));
+    seen.push(result.current.isLoadingActiveCompany);
+
+    expect(seen).toEqual([false]);
+    expect(result.current.activeCompany).toBe(before);
+  });
+});
+
