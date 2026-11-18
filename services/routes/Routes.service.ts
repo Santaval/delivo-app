@@ -1,17 +1,33 @@
 import BaseApiService from "../config/BaseApiService";
 
+export interface RoutesFilters {
+  driverId?: "me" | string;
+}
+
+export interface CreateRouteData {
+  name: string;
+  driverId?: string;
+}
+
 export default class RoutesService extends BaseApiService {
-  static async all() {
-    return this.get<Route[]>('/routes');
+  /** `driverId: "me"` lists only the routes assigned to the current user. */
+  static async all(params?: RoutesFilters) {
+    return this.get<Route[]>('/routes', params?.driverId ? { params } : undefined);
   }
 
-  static async create(data: any) {
+  static async create(data: CreateRouteData) {
     const { data: route } = await this.post<Route>('/routes', data);
     return route;
   }
 
   static async find(id: string) {
     const { data } = await this.get<Route>(`/routes/${id}`);
+    return data;
+  }
+
+  /** Assigns (or unassigns with `null`) the driver. Rejects with 422 (not a company member) or 409 (route COMPLETED). */
+  static async assignDriver(routeId: string, driverId: string | null) {
+    const { data } = await this.patch<Route>(`/routes/${routeId}/driver`, { driverId });
     return data;
   }
 

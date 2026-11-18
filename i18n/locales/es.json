@@ -403,5 +403,16 @@
   "leftCompany": "Saliste de {{company}}",
   "switchCompany": "Cambiar de empresa",
   "switchCompanySubtitle": "Elige con qué empresa quieres trabajar.",
-  "addedToCompany": "Te agregaron a {{company}}"
+  "addedToCompany": "Te agregaron a {{company}}",
+  "driver": "Repartidor",
+  "unassigned": "Sin asignar",
+  "assignedDriver": "Repartidor asignado",
+  "changeDriver": "Cambiar repartidor",
+  "selectDriver": "Selecciona un repartidor",
+  "driverAssignedHint": "Por defecto, tú.",
+  "driverUpdated": "Repartidor actualizado",
+  "failedToAssignDriver": "No se pudo asignar el repartidor",
+  "driverNotMember": "El repartidor debe ser miembro de la empresa",
+  "routeAlreadyCompleted": "La ruta ya está completada",
+  "failedToLoadMembers": "No se pudieron cargar los miembros"
 }

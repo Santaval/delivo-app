@@ -401,5 +401,16 @@
   "leftCompany": "You left {{company}}",
   "switchCompany": "Switch company",
   "switchCompanySubtitle": "Choose which company you want to work with.",
-  "addedToCompany": "You were added to {{company}}"
+  "addedToCompany": "You were added to {{company}}",
+  "driver": "Driver",
+  "unassigned": "Unassigned",
+  "assignedDriver": "Assigned driver",
+  "changeDriver": "Change driver",
+  "selectDriver": "Select a driver",
+  "driverAssignedHint": "Defaults to you.",
+  "driverUpdated": "Driver updated",
+  "failedToAssignDriver": "Could not assign the driver",
+  "driverNotMember": "The driver must be a company member",
+  "routeAlreadyCompleted": "The route is already completed",
+  "failedToLoadMembers": "Could not load members"
 }
