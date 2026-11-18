@@ -18,8 +18,6 @@ export type TopBarProps = {
   onUserPress?: () => void;
   showBack?: boolean;
   backTo?: Href;
-  /** Renderiza la hamburguesa a la izquierda. Solo desde pantallas bajo app/(drawer)/. */
-  onMenuPress?: () => void;
 };
 
 export function TopBar({
@@ -32,7 +30,6 @@ export function TopBar({
   onUserPress,
   showBack = false,
   backTo,
-  onMenuPress,
 }: TopBarProps) {
   const colors = useThemeColor();
   const { t } = useTranslation();
@@ -46,7 +43,7 @@ export function TopBar({
 
   return (
     <ThemedView style={styles.container}>
-      {/* Left side - back button wins over the hamburger if both are passed */}
+      {/* Left side - back button */}
       {showBack ? (
         <TouchableOpacity
           onPress={handleBackPress}
@@ -56,17 +53,6 @@ export function TopBar({
           style={styles.iconButton}
         >
           <MaterialIcons name="arrow-back-ios" size={28} color={colors.primary} />
-        </TouchableOpacity>
-      ) : onMenuPress ? (
-        <TouchableOpacity
-          onPress={onMenuPress}
-          accessibilityRole="button"
-          accessibilityLabel={t('openMenu')}
-          accessibilityHint={t('openMenuHint')}
-          hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
-          style={styles.iconButton}
-        >
-          <MaterialIcons name="menu" size={28} color={colors.primary} />
         </TouchableOpacity>
       ) : null}
 

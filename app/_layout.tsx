@@ -119,7 +119,7 @@ function RootNavigator() {
 
         {/* Fully signed in */}
         <Stack.Protected guard={isAuthenticated && hasActiveCompany}>
-          <Stack.Screen name="(drawer)" />
+          <Stack.Screen name="(main)" />
           <Stack.Screen name="account" />
           <Stack.Screen name="bills/index" />
           <Stack.Screen name="bills/view/[id]" />

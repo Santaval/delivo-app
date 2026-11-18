@@ -9,7 +9,7 @@ import { useTranslation } from 'react-i18next';
 import { ScrollView, StyleSheet, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
-/** In-app company picker (opened from the drawer when the user has several). */
+/** In-app company picker (opened from the Home header when the user has several). */
 export default function CompanySwitchPage() {
   const { t } = useTranslation();
   const colors = useThemeColor();
@@ -28,7 +28,7 @@ export default function CompanySwitchPage() {
       return;
     }
     try {
-      // The drawer/tabs subtree is keyed by the active company id, so selecting
+      // The (main)/tabs subtree is keyed by the active company id, so selecting
       // remounts it and every screen reloads its data for the new company.
       await selectCompany(companyId);
       goBack();

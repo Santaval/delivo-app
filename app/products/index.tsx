@@ -49,7 +49,7 @@ export default function Products() {
         />
       </ThemedView>
       {/* No default `bottom` here: the tab bar it used to clear is gone on
-          this screen, since products now lives in the drawer. */}
+          this screen, since products now lives in the Home header. */}
       <FloatingActionButton
         icon="add"
         onPress={() => router.push(Routes.productsAdd)}

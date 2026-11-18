@@ -17,7 +17,7 @@ export const Routes = {
   routes: "/routes" as Href,
   clients: "/clients" as Href,
 
-  // Solo drawer
+  // Home header (fila horizontal de secciones)
   bills: "/bills" as Href,
   products: "/products" as Href,
   account: "/account" as Href,
