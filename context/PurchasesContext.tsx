@@ -52,19 +52,16 @@ export const PurchasesProvider = ({
     let cancelled = false;
 
     const syncIdentity = async () => {
-      setIsLoading(true);
       setError(null);
       setIdentityCompanyId(null);
+      if (!activeCompany?.id) {
+        setCreditsOffering(null);
+        setIsLoading(false);
+        return;
+      }
+      setIsLoading(true);
       try {
-        if (!activeCompany?.id) {
-          // Logged out or no company selected — go anonymous and drop the
-          // previous company's offering
-          await RevenueCatService.logOut();
-          if (!cancelled) setCreditsOffering(null);
-          return;
-        }
-
-        await RevenueCatService.logIn(activeCompany.id);
+        await RevenueCatService.identify(activeCompany.id);
         const credits = await RevenueCatService.getCreditsOffering();
         if (!cancelled) {
           setCreditsOffering(credits);
@@ -91,8 +88,12 @@ export const PurchasesProvider = ({
     async (pkg: PurchasesPackage): Promise<"purchased" | "cancelled" | "error"> => {
       // Purchases are attributed to the RevenueCat app user id, so logIn must have
       // completed for the active company.
-      if (!isIdentityReady) return "error";
+      if (!isIdentityReady || !activeCompany?.id) return "error";
       try {
+        // Defence in depth: the SDK user must really be the active company.
+        if ((await RevenueCatService.currentAppUserId()) !== activeCompany.id) {
+          return "error";
+        }
         await RevenueCatService.purchasePackage(pkg);
         return "purchased";
       } catch (e: any) {
@@ -101,7 +102,7 @@ export const PurchasesProvider = ({
         return "error";
       }
     },
-    [isIdentityReady],
+    [isIdentityReady, activeCompany?.id],
   );
 
   return (

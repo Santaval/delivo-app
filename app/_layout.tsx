@@ -11,7 +11,6 @@ import { VersionProvider, useVersion } from "@/context/VersionContext";
 import { PurchasesProvider } from "@/context/PurchasesContext";
 import { useThemeColor } from "@/hooks/useColorScheme";
 import { useTabBarInset } from "@/hooks/useTabBarInset";
-import RevenueCatService from "@/services/purchases/RevenueCat.service";
 // Registers the background location task (TaskManager.defineTask must run at module level)
 import "@/services/tracking/LocationTracking.task";
 import MapboxGL from "@rnmapbox/maps";
@@ -35,7 +34,6 @@ Sentry.init({
 });
 
 MapboxGL.setAccessToken(config.mapboxAccessToken);
-RevenueCatService.configure();
 SplashScreen.preventAutoHideAsync();
 
 /** Root screens that don't reserve space for the FloatingTabBar: the tabs pad
