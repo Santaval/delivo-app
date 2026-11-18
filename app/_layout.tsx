@@ -38,7 +38,7 @@ SplashScreen.preventAutoHideAsync();
 
 /** Root screens that don't reserve space for the FloatingTabBar: the tabs pad
  *  their own scroll content, and the bar is hidden on the terminal screens. */
-const SCREENS_WITHOUT_TAB_INSET = new Set(["(main)", "delete-account/done"]);
+const SCREENS_WITHOUT_TAB_INSET = new Set(["(main)", "delete-account/done", "routes/view/[id]"]);
 
 function RootNavigator() {
   const { authState } = useAuth();

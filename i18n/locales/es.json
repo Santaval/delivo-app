@@ -221,6 +221,7 @@
   "started": "En Progreso",
   "stops": "Paradas",
   "stopsTotal": "paradas en total",
+  "plannedStops": "Paradas planificadas",
   "subtotal": "Subtotal",
   "success": "Éxito",
   "suggest": "Sugerir",
@@ -441,5 +442,11 @@
   "creditsStoreLoading": "Conectando con la tienda…",
   "outOfCreditsTitle": "Te quedaste sin facturas",
   "outOfCreditsMessage": "Compra más facturas para seguir facturando. Tu pedido no se perdió.",
-  "outOfCreditsDealerMessage": "La empresa se quedó sin facturas. Avísale al administrador."
+  "outOfCreditsDealerMessage": "La empresa se quedó sin facturas. Avísale al administrador.",
+  "created": "Creada",
+  "failedToGetLocationDetails": "No se pudieron obtener los detalles de la ubicación",
+  "priceWithIva": "Precio con IVA",
+  "allStops": "Todas las paradas",
+  "completingDelivery": "Completando entrega…",
+  "mapUnavailable": "Mapa no disponible"
 }

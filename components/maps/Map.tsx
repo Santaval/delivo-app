@@ -1,3 +1,4 @@
+import i18n from "@/i18n";
 import useUserLocation from "@/hooks/useUserLocation";
 import polyline from "@mapbox/polyline";
 import MapboxGL from "@rnmapbox/maps";
@@ -25,6 +26,9 @@ type Props = {
   fitToMarkers?: boolean;
   /** Live position of the route's driver (admin view). Never part of the fit. */
   driver?: DriverMarkerData | null;
+  /** Extra space (px) kept clear when framing the route, e.g. under a bottom sheet
+   *  or the status bar when the map is full-screen. Added to the default padding. */
+  fitInsets?: { top?: number; bottom?: number };
 };
 
 const FIT_PADDING = 60;
@@ -56,7 +60,8 @@ class MapErrorBoundary extends Component<
     if (this.state.crashed) {
       return (
         <View style={styles.fallback}>
-          <Text style={styles.fallbackText}>Map unavailable</Text>
+          {/* Class component (error boundary): no hooks, so use the i18n instance */}
+          <Text style={styles.fallbackText}>{i18n.t("mapUnavailable")}</Text>
         </View>
       );
     }
@@ -64,7 +69,7 @@ class MapErrorBoundary extends Component<
   }
 }
 
-function MapContent({ markers, polylines, fitToMarkers, driver }: Props) {
+function MapContent({ markers, polylines, fitToMarkers, driver, fitInsets }: Props) {
   const { location } = useUserLocation();
 
   const routeCoordinates: [number, number][] = polylines
@@ -106,12 +111,22 @@ function MapContent({ markers, polylines, fitToMarkers, driver }: Props) {
 
   const cameraProps = bounds
     ? bounds.sw[0] === bounds.ne[0] && bounds.sw[1] === bounds.ne[1]
-      ? { centerCoordinate: bounds.sw, zoomLevel: SINGLE_POINT_ZOOM }
+      ? {
+          centerCoordinate: bounds.sw,
+          zoomLevel: SINGLE_POINT_ZOOM,
+          // Center within the visible area when part of the map is covered.
+          padding: {
+            paddingTop: fitInsets?.top ?? 0,
+            paddingBottom: fitInsets?.bottom ?? 0,
+            paddingLeft: 0,
+            paddingRight: 0,
+          },
+        }
       : {
           bounds,
           padding: {
-            paddingTop: FIT_PADDING,
-            paddingBottom: FIT_PADDING,
+            paddingTop: FIT_PADDING + (fitInsets?.top ?? 0),
+            paddingBottom: FIT_PADDING + (fitInsets?.bottom ?? 0),
             paddingLeft: FIT_PADDING,
             paddingRight: FIT_PADDING,
           },

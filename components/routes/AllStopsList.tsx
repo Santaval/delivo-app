@@ -3,7 +3,7 @@ import { useThemeColor } from '@/hooks/useColorScheme';
 import { Ionicons } from '@expo/vector-icons';
 import React from 'react';
 import { useTranslation } from 'react-i18next';
-import { ScrollView, StyleSheet, Text, View } from 'react-native';
+import { StyleSheet, Text, View } from 'react-native';
 
 type AllStopsListProps = {
   stops: RoutePoint[];
@@ -145,11 +145,8 @@ const AllStopsList: React.FC<AllStopsListProps> = ({
   };
 
   return (
-    <ScrollView
-      style={styles.container}
-      contentContainerStyle={styles.contentContainer}
-      showsVerticalScrollIndicator={false}
-    >
+    // Plain View: it's rendered inside the route bottom sheet, which scrolls it.
+    <View style={styles.container}>
       {/* Summary Header */}
       <View style={[styles.summaryHeader, { backgroundColor: colors.surface }]}>
         <View style={styles.summaryItem}>
@@ -185,16 +182,13 @@ const AllStopsList: React.FC<AllStopsListProps> = ({
           {completedStops.map((stop, index) => renderStop(stop, index))}
         </View>
       )}
-    </ScrollView>
+    </View>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-  },
-  contentContainer: {
-    padding: Spacing.lg,
   },
   summaryHeader: {
     flexDirection: 'row',

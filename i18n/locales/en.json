@@ -221,6 +221,7 @@
   "started": "Started",
   "stops": "Stops",
   "stopsTotal": "stops total",
+  "plannedStops": "Planned stops",
   "subtotal": "Subtotal",
   "success": "Success",
   "suggest": "Suggest",
@@ -439,5 +440,13 @@
   "creditsStoreLoading": "Connecting to the store…",
   "outOfCreditsTitle": "You're out of bills",
   "outOfCreditsMessage": "Buy more bills to keep billing. Your order wasn't lost.",
-  "outOfCreditsDealerMessage": "The company is out of bills. Let your administrator know."
+  "outOfCreditsDealerMessage": "The company is out of bills. Let your administrator know.",
+  "createProduct": "Create product",
+  "createProductSubtitle": "Add a new product",
+  "created": "Created",
+  "failedToGetLocationDetails": "Couldn't get the location details",
+  "priceWithIva": "Price with VAT",
+  "allStops": "All stops",
+  "completingDelivery": "Completing delivery…",
+  "mapUnavailable": "Map unavailable"
 }

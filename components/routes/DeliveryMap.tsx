@@ -1,4 +1,5 @@
 import Map from "@/components/maps/Map";
+import { ROUTE_BACK_BUTTON_SIZE } from "@/components/routes/RouteMapSheet";
 import { BorderRadius, Spacing } from "@/constants";
 import { useThemeColor } from "@/hooks/useColorScheme";
 import { staleMinutes } from "@/utils/driverLocation";
@@ -21,6 +22,10 @@ type DeliveryMapProps = {
   /** Live position of the driver (OWNER/ADMIN watching a STARTED route). */
   driverLocation?: RouteDriverLocation | null;
   driverName?: string | null;
+  /** Status-bar height when the map is full-screen; overlays are pushed below it. */
+  topInset?: number;
+  /** Space covered by a bottom sheet, kept clear when framing the route. */
+  bottomInset?: number;
 };
 
 const DeliveryMap: React.FC<DeliveryMapProps> = ({
@@ -32,6 +37,8 @@ const DeliveryMap: React.FC<DeliveryMapProps> = ({
   fitToRoute,
   driverLocation,
   driverName,
+  topInset = 0,
+  bottomInset = 0,
 }) => {
   const colors = useThemeColor();
   const { t } = useTranslation();
@@ -105,6 +112,7 @@ const DeliveryMap: React.FC<DeliveryMapProps> = ({
         ]}
         polylines={polylines}
         fitToMarkers={fitToRoute}
+        fitInsets={{ top: topInset, bottom: bottomInset }}
         driver={
           driverLocation
             ? {
@@ -117,48 +125,27 @@ const DeliveryMap: React.FC<DeliveryMapProps> = ({
       />
 
       {minutesAgo !== null && (
-        <View style={[styles.staleBadge, { backgroundColor: colors.background }]}>
+        <View style={[styles.staleBadge, { backgroundColor: colors.background, top: Spacing.sm + topInset + (ROUTE_BACK_BUTTON_SIZE - 28) / 2 }]}>
           <Text style={[styles.staleText, { color: colors.textSecondary }]}>
             {t("lastUpdatedMinutesAgo", { count: minutesAgo })}
           </Text>
         </View>
       )}
-
-      {/* Distance indicator overlay */}
-      <View
-        style={[styles.distanceOverlay, { backgroundColor: colors.background }]}
-      >
-        {/* <Text style={styles.distanceText}>2.4 mi away</Text> */}
-      </View>
     </View>
   );
 };
 
 const styles = StyleSheet.create({
+  // Fills its parent (the route screens render it full-screen behind a sheet).
   mapContainer: {
-    height: 300,
+    flex: 1,
     position: "relative",
-  },
-  distanceOverlay: {
-    position: "absolute",
-    top: Spacing.md,
-    right: Spacing.md,
-    paddingHorizontal: Spacing.sm,
-    paddingVertical: Spacing.xs,
-    borderRadius: BorderRadius.md,
-    shadowColor: "#000",
-    shadowOffset: {
-      width: 0,
-      height: 2,
-    },
-    shadowOpacity: 0.25,
-    shadowRadius: 3.84,
-    elevation: 5,
   },
   staleBadge: {
     position: "absolute",
     top: Spacing.md,
-    left: Spacing.md,
+    // Clears the floating back button (RouteMapSheet, top-left).
+    left: Spacing.lg + ROUTE_BACK_BUTTON_SIZE + Spacing.sm,
     paddingHorizontal: Spacing.sm,
     paddingVertical: Spacing.xs,
     borderRadius: BorderRadius.md,

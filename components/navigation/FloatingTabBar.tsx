@@ -38,6 +38,12 @@ const TAB_PATHS: Record<TabKey, string> = {
 /** Screens where the bar would be in the way (terminal / modal-like flows). */
 const HIDDEN_PATHS = ['/delete-account/done'];
 
+/** The route view (map + swipe-up sheet) owns the bottom of the screen, so the
+ *  bar is hidden there. `/routes/view/addOrders` is a normal screen and keeps it. */
+function isRouteView(pathname: string) {
+  return /^\/routes\/view\/[^/]+$/.test(pathname) && pathname !== '/routes/view/addOrders';
+}
+
 /** Which tab a pathname belongs to. Secondary sections (bills, products, team,
  *  account, company switcher…) are reached from Home, so they light up Inicio. */
 function tabForPath(pathname: string): TabKey {
@@ -72,7 +78,7 @@ export function FloatingTabBar() {
   const pathname = usePathname();
   const keyboardVisible = useKeyboardVisible();
 
-  if (keyboardVisible || HIDDEN_PATHS.some((p) => pathname.startsWith(p))) return null;
+  if (keyboardVisible || isRouteView(pathname) || HIDDEN_PATHS.some((p) => pathname.startsWith(p))) return null;
 
   const activeTab = tabForPath(pathname);
 
