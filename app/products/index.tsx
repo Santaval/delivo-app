@@ -26,7 +26,7 @@ export default function Products() {
 
   return (
     <SafeAreaView style={[styles.container]}>
-      <TopBar title={t("products")} showBack backTo={Routes.home} />
+      <TopBar title={t("products")} />
 
       <ThemedView style={{ flex: 1, backgroundColor: "transparent" }}>
         {/* Search Section */}

@@ -1,7 +1,6 @@
-import { Routes, Spacing, Typography } from '@/constants';
+import { Spacing, Typography } from '@/constants';
 import { useThemeColor } from '@/hooks/useColorScheme';
-import { MaterialCommunityIcons, MaterialIcons } from '@expo/vector-icons';
-import { Href, useRouter } from 'expo-router';
+import { MaterialCommunityIcons } from '@expo/vector-icons';
 import React from 'react';
 import { Image, StyleSheet, TouchableOpacity, View } from 'react-native';
 import { useTranslation } from 'react-i18next';
@@ -16,8 +15,6 @@ export type TopBarProps = {
   notificationCount?: number;
   onNotificationPress?: () => void;
   onUserPress?: () => void;
-  showBack?: boolean;
-  backTo?: Href;
 };
 
 export function TopBar({
@@ -28,34 +25,12 @@ export function TopBar({
   notificationCount,
   onNotificationPress,
   onUserPress,
-  showBack = false,
-  backTo,
 }: TopBarProps) {
   const colors = useThemeColor();
   const { t } = useTranslation();
-  const router = useRouter();
-
-  const handleBackPress = () => {
-    if (router.canGoBack()) router.back();
-    else if (backTo) router.replace(backTo);
-    else router.replace(Routes.home);
-  };
 
   return (
     <ThemedView style={styles.container}>
-      {/* Left side - back button */}
-      {showBack ? (
-        <TouchableOpacity
-          onPress={handleBackPress}
-          accessibilityRole="button"
-          accessibilityLabel={t('back')}
-          hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
-          style={styles.iconButton}
-        >
-          <MaterialIcons name="arrow-back-ios" size={28} color={colors.primary} />
-        </TouchableOpacity>
-      ) : null}
-
       <View style={styles.userInfo}>
         <ThemedText style={styles.title}>
           {title}
@@ -130,13 +105,6 @@ const styles = StyleSheet.create({
     height: 40,
     borderRadius: 20,
     backgroundColor: '#f0f0f0', // Fallback background
-  },
-  iconButton: {
-    minWidth: 44,
-    minHeight: 44,
-    justifyContent: 'center',
-    alignItems: 'flex-start',
-    marginRight: Spacing.xs,
   },
   avatarButton: {
     minWidth: 44,

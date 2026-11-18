@@ -45,7 +45,7 @@ export default function RoutePlanningScreen() {
   if (isLoading) {
     return (
       <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]}>
-        <TopBar title={t('routeMap')} showBack backTo={Routes.routes} />
+        <TopBar title={t('routeMap')} />
         <View style={styles.centerContent}>
           <ActivityIndicator size="large" color={colors.primary} />
           <Text style={[styles.loadingText, { color: colors.textSecondary }]}>{t('loadingRoute')}</Text>
@@ -57,7 +57,7 @@ export default function RoutePlanningScreen() {
   if (error || !route) {
     return (
       <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]}>
-        <TopBar title={t('routeMap')} showBack backTo={Routes.routes} />
+        <TopBar title={t('routeMap')} />
         <View style={styles.centerContent}>
           <Text style={[styles.errorText, { color: colors.danger }]}>{error || t('routeNotFound')}</Text>
         </View>
@@ -67,7 +67,7 @@ export default function RoutePlanningScreen() {
 
   return (
     <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]}>
-      <TopBar title={route.name} showBack backTo={Routes.routes} />
+      <TopBar title={route.name} />
 
       <View style={styles.content}>
         {/* Map Section */}
@@ -118,6 +118,8 @@ export default function RoutePlanningScreen() {
         </View>
       </View>
       <FloatingActionButton
+        // The screen already reserves the tab bar height (app/_layout.tsx).
+        bottom={Spacing.xl}
         icon="add"
         onPress={() => router.push(Routes.routeAddOrders(route.id))}
       />

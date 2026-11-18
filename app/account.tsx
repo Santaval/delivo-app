@@ -110,7 +110,7 @@ export default function AccountScreen() {
 
   return (
     <SafeAreaView style={styles.container}>
-      <TopBar title={t('account')} showBack backTo={Routes.home} />
+      <TopBar title={t('account')} />
       <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
 
         {/* Header */}

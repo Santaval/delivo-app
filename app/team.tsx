@@ -192,7 +192,7 @@ export default function TeamScreen() {
 
   return (
     <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]}>
-      <TopBar title={t('team')} showBack backTo={Routes.home} />
+      <TopBar title={t('team')} />
       <KeyboardAvoidingView
         style={styles.flex}
         behavior={Platform.OS === 'ios' ? 'padding' : undefined}

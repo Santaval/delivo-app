@@ -1,5 +1,6 @@
 import { BorderRadius, Spacing, Typography } from "@/constants";
 import { useThemeColor } from "@/hooks/useColorScheme";
+import { useTabBarInset } from "@/hooks/useTabBarInset";
 import { useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import {
@@ -40,6 +41,7 @@ export function RoutesList({
   onCreateFirst,
 }: RoutesListProps) {
   const colors = useThemeColor();
+  const tabBarInset = useTabBarInset({ withFab: true });
   const [activeTab, setActiveTab] = useState<TabType>("all");
   const { t } = useTranslation();
 
@@ -161,7 +163,7 @@ export function RoutesList({
       {/* Routes List */}
       <ScrollView
         style={styles.routesContainer}
-        contentContainerStyle={styles.routesContent}
+        contentContainerStyle={[styles.routesContent, { paddingBottom: tabBarInset }]}
         showsVerticalScrollIndicator={false}
         refreshControl={
           <RefreshControl refreshing={isRefreshing} onRefresh={onRefresh} />

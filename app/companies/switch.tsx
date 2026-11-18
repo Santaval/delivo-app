@@ -39,7 +39,7 @@ export default function CompanySwitchPage() {
 
   return (
     <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]}>
-      <TopBar title={t('switchCompany')} showBack backTo={Routes.home} />
+      <TopBar title={t('switchCompany')} />
       <ScrollView contentContainerStyle={styles.content}>
         <View style={styles.header}>
           <ThemedText style={[styles.subtitle, { color: colors.textSecondary }]}>

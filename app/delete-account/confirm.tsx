@@ -39,7 +39,7 @@ export default function DeleteAccountConfirmScreen() {
 
   return (
     <SafeAreaView style={styles.container}>
-      <TopBar title={t("deleteAccountConfirmTitle")} showBack backTo={Routes.deleteAccountExport} />
+      <TopBar title={t("deleteAccountConfirmTitle")} />
       <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
         <ThemedText style={[styles.summary, { color: colors.textSecondary }]}>
           {t("deleteAccountConfirmSummary")}

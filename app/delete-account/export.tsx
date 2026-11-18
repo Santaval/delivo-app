@@ -31,8 +31,6 @@ export default function DeleteAccountExportScreen() {
     <SafeAreaView style={styles.container}>
       <TopBar
         title={t("deleteAccountExportTitle")}
-        showBack
-        backTo={Routes.deleteAccount}
       />
       <ScrollView
         contentContainerStyle={styles.scrollContent}

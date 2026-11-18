@@ -9,7 +9,7 @@ import {
 } from "@/components";
 import { HomeHeader } from "@/components/navigation/HomeHeader";
 import { BorderRadius, Routes, Spacing } from "@/constants";
-import { useThemeColor } from "@/hooks";
+import { useTabBarInset, useThemeColor } from "@/hooks";
 import useFinancialSummary from "@/hooks/useFinanancialSummary";
 import { MaterialCommunityIcons, MaterialIcons } from "@expo/vector-icons";
 import { router } from "expo-router";
@@ -22,6 +22,7 @@ export default function Home() {
   const { t } = useTranslation();
 
   const colors = useThemeColor();
+  const tabBarInset = useTabBarInset();
 
   // All three states render the same <HomeHeader /> so it doesn't jump between them.
   if (loading) {
@@ -56,7 +57,7 @@ export default function Home() {
       {/* The page scrolls as a whole: income card + chart + actions overflow a
           compact screen, and the iOS tab bar is absolutely positioned over it. */}
       <ScrollView
-        contentContainerStyle={styles.content}
+        contentContainerStyle={[styles.content, { paddingBottom: tabBarInset }]}
         showsVerticalScrollIndicator={false}
       >
         <IncomeCard
@@ -169,8 +170,7 @@ const styles = StyleSheet.create({
   },
   content: {
     gap: Spacing["3xl"],
-    // Clears the tab bar, which sits `position: 'absolute'` over the scene on iOS.
-    paddingBottom: Spacing["6xl"],
+    // paddingBottom comes from useTabBarInset (clears the floating tab bar).
   },
   skeletonCard: {
     height: 120,

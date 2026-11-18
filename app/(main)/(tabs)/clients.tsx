@@ -1,6 +1,7 @@
 import { ClientCard, EmptyState, ErrorState, FloatingActionButton, ListSkeleton, SearchBar, TopBar } from '@/components';
 import { Routes, Spacing } from '@/constants';
 import useClients from '@/hooks/useClients';
+import { useTabBarInset } from '@/hooks/useTabBarInset';
 import { router } from 'expo-router';
 import React from 'react';
 import { useTranslation } from 'react-i18next';
@@ -10,6 +11,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 export default function Clients() {
   const { clients, isInitialLoading, isRefreshing, error, searchClients, refresh } = useClients();
   const { t } = useTranslation();
+  const tabBarInset = useTabBarInset({ withFab: true });
 
   const handleAddClient = () => {
     router.push(Routes.clientsAdd);
@@ -29,7 +31,7 @@ export default function Clients() {
 
       <ScrollView
         showsVerticalScrollIndicator={false}
-        contentContainerStyle={styles.listContent}
+        contentContainerStyle={[styles.listContent, { paddingBottom: tabBarInset }]}
         refreshControl={
           <RefreshControl refreshing={isRefreshing} onRefresh={refresh} />
         }

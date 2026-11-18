@@ -3,7 +3,7 @@ import { useThemeColor } from '@/hooks/useColorScheme';
 import { MaterialIcons } from '@expo/vector-icons';
 import { useTranslation } from 'react-i18next';
 import { StyleSheet, TouchableOpacity, View } from 'react-native';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { useTabBarInset } from '@/hooks/useTabBarInset';
 
 export type FloatingActionButtonProps = {
   onPress: () => void;
@@ -31,7 +31,8 @@ export function FloatingActionButton({
   accessibilityLabel,
 }: FloatingActionButtonProps) {
   const colors = useThemeColor();
-  const insets = useSafeAreaInsets();
+  // Sits just above the global FloatingTabBar by default.
+  const tabBarInset = useTabBarInset();
   const { t } = useTranslation();
 
   return (
@@ -44,7 +45,7 @@ export function FloatingActionButton({
           borderRadius: size / 2,
           backgroundColor: backgroundColor || colors.primary,
           position: 'absolute',
-          bottom: bottom ?? 100,
+          bottom: bottom ?? tabBarInset,
           ...(left !== undefined ? { left } : { right: right ?? Spacing.xl }),
         }
       ]}

@@ -1,5 +1,6 @@
 import { ErrorBoundary } from "@/components/feedback/ErrorBoundary";
 import { OfflineBanner } from "@/components/feedback/OfflineBanner";
+import { FloatingTabBar } from "@/components/navigation/FloatingTabBar";
 import config from "@/config/env";
 import { Routes } from "@/constants";
 import { AuthProvider, useAuth } from "@/context/AuthContext";
@@ -8,6 +9,8 @@ import { PlanLimitProvider, usePlanLimit } from "@/context/PlanLimitContext";
 import { ToastProvider } from "@/context/ToastContext";
 import { VersionProvider, useVersion } from "@/context/VersionContext";
 import { PurchasesProvider } from "@/context/PurchasesContext";
+import { useThemeColor } from "@/hooks/useColorScheme";
+import { useTabBarInset } from "@/hooks/useTabBarInset";
 import RevenueCatService from "@/services/purchases/RevenueCat.service";
 // Registers the background location task (TaskManager.defineTask must run at module level)
 import "@/services/tracking/LocationTracking.task";
@@ -47,6 +50,10 @@ function PlanLimitNavigator() {
   return null;
 }
 
+/** Root screens that don't reserve space for the FloatingTabBar: the tabs pad
+ *  their own scroll content, and the bar is hidden on the terminal screens. */
+const SCREENS_WITHOUT_TAB_INSET = new Set(["(main)", "plan-limit", "delete-account/done"]);
+
 function RootNavigator() {
   const { authState } = useAuth();
   const {
@@ -66,6 +73,9 @@ function RootNavigator() {
 
   const isAuthenticated = authState.authenticated;
   const hasActiveCompany = !!activeCompany;
+  const showTabBar = isAuthenticated && hasActiveCompany && !needsUpdate && !isBootstrapping;
+  const tabBarInset = useTabBarInset();
+  const colors = useThemeColor();
 
   // The navigator stays mounted while bootstrapping — the native splash covers
   // it, so nothing intermediate is visible, and the router is ready to receive
@@ -82,7 +92,18 @@ function RootNavigator() {
           focused screen's guard turns false, expo-router falls back to the
           first still-available screen in declaration order, so the order below
           determines where each auth/company state lands the user. */}
-      <Stack screenOptions={{ headerShown: false }}>
+      <Stack
+        screenOptions={({ route }) => ({
+          headerShown: false,
+          // Pushed screens reserve the FloatingTabBar's height so no content,
+          // sticky button or map control ends up behind it. The tab screens
+          // handle it themselves (their content scrolls under the floating bar).
+          contentStyle: {
+            backgroundColor: colors.background,
+            paddingBottom: showTabBar && !SCREENS_WITHOUT_TAB_INSET.has(route.name) ? tabBarInset : 0,
+          },
+        })}
+      >
         {/* Force-update gate: declared first so its guard wins over every
             other group — if the backend flagged this build as unsupported,
             nothing else is reachable. `index` below still sees the splash
@@ -146,6 +167,9 @@ function RootNavigator() {
         </Stack.Protected>
       </Stack>
       <PlanLimitNavigator />
+      {/* Main tabs on every signed-in screen (pushed screens included). Never on
+          login, onboarding or force-update. */}
+      {showTabBar && <FloatingTabBar />}
       <OfflineBanner />
     </ErrorBoundary>
   );

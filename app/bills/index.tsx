@@ -30,8 +30,6 @@ export default function Bills() {
     <SafeAreaView style={styles.container}>
       <TopBar
         title={t('bills')}
-        showBack
-        backTo={Routes.home}
       />
 
       <SearchBar

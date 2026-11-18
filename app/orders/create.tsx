@@ -51,8 +51,6 @@ export default function CreateOrder() {
     <SafeAreaView style={styles.container}>
       <TopBar
         title={t('createOrder')}
-        showBack
-        backTo={Routes.orders}
       />
       <ClientSelect
         label={t("assignedClient").toUpperCase()}
