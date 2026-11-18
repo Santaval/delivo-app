@@ -391,5 +391,12 @@
   "memberRemoved": "{{name}} was removed from the team",
   "cannotRemoveLastOwner": "The only owner of the company can't be removed",
   "notAllowedToRemoveMembers": "You don't have permission to remove this member",
-  "failedToRemoveMember": "Couldn't remove the member"
+  "failedToRemoveMember": "Couldn't remove the member",
+  "leaveCompany": "Leave company",
+  "leaveCompanyConfirmTitle": "Leave {{company}}?",
+  "leaveCompanyConfirmMessage": "You will lose access to this company's data. To come back, an owner or admin will have to add you again with your member code.",
+  "leaveCompanySoleOwner": "You are the only owner of this company. To leave, first transfer ownership or delete your account from Account.",
+  "leaveCompanySoleOwnerFailed": "You can't leave: you are the only owner of the company.",
+  "failedToLeaveCompany": "Couldn't leave the company. Please try again.",
+  "leftCompany": "You left {{company}}"
 }

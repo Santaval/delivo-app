@@ -36,7 +36,7 @@ export default function TeamScreen() {
   const { t } = useTranslation();
   const colors = useThemeColor();
   const toast = useToast();
-  const { user } = useAuth();
+  const { user, refreshUser } = useAuth();
   const { activeCompany } = useCompanies();
   const companyId = activeCompany?.id;
 
@@ -48,6 +48,7 @@ export default function TeamScreen() {
   const [role, setRole] = useState<AssignableRole>('DEALER');
   const [isAdding, setIsAdding] = useState(false);
   const [removingId, setRemovingId] = useState<string | null>(null);
+  const [isLeaving, setIsLeaving] = useState(false);
 
   const myRole = members.find((m) => m.userId === user?.id)?.role;
   // Only OWNER/ADMIN can add/remove members; the API enforces it too (403)
@@ -57,6 +58,10 @@ export default function TeamScreen() {
     member.userId !== user?.id &&
     // An ADMIN can't remove an OWNER (the API would answer 403)
     !(myRole === 'ADMIN' && member.role === 'OWNER');
+
+  // A sole owner can't leave: the API answers 409 until ownership is transferred
+  const isSoleOwner =
+    myRole === 'OWNER' && members.filter((m) => m.role === 'OWNER').length === 1;
 
   const roleLabel = (r: CompanyRole) => t(`companyRole_${r}`);
 
@@ -144,6 +149,44 @@ export default function TeamScreen() {
           setRemovingId(null);
         }
       },
+    });
+  };
+
+  const leaveCompany = async () => {
+    if (!companyId || !activeCompany) return;
+    const companyName = activeCompany.name;
+    setIsLeaving(true);
+    try {
+      await CompaniesService.leaveCompany(companyId);
+      toast.show({ message: t('leftCompany', { company: companyName }), type: 'success' });
+      // No navigation here: refreshing the user drops the company from
+      // CompaniesContext and the guards in app/_layout.tsx redirect to company
+      // selection (or creation when it was the last one).
+      await refreshUser();
+    } catch (error: any) {
+      const status = error?.response?.status;
+      if (status === 404) {
+        // Already not a member (e.g. removed meanwhile): just resync
+        await refreshUser();
+        return;
+      }
+      toast.show({
+        message:
+          status === 409 ? t('leaveCompanySoleOwnerFailed') : t('failedToLeaveCompany'),
+        type: 'error',
+      });
+    } finally {
+      setIsLeaving(false);
+    }
+  };
+
+  const handleLeave = () => {
+    if (!activeCompany) return;
+    confirmDestructive({
+      title: t('leaveCompanyConfirmTitle', { company: activeCompany.name }),
+      message: t('leaveCompanyConfirmMessage'),
+      confirmLabel: t('leaveCompany'),
+      onConfirm: leaveCompany,
     });
   };
 
@@ -302,6 +345,34 @@ export default function TeamScreen() {
                   );
                 })}
               </View>
+
+              <View style={[styles.leaveSection, { borderTopColor: colors.border }]}>
+                {isSoleOwner && (
+                  <ThemedText variant="caption" style={{ color: colors.textSecondary }}>
+                    {t('leaveCompanySoleOwner')}
+                  </ThemedText>
+                )}
+                <TouchableOpacity
+                  accessibilityRole="button"
+                  accessibilityState={{ disabled: isSoleOwner || isLeaving }}
+                  style={[
+                    styles.leaveButton,
+                    { borderColor: colors.danger },
+                    (isSoleOwner || isLeaving) && styles.disabled,
+                  ]}
+                  disabled={isSoleOwner || isLeaving}
+                  onPress={handleLeave}
+                >
+                  {isLeaving ? (
+                    <ActivityIndicator size="small" color={colors.danger} />
+                  ) : (
+                    <MaterialIcons name="logout" size={20} color={colors.danger} />
+                  )}
+                  <ThemedText style={[styles.leaveButtonText, { color: colors.danger }]}>
+                    {t('leaveCompany')}
+                  </ThemedText>
+                </TouchableOpacity>
+              </View>
             </>
           )}
         </ScrollView>
@@ -337,6 +408,26 @@ const styles = StyleSheet.create({
     paddingVertical: 2,
     borderRadius: BorderRadius.full,
   },
+  leaveSection: {
+    gap: Spacing.sm,
+    borderTopWidth: 1,
+    paddingTop: Spacing.lg,
+    marginTop: Spacing.sm,
+  },
+  leaveButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: Spacing.sm,
+    minHeight: 48,
+    borderWidth: 1,
+    borderRadius: BorderRadius.lg,
+  },
+  leaveButtonText: {
+    fontWeight: Typography.fontWeight.medium,
+    fontSize: Typography.fontSize.base,
+  },
+  disabled: { opacity: 0.5 },
   fieldLabel: {
     fontWeight: Typography.fontWeight.medium,
     marginBottom: Spacing.xs,

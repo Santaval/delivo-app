@@ -393,5 +393,12 @@
   "memberRemoved": "{{name}} fue quitado del equipo",
   "cannotRemoveLastOwner": "No se puede quitar al único propietario de la empresa",
   "notAllowedToRemoveMembers": "No tienes permiso para quitar a este miembro",
-  "failedToRemoveMember": "No se pudo quitar al miembro"
+  "failedToRemoveMember": "No se pudo quitar al miembro",
+  "leaveCompany": "Salir de la empresa",
+  "leaveCompanyConfirmTitle": "¿Salir de {{company}}?",
+  "leaveCompanyConfirmMessage": "Perderás el acceso a los datos de esta empresa. Para volver, un propietario o administrador tendrá que agregarte de nuevo con tu código de miembro.",
+  "leaveCompanySoleOwner": "Eres el único propietario de esta empresa. Para salir, primero transfiere la propiedad o elimina tu cuenta desde Cuenta.",
+  "leaveCompanySoleOwnerFailed": "No puedes salir: eres el único propietario de la empresa.",
+  "failedToLeaveCompany": "No se pudo salir de la empresa. Intenta de nuevo.",
+  "leftCompany": "Saliste de {{company}}"
 }

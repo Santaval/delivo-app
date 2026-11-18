@@ -31,4 +31,12 @@ export default class CompaniesService extends BaseApiService {
   static async removeMember(companyId: string, userId: string): Promise<void> {
     await this.delete(`/companies/${companyId}/members/${userId}`);
   }
+
+  /**
+   * The current user leaves the company (any role). Rejects with 404 (not a
+   * member) or 409 (sole owner: transfer ownership or delete the account first).
+   */
+  static async leaveCompany(companyId: string): Promise<void> {
+    await this.delete(`/companies/${companyId}/members/me`);
+  }
 }
