@@ -136,6 +136,7 @@ function RootNavigator() {
           <Stack.Screen name="products/add" />
           <Stack.Screen name="products/edit/[id]" />
           <Stack.Screen name="products/view/[id]" />
+          <Stack.Screen name="team" />
           <Stack.Screen name="routes/create" />
           <Stack.Screen name="routes/view/[id]" />
           <Stack.Screen name="routes/view/addOrders" />
