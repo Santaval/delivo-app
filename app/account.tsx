@@ -116,14 +116,16 @@ export default function AccountScreen() {
         {/* Header */}
         <View style={styles.header}>
           <View style={[styles.avatarContainer, { backgroundColor: colors.backgroundTertiary }]}>
-            <MaterialIcons name="person" size={40} color={colors.primary} />
+            <MaterialIcons name="person" size={24} color={colors.primary} />
           </View>
-          <ThemedText variant="title" style={styles.userName}>
-            {user?.name} {user?.surnames}
-          </ThemedText>
-          <ThemedText variant="caption" style={[styles.userEmail, { color: colors.textSecondary }]}>
-            {user?.email}
-          </ThemedText>
+          <View style={styles.headerText}>
+            <ThemedText style={styles.userName} numberOfLines={1}>
+              {user?.name} {user?.surnames}
+            </ThemedText>
+            <ThemedText style={[styles.userEmail, { color: colors.textSecondary }]} numberOfLines={1}>
+              {user?.email}
+            </ThemedText>
+          </View>
         </View>
 
         {/* Member code */}
@@ -269,21 +271,26 @@ export default function AccountScreen() {
         {/* Divider */}
         <View style={[styles.divider, { backgroundColor: colors.border }]} />
 
-        {/* Delete Account */}
+        {/* Sign Out — the main action at the bottom */}
         <TouchableOpacity
-          style={[styles.actionButton, styles.outlineButton, { borderColor: colors.danger }]}
-          onPress={() => router.push(Routes.deleteAccount)}
+          style={[styles.actionButton, { backgroundColor: colors.danger }]}
+          onPress={handleLogout}
+          accessibilityRole="button"
         >
-          <MaterialIcons name="delete-forever" size={20} color={colors.danger} />
-          <ThemedText style={[styles.outlineButtonText, { color: colors.danger }]}>
-            {t('deleteAccount')}
-          </ThemedText>
+          <MaterialIcons name="logout" size={20} color="#fff" />
+          <ThemedText style={styles.primaryButtonText}>{t('signOut')}</ThemedText>
         </TouchableOpacity>
 
-        {/* Sign Out */}
-        <TouchableOpacity style={[styles.actionButton, styles.dangerButton]} onPress={handleLogout}>
-          <MaterialIcons name="logout" size={20} color={colors.danger} />
-          <ThemedText style={[styles.dangerButtonText, { color: colors.danger }]}>{t('signOut')}</ThemedText>
+        {/* Delete Account — deliberately small and set well apart from Sign Out
+            so it can't be hit by accident; the flow itself has confirm steps. */}
+        <TouchableOpacity
+          style={styles.deleteLink}
+          onPress={() => router.push(Routes.deleteAccount)}
+          accessibilityRole="button"
+        >
+          <ThemedText style={[styles.deleteLinkText, { color: colors.textSecondary }]}>
+            {t('deleteAccount')}
+          </ThemedText>
         </TouchableOpacity>
 
       </ScrollView>
@@ -299,24 +306,29 @@ const styles = StyleSheet.create({
     padding: Spacing.xl,
     gap: Spacing.lg,
   },
+  // Compact two-column header: avatar | name over email.
   header: {
+    flexDirection: 'row',
     alignItems: 'center',
-    marginBottom: Spacing.lg,
-    gap: Spacing.xs,
+    gap: Spacing.md,
   },
   avatarContainer: {
-    width: 80,
-    height: 80,
-    borderRadius: 40,
+    width: 44,
+    height: 44,
+    borderRadius: 22,
     justifyContent: 'center',
     alignItems: 'center',
-    marginBottom: Spacing.sm,
+  },
+  headerText: {
+    flex: 1,
   },
   userName: {
-    fontSize: Typography.fontSize.xl,
-    fontWeight: Typography.fontWeight.bold,
+    fontSize: Typography.fontSize.base,
+    fontWeight: Typography.fontWeight.semibold,
   },
-  userEmail: {},
+  userEmail: {
+    fontSize: Typography.fontSize.sm,
+  },
   memberCode: {
     fontFamily: Platform.select({ ios: 'Menlo', android: 'monospace' }),
     fontSize: 36,
@@ -326,15 +338,12 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     marginVertical: Spacing.sm,
   },
+  // Stacked full-width: Share (primary) on top, Regenerate below.
   memberCodeActions: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
     gap: Spacing.md,
     marginTop: Spacing.sm,
   },
   flexButton: {
-    flexGrow: 1,
-    flexBasis: 140,
     paddingVertical: Spacing.md,
     paddingHorizontal: Spacing.md,
   },
@@ -420,11 +429,15 @@ const styles = StyleSheet.create({
     height: 1,
     marginVertical: Spacing.sm,
   },
-  dangerButton: {
-    backgroundColor: 'transparent',
+  deleteLink: {
+    alignSelf: 'center',
+    marginTop: Spacing['4xl'],
+    paddingHorizontal: Spacing.md,
+    minHeight: 44,
+    justifyContent: 'center',
   },
-  dangerButtonText: {
-    fontWeight: Typography.fontWeight.medium,
-    fontSize: Typography.fontSize.base,
+  deleteLinkText: {
+    fontSize: Typography.fontSize.sm,
+    textDecorationLine: 'underline',
   },
 });
