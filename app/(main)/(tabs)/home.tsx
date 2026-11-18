@@ -165,7 +165,7 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     padding: Spacing.lg,
-    gap: Spacing["3xl"],
+    gap: Spacing.lg, // header ↔ body; the ScrollView spaces its own cards
   },
   content: {
     gap: Spacing["3xl"],

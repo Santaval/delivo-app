@@ -1,5 +1,5 @@
 import { ThemedText } from '@/components/ThemedText';
-import { BorderRadius, Routes, Spacing, Typography } from '@/constants';
+import { BorderRadius, Routes, Shadows, Spacing, Typography } from '@/constants';
 import { useAuth } from '@/context/AuthContext';
 import { useCompanies } from '@/context/CompaniesContext';
 import { usePurchases } from '@/context/PurchasesContext';
@@ -111,19 +111,18 @@ export function HomeHeader() {
         {NAV_ITEMS.map((item) => (
           <TouchableOpacity
             key={item.labelKey}
-            style={styles.navItem}
+            style={[styles.navItem, { backgroundColor: colors.surface, borderColor: colors.border }]}
             accessibilityRole="button"
             accessibilityLabel={t(item.labelKey)}
             onPress={() => router.push(item.href)}
           >
             <View style={[styles.navIcon, { backgroundColor: colors.backgroundTertiary }]}>
-              <MaterialIcons name={item.icon} size={24} color={colors.primary} />
+              <MaterialIcons name={item.icon} size={18} color={colors.primary} />
             </View>
             <ThemedText style={styles.navLabel}>{t(item.labelKey)}</ThemedText>
           </TouchableOpacity>
         ))}
       </ScrollView>
-      <View style={[styles.divider, { backgroundColor: colors.borderSecondary }]} />
     </View>
   );
 }
@@ -193,27 +192,29 @@ const styles = StyleSheet.create({
   },
   navContent: {
     paddingHorizontal: Spacing.lg,
-    gap: Spacing.xl,
+    paddingVertical: Spacing.xs, // room for the pill shadows
+    gap: Spacing.sm,
   },
   navItem: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: Spacing.sm,
     minHeight: 44,
+    paddingLeft: Spacing.xs,
+    paddingRight: Spacing.lg,
+    borderRadius: BorderRadius.full,
+    borderWidth: 1,
+    ...Shadows.small,
   },
   navIcon: {
-    width: 40,
-    height: 40,
+    width: 30,
+    height: 30,
     borderRadius: BorderRadius.full,
     justifyContent: 'center',
     alignItems: 'center',
   },
   navLabel: {
-    fontSize: Typography.fontSize.base,
+    fontSize: Typography.fontSize.sm,
     fontWeight: Typography.fontWeight.semibold,
-  },
-  divider: {
-    height: 2,
-    marginHorizontal: -Spacing.lg,
   },
 });
