@@ -1,6 +1,8 @@
 import { useCompanies } from "@/context/CompaniesContext";
+import { toast } from "@/context/ToastContext";
+import i18n from "@/i18n";
 import useCompanyMembers from "@/hooks/useCompanyMembers";
-import { setOnInsufficientCredits } from "@/services/api";
+import { setOnInsufficientCredits, setOnPaymentRequired } from "@/services/api";
 import CreditsService from "@/services/billing/Credits.service";
 import type { InsufficientCreditsPayload } from "@/services/errors/InsufficientCredits";
 import React, {
@@ -156,6 +158,12 @@ export function CreditsProvider({ children }: { children: React.ReactNode }) {
     });
     return () => setOnInsufficientCredits(null);
   }, [refresh]);
+
+  // Any other 402 (no credits payload) is unexpected: surface a generic error.
+  useEffect(() => {
+    setOnPaymentRequired(() => toast.error(i18n.t("genericError")));
+    return () => setOnPaymentRequired(null);
+  }, []);
 
   const dismissOutOfCredits = useCallback(() => {
     shownRef.current = false;

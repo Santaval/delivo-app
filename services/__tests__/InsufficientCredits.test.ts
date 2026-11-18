@@ -34,7 +34,7 @@ describe('parseInsufficientCreditsPayload', () => {
     });
   });
 
-  it('returns null for a plan-limit body', () => {
+  it('returns null for another 402 code', () => {
     expect(
       parseInsufficientCreditsPayload({ code: 'PLAN_LIMIT_EXCEEDED', resource: 'products' }),
     ).toBeNull();

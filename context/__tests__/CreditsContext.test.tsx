@@ -4,6 +4,10 @@ import { act, renderHook, waitFor } from '@testing-library/react-native';
 import React from 'react';
 import { AppState } from 'react-native';
 
+jest.mock('@/context/ToastContext', () => ({
+  toast: { error: jest.fn(), info: jest.fn(), success: jest.fn() },
+}));
+
 const mockUseCompanies = jest.fn();
 jest.mock('@/context/CompaniesContext', () => ({
   useCompanies: () => mockUseCompanies(),

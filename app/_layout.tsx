@@ -3,11 +3,9 @@ import { OutOfCreditsSheet } from "@/components/credits/OutOfCreditsSheet";
 import { OfflineBanner } from "@/components/feedback/OfflineBanner";
 import { FloatingTabBar } from "@/components/navigation/FloatingTabBar";
 import config from "@/config/env";
-import { Routes } from "@/constants";
 import { AuthProvider, useAuth } from "@/context/AuthContext";
 import { CompaniesProvider, useCompanies } from "@/context/CompaniesContext";
 import { CreditsProvider } from "@/context/CreditsContext";
-import { PlanLimitProvider, usePlanLimit } from "@/context/PlanLimitContext";
 import { ToastProvider } from "@/context/ToastContext";
 import { VersionProvider, useVersion } from "@/context/VersionContext";
 import { PurchasesProvider } from "@/context/PurchasesContext";
@@ -20,7 +18,7 @@ import MapboxGL from "@rnmapbox/maps";
 import * as Sentry from '@sentry/react-native';
 import * as SplashScreen from 'expo-splash-screen';
 import { ObserveRoot } from 'expo-observe';
-import { router, Stack } from "expo-router";
+import { Stack } from "expo-router";
 import 'moment/locale/es';
 import { useEffect } from "react";
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
@@ -40,21 +38,9 @@ MapboxGL.setAccessToken(config.mapboxAccessToken);
 RevenueCatService.configure();
 SplashScreen.preventAutoHideAsync();
 
-/**
- * The 402 interceptor only flips state in PlanLimitContext; the navigation to
- * the plan-limit route is decided here, next to the route tree.
- */
-function PlanLimitNavigator() {
-  const { shouldShowPlanLimit } = usePlanLimit();
-  useEffect(() => {
-    if (shouldShowPlanLimit) router.push(Routes.planLimit);
-  }, [shouldShowPlanLimit]);
-  return null;
-}
-
 /** Root screens that don't reserve space for the FloatingTabBar: the tabs pad
  *  their own scroll content, and the bar is hidden on the terminal screens. */
-const SCREENS_WITHOUT_TAB_INSET = new Set(["(main)", "plan-limit", "delete-account/done"]);
+const SCREENS_WITHOUT_TAB_INSET = new Set(["(main)", "delete-account/done"]);
 
 function RootNavigator() {
   const { authState } = useAuth();
@@ -159,7 +145,6 @@ function RootNavigator() {
           <Stack.Screen name="orders/create" />
           <Stack.Screen name="orders/view/[id]" />
           <Stack.Screen name="payment-methods/add" />
-          <Stack.Screen name="plan-limit" />
           <Stack.Screen name="products/index" />
           <Stack.Screen name="products/add" />
           <Stack.Screen name="products/edit/[id]" />
@@ -170,7 +155,6 @@ function RootNavigator() {
           <Stack.Screen name="team" />
         </Stack.Protected>
       </Stack>
-      <PlanLimitNavigator />
       <OutOfCreditsSheet />
       {/* Main tabs on every signed-in screen (pushed screens included). Never on
           login, onboarding or force-update. */}
@@ -189,9 +173,7 @@ function RootLayout() {
             <GestureHandlerRootView>
               <ToastProvider>
                 <CreditsProvider>
-                  <PlanLimitProvider>
-                    <RootNavigator />
-                  </PlanLimitProvider>
+                  <RootNavigator />
                 </CreditsProvider>
               </ToastProvider>
             </GestureHandlerRootView>

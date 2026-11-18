@@ -3,7 +3,6 @@ import { ThemedText } from '@/components/ThemedText';
 import { BorderRadius, Routes, Shadows, Spacing, Typography } from '@/constants';
 import { useAuth } from '@/context/AuthContext';
 import { useCompanies } from '@/context/CompaniesContext';
-import { usePurchases } from '@/context/PurchasesContext';
 import { useThemeColor } from '@/hooks/useColorScheme';
 import { MaterialIcons } from '@expo/vector-icons';
 import type { Href } from 'expo-router';
@@ -33,7 +32,6 @@ export function HomeHeader() {
   const { t } = useTranslation();
   const { user, syncUserIfStale } = useAuth();
   const { activeCompany, companies } = useCompanies();
-  const { isPro } = usePurchases();
 
   // Pick up membership changes (added to / removed from a company) whenever Home
   // gains focus; throttled inside syncUserIfStale.
@@ -82,11 +80,6 @@ export function HomeHeader() {
         </View>
 
         <View style={styles.rightSection}>
-          {isPro && (
-            <View style={[styles.proPill, { backgroundColor: colors.warning }]}>
-              <ThemedText style={styles.proPillText}>Pro</ThemedText>
-            </View>
-          )}
           <TouchableOpacity
             style={styles.avatarButton}
             onPress={() => router.navigate(Routes.account)}
@@ -166,16 +159,6 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     gap: Spacing.sm,
-  },
-  proPill: {
-    paddingHorizontal: Spacing.sm,
-    paddingVertical: 2,
-    borderRadius: BorderRadius.full,
-  },
-  proPillText: {
-    color: '#ffffff',
-    fontSize: Typography.fontSize.xs,
-    fontWeight: Typography.fontWeight.bold,
   },
   avatarButton: {
     minWidth: 44,

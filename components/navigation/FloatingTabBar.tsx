@@ -36,7 +36,7 @@ const TAB_PATHS: Record<TabKey, string> = {
 };
 
 /** Screens where the bar would be in the way (terminal / modal-like flows). */
-const HIDDEN_PATHS = ['/plan-limit', '/delete-account/done'];
+const HIDDEN_PATHS = ['/delete-account/done'];
 
 /** Which tab a pathname belongs to. Secondary sections (bills, products, team,
  *  account, company switcher…) are reached from Home, so they light up Inicio. */

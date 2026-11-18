@@ -1,4 +1,4 @@
-import api, { setOnInsufficientCredits, setOnPlanLimitExceeded } from '@/services/api';
+import api, { setOnInsufficientCredits, setOnPaymentRequired } from '@/services/api';
 
 /** Makes the next request fail with `status` and `data`, without touching the network. */
 const failWith = (status: number, data: unknown) => {
@@ -20,18 +20,18 @@ const CREDITS_BODY = {
 describe('api 402 insufficient credits interceptor', () => {
   const originalAdapter = api.defaults.adapter;
   const onCredits = jest.fn();
-  const onPlanLimit = jest.fn();
+  const onPaymentRequired = jest.fn();
 
   beforeEach(() => {
     onCredits.mockClear();
-    onPlanLimit.mockClear();
+    onPaymentRequired.mockClear();
+    setOnPaymentRequired(onPaymentRequired);
     setOnInsufficientCredits(onCredits);
-    setOnPlanLimitExceeded(onPlanLimit);
   });
 
   afterAll(() => {
     setOnInsufficientCredits(null);
-    setOnPlanLimitExceeded(null);
+    setOnPaymentRequired(null);
     api.defaults.adapter = originalAdapter;
   });
 
@@ -41,15 +41,15 @@ describe('api 402 insufficient credits interceptor', () => {
     await expect(api.post('/orders', {})).rejects.toMatchObject({ response: { status: 402 } });
     expect(onCredits).toHaveBeenCalledTimes(1);
     expect(onCredits).toHaveBeenCalledWith(CREDITS_BODY);
-    expect(onPlanLimit).not.toHaveBeenCalled();
+    expect(onPaymentRequired).not.toHaveBeenCalled();
   });
 
-  it('falls back to the plan-limit handler for another 402 body', async () => {
-    failWith(402, { code: 'PLAN_LIMIT_EXCEEDED', resource: 'products' });
+  it('calls the payment-required fallback for any other 402 body and still rejects', async () => {
+    failWith(402, { message: 'Payment Required' });
 
     await expect(api.post('/products', {})).rejects.toBeDefined();
     expect(onCredits).not.toHaveBeenCalled();
-    expect(onPlanLimit).toHaveBeenCalledTimes(1);
+    expect(onPaymentRequired).toHaveBeenCalledTimes(1);
   });
 
   it('does not call it for non-402 statuses', async () => {

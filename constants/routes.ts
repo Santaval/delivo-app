@@ -35,7 +35,6 @@ export const Routes = {
   companiesSelect: "/companies/select" as Href,
   companiesSwitch: "/companies/switch" as Href,
   paymentMethodsAdd: "/payment-methods/add" as Href,
-  planLimit: "/plan-limit" as Href,
   creditsHistory: "/credits/history" as Href,
   creditsBuy: "/credits/buy" as Href,
   forceUpdate: "/force-update" as Href,

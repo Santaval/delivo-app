@@ -31,7 +31,7 @@ The app launches in Spanish for the Latin American market, and an English transl
 - **Delivery routes**: build routes from orders and view them on interactive Mapbox maps with polyline paths and live location.
 - **Guided onboarding**: a 5-step wizard after signup (company → product → client → order → route) that you can skip and resume.
 - **Authentication**: Google and Apple sign-in, with tokens stored in the device's secure storage.
-- **Subscriptions**: in-app "Pro" plan (monthly and yearly) through RevenueCat.
+- **Credits**: prepaid bill credits bought as in-app purchases through RevenueCat.
 - **Polished UX**: haptic feedback, swipe actions, skeleton loaders, toasts, and light/dark theming.
 - **OTA updates & force-update**: EAS Update for over-the-air releases and a force-update screen for outdated versions.
 
@@ -45,7 +45,7 @@ The app launches in Spanish for the Latin American market, and an English transl
 | **Maps & Location** | @rnmapbox/maps, @mapbox/polyline, expo-location |
 | **Data & State** | Axios, Zod, React Context, AsyncStorage, NetInfo |
 | **Auth & Security** | expo-auth-session (Google), expo-apple-authentication, expo-secure-store |
-| **Monetization** | RevenueCat (`react-native-purchases`, `react-native-purchases-ui`) |
+| **Monetization** | RevenueCat (`react-native-purchases`) |
 | **i18n** | i18next, react-i18next, expo-localization, Moment.js |
 | **Monitoring & Delivery** | Sentry, EAS Build, EAS Update |
 | **Tooling** | ESLint (`eslint-config-expo`) |

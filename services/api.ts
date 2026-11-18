@@ -1,5 +1,4 @@
 import config from "@/config/env";
-import { parsePlanLimitPayload, type PlanLimitPayload } from "@/services/errors/PlanLimit";
 import {
   parseInsufficientCreditsPayload,
   type InsufficientCreditsPayload,
@@ -24,19 +23,6 @@ export const setOnUnauthorized = (handler: (() => void) | null) => {
 };
 
 /**
- * Callback invoked when any API call returns 402 (plan limit exceeded).
- * Registered by PlanLimitContext so it can surface the limit and the paywall.
- * Receives null when the response body doesn't carry a recognizable payload.
- */
-let onPlanLimitExceeded: ((payload: PlanLimitPayload | null) => void) | null = null;
-
-export const setOnPlanLimitExceeded = (
-  handler: ((payload: PlanLimitPayload | null) => void) | null,
-) => {
-  onPlanLimitExceeded = handler;
-};
-
-/**
  * Callback invoked when a 402 carries code INSUFFICIENT_CREDITS (the company is
  * out of bills). Registered by CreditsContext so it can show the out-of-credits sheet.
  */
@@ -46,6 +32,17 @@ export const setOnInsufficientCredits = (
   handler: ((payload: InsufficientCreditsPayload) => void) | null,
 ) => {
   onInsufficientCredits = handler;
+};
+
+/**
+ * Callback invoked for any other 402 (no recognizable credits payload). Registered by
+ * CreditsContext so it can show a generic error; api.ts must not import UI modules
+ * (ToastContext pulls in reanimated), so the toast is wired from outside.
+ */
+let onPaymentRequired: (() => void) | null = null;
+
+export const setOnPaymentRequired = (handler: (() => void) | null) => {
+  onPaymentRequired = handler;
 };
 
 /**
@@ -71,10 +68,9 @@ api.interceptors.response.use(
       onUnauthorized?.();
     }
     if (status === 402) {
-      // Credits first: parsePlanLimitPayload is lax and would also accept this body.
       const credits = parseInsufficientCreditsPayload(error?.response?.data);
       if (credits) onInsufficientCredits?.(credits);
-      else onPlanLimitExceeded?.(parsePlanLimitPayload(error?.response?.data)); // legacy
+      else onPaymentRequired?.();
     }
     if (status === 403) {
       const companyId =

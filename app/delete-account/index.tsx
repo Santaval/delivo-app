@@ -39,7 +39,7 @@ export default function DeleteAccountScreen() {
 
           <View style={styles.bulletRow}>
             <ThemedText style={styles.bulletText}>
-              - {t("deleteAccountBulletSubscription")}
+              - {t("deleteAccountBulletCredits")}
             </ThemedText>
           </View>
 
