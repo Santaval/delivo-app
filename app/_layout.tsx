@@ -1,3 +1,4 @@
+import { PendingInvitationNavigator } from "@/components/PendingInvitationNavigator";
 import { ErrorBoundary } from "@/components/feedback/ErrorBoundary";
 import { OfflineBanner } from "@/components/feedback/OfflineBanner";
 import config from "@/config/env";
@@ -141,8 +142,17 @@ function RootNavigator() {
           <Stack.Screen name="routes/view/[id]" />
           <Stack.Screen name="routes/view/addOrders" />
         </Stack.Protected>
+
+        {/* Reachable by any signed-in user, including one still onboarding (an
+            invitee often has no company yet). Declared last on purpose: the
+            guard fallback picks the first available screen in declaration
+            order, and this must never be the landing screen. */}
+        <Stack.Protected guard={isAuthenticated}>
+          <Stack.Screen name="invitations/accept" />
+        </Stack.Protected>
       </Stack>
       <PlanLimitNavigator />
+      <PendingInvitationNavigator ready={!isBootstrapping} />
       <OfflineBanner />
     </ErrorBoundary>
   );

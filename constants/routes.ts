@@ -67,6 +67,10 @@ export const Routes = {
     pathname: "/routes/view/[id]" as const,
     params: { id },
   }),
+  invitationAccept: (token: string) => ({
+    pathname: "/invitations/accept" as const,
+    params: { token },
+  }),
   orderCreate: (clientId?: string) => ({
     pathname: "/orders/create" as const,
     params: clientId ? { clientId } : {},

@@ -375,5 +375,15 @@
   "companyRole_ADMIN": "Admin",
   "companyRole_DEALER": "Driver",
   "companyRoleHelp_ADMIN": "Can manage the company and its members.",
-  "companyRoleHelp_DEALER": "Can run deliveries and routes."
+  "companyRoleHelp_DEALER": "Can run deliveries and routes.",
+  "acceptInvitationTitle": "Company invitation",
+  "acceptInvitationSubtitle": "You've been invited to join a company on Delivo. Do you want to accept?",
+  "acceptInvitation": "Accept invitation",
+  "acceptingInvitation": "Accepting...",
+  "invitationAccepted": "You joined {{company}}",
+  "invitationInvalid": "This invitation is invalid, or was already used or revoked.",
+  "invitationExpired": "This invitation has expired. Ask for a new one.",
+  "invitationWrongAccount": "This invitation was sent to a different email. Sign in with the invited account.",
+  "invitationAlreadyMember": "You are already a member of this company.",
+  "failedToAcceptInvitation": "Could not accept the invitation"
 }

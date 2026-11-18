@@ -377,5 +377,15 @@
   "companyRole_ADMIN": "Administrador",
   "companyRole_DEALER": "Repartidor",
   "companyRoleHelp_ADMIN": "Puede administrar la empresa y a sus miembros.",
-  "companyRoleHelp_DEALER": "Puede realizar entregas y rutas."
+  "companyRoleHelp_DEALER": "Puede realizar entregas y rutas.",
+  "acceptInvitationTitle": "Invitación a una empresa",
+  "acceptInvitationSubtitle": "Te invitaron a unirte a una empresa en Delivo. ¿Quieres aceptar la invitación?",
+  "acceptInvitation": "Aceptar invitación",
+  "acceptingInvitation": "Aceptando...",
+  "invitationAccepted": "Te uniste a {{company}}",
+  "invitationInvalid": "Esta invitación no es válida o ya fue usada o revocada.",
+  "invitationExpired": "Esta invitación expiró. Pide que te envíen una nueva.",
+  "invitationWrongAccount": "Esta invitación fue enviada a otro correo. Inicia sesión con la cuenta invitada.",
+  "invitationAlreadyMember": "Ya eres miembro de esta empresa.",
+  "failedToAcceptInvitation": "No se pudo aceptar la invitación"
 }

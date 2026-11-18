@@ -32,4 +32,8 @@ export default class CompaniesService extends BaseApiService {
   static async revokeInvitation(companyId: string, invitationId: string): Promise<void> {
     await this.delete(`/companies/${companyId}/invitations/${invitationId}`);
   }
+
+  static async acceptInvitation(token: string): Promise<void> {
+    await this.post('/invitations/accept', { token });
+  }
 }
