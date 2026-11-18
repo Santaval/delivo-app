@@ -16,9 +16,9 @@ export function BillStatusTabs({ value, onChange, counts }: BillStatusTabsProps)
   const { t } = useTranslation();
 
   const tabs: { key: BillsStatusFilter; label: string }[] = [
-    { key: "ALL", label: t("all") },
-    { key: "PAID", label: t("paid") },
     { key: "PENDING", label: t("pending") },
+    { key: "PAID", label: t("paid") },
+    { key: "ALL", label: t("all") },
   ];
 
   return (
@@ -69,7 +69,7 @@ export function BillStatusTabs({ value, onChange, counts }: BillStatusTabsProps)
                       { color: isActive ? colors.primary : colors.textInverse },
                     ]}
                   >
-                    {count}
+                    {count > 1000 ? `${(count / 1000).toFixed(1)}k` : count}
                   </ThemedText>
                 </View>
               )}
