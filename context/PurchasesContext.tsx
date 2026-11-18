@@ -28,6 +28,13 @@ interface PurchasesContextType {
   presentPaywallIfNeeded: () => Promise<boolean>;
   presentCustomerCenter: () => Promise<void>;
   refreshCustomerInfo: () => Promise<void>;
+  creditsOffering: PurchasesOffering | null;
+  /** Company RevenueCat is currently logged in as; null while syncing or logged out. */
+  identityCompanyId: string | null;
+  /** RevenueCat is logged in as the active company, so a purchase is attributed to it. */
+  isIdentityReady: boolean;
+  /** Credits are granted server-side by the webhook, not by this call. */
+  purchaseCredits: (pkg: PurchasesPackage) => Promise<"purchased" | "cancelled" | "error">;
 }
 
 const PurchasesContext = createContext<PurchasesContextType>({
@@ -42,6 +49,10 @@ const PurchasesContext = createContext<PurchasesContextType>({
   presentPaywallIfNeeded: async () => false,
   presentCustomerCenter: async () => {},
   refreshCustomerInfo: async () => {},
+  creditsOffering: null,
+  identityCompanyId: null,
+  isIdentityReady: false,
+  purchaseCredits: async () => "error",
 });
 
 export const PurchasesProvider = ({
@@ -52,12 +63,17 @@ export const PurchasesProvider = ({
   const { activeCompany, isLoadingActiveCompany } = useCompanies(); // Ensure companies context is initialized before purchases
   const [customerInfo, setCustomerInfo] = useState<CustomerInfo | null>(null);
   const [offerings, setOfferings] = useState<PurchasesOffering | null>(null);
+  const [creditsOffering, setCreditsOffering] = useState<PurchasesOffering | null>(null);
+  const [identityCompanyId, setIdentityCompanyId] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   const isPro = customerInfo
     ? RevenueCatService.isProActive(customerInfo)
     : false;
+
+  const isIdentityReady =
+    !isLoading && identityCompanyId !== null && identityCompanyId === activeCompany?.id;
 
   // Keep the RevenueCat identity in sync with the active company. Login and the
   // customer-info read must be sequenced: if they race, the info can resolve
@@ -69,6 +85,7 @@ export const PurchasesProvider = ({
     const syncIdentity = async () => {
       setIsLoading(true);
       setError(null);
+      setIdentityCompanyId(null);
       try {
         if (!activeCompany?.id) {
           // Logged out or no company selected — go anonymous and drop the
@@ -77,18 +94,22 @@ export const PurchasesProvider = ({
           if (!cancelled) {
             setCustomerInfo(null);
             setOfferings(null);
+            setCreditsOffering(null);
           }
           return;
         }
 
         await RevenueCatService.logIn(activeCompany.id);
-        const [info, offering] = await Promise.all([
+        const [info, offering, credits] = await Promise.all([
           RevenueCatService.getCustomerInfo(),
           RevenueCatService.getOfferings(),
+          RevenueCatService.getCreditsOffering(),
         ]);
         if (!cancelled) {
           setCustomerInfo(info);
           setOfferings(offering);
+          setCreditsOffering(credits);
+          setIdentityCompanyId(activeCompany.id);
         }
       } catch (e) {
         if (!cancelled) {
@@ -144,6 +165,23 @@ export const PurchasesProvider = ({
       }
     },
     [],
+  );
+
+  const purchaseCredits = useCallback(
+    async (pkg: PurchasesPackage): Promise<"purchased" | "cancelled" | "error"> => {
+      // Purchases are attributed to the RevenueCat app user id, so logIn must have
+      // completed for the active company.
+      if (!isIdentityReady) return "error";
+      try {
+        await RevenueCatService.purchaseConsumable(pkg);
+        return "purchased";
+      } catch (e: any) {
+        if (e?.userCancelled) return "cancelled";
+        console.error("Credit purchase failed:", e);
+        return "error";
+      }
+    },
+    [isIdentityReady],
   );
 
   const restorePurchases = useCallback(async (): Promise<boolean> => {
@@ -208,6 +246,10 @@ export const PurchasesProvider = ({
         presentPaywallIfNeeded,
         presentCustomerCenter,
         refreshCustomerInfo,
+        creditsOffering,
+        identityCompanyId,
+        isIdentityReady,
+        purchaseCredits,
       }}
     >
       {children}

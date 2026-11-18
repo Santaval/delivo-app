@@ -147,6 +147,7 @@ function RootNavigator() {
           <Stack.Screen name="bills/view/[id]" />
           <Stack.Screen name="companies/switch" />
           <Stack.Screen name="credits/history" />
+          <Stack.Screen name="credits/buy" />
           <Stack.Screen name="clients/add" />
           <Stack.Screen name="clients/edit/[id]" />
           <Stack.Screen name="clients/profile/[id]" />

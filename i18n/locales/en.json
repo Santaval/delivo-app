@@ -441,5 +441,20 @@
   "creditsLowWarning_other": "You have {{count}} bills left.",
   "creditsOverdraftWarning": "You're using {{used}} courtesy bills; buy more to keep billing.",
   "creditsBlockedWarning": "You're out of bills. Buy more to keep billing.",
-  "creditsAskAdmin": "Ask your administrator to buy more bills."
+  "creditsAskAdmin": "Ask your administrator to buy more bills.",
+  "creditsBuy": "Buy bills",
+  "creditsBuyShort": "Buy",
+  "creditsBuyTitle": "Buy bills",
+  "creditsPackTitle": "{{count}} bills",
+  "creditsPricePerBill": "{{price}} per bill",
+  "creditsBestValue": "Best value",
+  "creditsNoExpiry": "Bills never expire. They are added to {{company}}.",
+  "creditsProcessing": "Processing purchase…",
+  "creditsAdded": "+{{count}} bills added",
+  "creditsPurchasePending": "Your purchase is processing; the balance will update in a few minutes.",
+  "creditsPurchaseFailed": "The purchase couldn't be completed. Try again.",
+  "creditsPurchaseForCompany": "The purchase will be credited to {{company}}.",
+  "creditsNoPacks": "No packs are available right now.",
+  "creditsBuyOwnerOnly": "Only the owner or an administrator can buy bills.",
+  "creditsStoreLoading": "Connecting to the store…"
 }

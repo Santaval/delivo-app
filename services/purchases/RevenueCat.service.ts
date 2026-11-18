@@ -13,6 +13,7 @@ export const ENTITLEMENTS = {
 
 export const OFFERING_IDENTIFIERS = {
   DEFAULT: "delivo_arranque",
+  CREDITS: "delivo_credits",
 } as const;
 
 class RevenueCatService {
@@ -48,6 +49,20 @@ class RevenueCatService {
   async getOfferings(): Promise<PurchasesOffering | null> {
     const offerings = await Purchases.getOfferings();
     return offerings.current;
+  }
+
+  /**
+   * Fetched by identifier, not `offerings.current`, so the dashboard can keep the
+   * legacy offering as Current while old store builds are still in use.
+   */
+  async getCreditsOffering(): Promise<PurchasesOffering | null> {
+    const offerings = await Purchases.getOfferings();
+    return offerings.all[OFFERING_IDENTIFIERS.CREDITS] ?? null;
+  }
+
+  /** Purchases a consumable; credits are granted server-side by the webhook. */
+  async purchaseConsumable(pkg: PurchasesPackage): Promise<void> {
+    await Purchases.purchasePackage(pkg);
   }
 
   async purchasePackage(pkg: PurchasesPackage): Promise<CustomerInfo> {

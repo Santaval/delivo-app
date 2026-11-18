@@ -35,6 +35,13 @@ export function CreditsCard() {
         </ThemedText>
       )}
 
+      {canPurchase && (
+        <PrimaryButton
+          title={t('creditsBuy')}
+          onPress={() => router.push(Routes.creditsBuy)}
+          style={styles.button}
+        />
+      )}
       <PrimaryButton
         title={t('creditsViewHistory')}
         variant="outline"

@@ -443,5 +443,20 @@
   "creditsLowWarning_other": "Te quedan {{count}} facturas.",
   "creditsOverdraftWarning": "Estás usando {{used}} facturas de cortesía; compra más para seguir facturando.",
   "creditsBlockedWarning": "Te quedaste sin facturas. Compra más para seguir facturando.",
-  "creditsAskAdmin": "Pídele al administrador que compre más facturas."
+  "creditsAskAdmin": "Pídele al administrador que compre más facturas.",
+  "creditsBuy": "Comprar facturas",
+  "creditsBuyShort": "Comprar",
+  "creditsBuyTitle": "Comprar facturas",
+  "creditsPackTitle": "{{count}} facturas",
+  "creditsPricePerBill": "{{price}} por factura",
+  "creditsBestValue": "Mejor precio",
+  "creditsNoExpiry": "Las facturas no vencen. Se agregan a {{company}}.",
+  "creditsProcessing": "Procesando compra…",
+  "creditsAdded": "+{{count}} facturas agregadas",
+  "creditsPurchasePending": "Tu compra se está procesando, el saldo se actualizará en unos minutos.",
+  "creditsPurchaseFailed": "No se pudo completar la compra. Intenta de nuevo.",
+  "creditsPurchaseForCompany": "La compra se acreditará a {{company}}.",
+  "creditsNoPacks": "No hay paquetes disponibles en este momento.",
+  "creditsBuyOwnerOnly": "Solo el propietario o un administrador puede comprar facturas.",
+  "creditsStoreLoading": "Conectando con la tienda…"
 }

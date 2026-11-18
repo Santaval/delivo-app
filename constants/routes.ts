@@ -37,6 +37,7 @@ export const Routes = {
   paymentMethodsAdd: "/payment-methods/add" as Href,
   planLimit: "/plan-limit" as Href,
   creditsHistory: "/credits/history" as Href,
+  creditsBuy: "/credits/buy" as Href,
   forceUpdate: "/force-update" as Href,
   root: "/" as Href,
   qa: "/qa" as Href,

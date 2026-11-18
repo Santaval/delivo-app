@@ -1,9 +1,10 @@
-import { BorderRadius, Spacing } from '@/constants';
+import { BorderRadius, Routes, Spacing } from '@/constants';
 import { useCredits } from '@/context/CreditsContext';
 import { useThemeColor } from '@/hooks/useColorScheme';
 import { MaterialIcons } from '@expo/vector-icons';
+import { router } from 'expo-router';
 import { useTranslation } from 'react-i18next';
-import { StyleSheet, View } from 'react-native';
+import { StyleSheet, TouchableOpacity, View } from 'react-native';
 import { ThemedText } from '../ThemedText';
 
 /** Low-balance warning. Renders nothing unless the balance is at or under the threshold. */
@@ -37,6 +38,15 @@ export function LowCreditsBanner() {
           <ThemedText variant="caption">{t('creditsAskAdmin')}</ThemedText>
         )}
       </View>
+      {canPurchase && (
+        <TouchableOpacity
+          accessibilityRole="button"
+          hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
+          onPress={() => router.push(Routes.creditsBuy)}
+        >
+          <ThemedText style={[styles.action, { color }]}>{t('creditsBuyShort')}</ThemedText>
+        </TouchableOpacity>
+      )}
     </View>
   );
 }
@@ -54,5 +64,8 @@ const styles = StyleSheet.create({
   text: {
     flex: 1,
     gap: 2,
+  },
+  action: {
+    fontWeight: '600',
   },
 });

@@ -10,7 +10,7 @@ import { StyleSheet, TouchableOpacity } from 'react-native';
 export function CreditsBalanceLine() {
   const colors = useThemeColor();
   const { t } = useTranslation();
-  const { balance, isBlocked, isInOverdraft, isLow } = useCredits();
+  const { balance, isBlocked, isInOverdraft, isLow, canPurchase } = useCredits();
 
   if (balance === null) return null;
 
@@ -24,7 +24,7 @@ export function CreditsBalanceLine() {
       accessibilityRole="button"
       accessibilityLabel={label}
       hitSlop={{ top: 8, bottom: 8 }}
-      onPress={() => router.push(Routes.creditsHistory)}
+      onPress={() => router.push(canPurchase ? Routes.creditsBuy : Routes.creditsHistory)}
     >
       <ThemedText variant="caption" style={{ color }} numberOfLines={1}>
         {label}
