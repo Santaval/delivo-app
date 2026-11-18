@@ -398,5 +398,8 @@
   "leaveCompanySoleOwner": "You are the only owner of this company. To leave, first transfer ownership or delete your account from Account.",
   "leaveCompanySoleOwnerFailed": "You can't leave: you are the only owner of the company.",
   "failedToLeaveCompany": "Couldn't leave the company. Please try again.",
-  "leftCompany": "You left {{company}}"
+  "leftCompany": "You left {{company}}",
+  "switchCompany": "Switch company",
+  "switchCompanySubtitle": "Choose which company you want to work with.",
+  "addedToCompany": "You were added to {{company}}"
 }

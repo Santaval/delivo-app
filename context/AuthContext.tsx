@@ -1,10 +1,11 @@
 import { toast } from "@/context/ToastContext";
 import i18n from "@/i18n";
-import api, { setOnUnauthorized } from "@/services/api";
+import api, { setOnForbidden, setOnUnauthorized } from "@/services/api";
 import AuthService from "@/services/auth/Auth.service";
 import { Observe } from "expo-observe";
 import * as SecureStore from "expo-secure-store";
-import { createContext, useContext, useEffect, useState } from "react";
+import { createContext, useCallback, useContext, useEffect, useRef, useState } from "react";
+import { AppState } from "react-native";
 
 /**
  * Represents the authentication state of the application
@@ -44,9 +45,19 @@ interface AuthContextType {
   updateUser: (userData: Partial<User>) => Promise<void>;
   /** Function to refresh user data */
   refreshUser: () => Promise<void>;
+  /**
+   * Silently re-syncs the user (and therefore their companies) when the data is
+   * older than `minIntervalMs` (default 30s). Unlike `refreshUser` it never logs
+   * the user out on failure — it is meant for background triggers (foreground,
+   * drawer open) where being offline is normal.
+   */
+  syncUserIfStale: (minIntervalMs?: number) => Promise<void>;
   /** Function to permanently delete the current account */
   deleteAccount: () => Promise<void>;
 }
+
+const SYNC_MIN_INTERVAL_MS = 30_000;
+const FORBIDDEN_SYNC_MIN_INTERVAL_MS = 5_000;
 
 /**
  * Initial state for authentication
@@ -71,6 +82,7 @@ const AuthContext = createContext<AuthContextType>({
   clearError: () => {},
   updateUser: async () => {},
   refreshUser: async () => {},
+  syncUserIfStale: async () => {},
   deleteAccount: async () => {},
 });
 
@@ -223,14 +235,59 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     return () => setOnUnauthorized(null);
   }, []);
 
+  // Background re-sync, shared by the AppState/drawer/403 triggers. One request
+  // at a time, and not more often than `minIntervalMs`.
+  const lastSyncAt = useRef(0);
+  const syncInFlight = useRef(false);
+  const authenticatedRef = useRef(false);
+  authenticatedRef.current = authState.authenticated;
+
   const refreshUser = async () => {
     try {
       const user = await AuthService.getUser();
+      lastSyncAt.current = Date.now();
       setUser(user);
     } catch (error) {
       await handleLogout();
     }
   };
+
+  const syncUserIfStale = useCallback(async (minIntervalMs = SYNC_MIN_INTERVAL_MS) => {
+    if (!authenticatedRef.current || syncInFlight.current) return;
+    if (Date.now() - lastSyncAt.current < minIntervalMs) return;
+    syncInFlight.current = true;
+    // Stamped up front so a failing request is not retried in a tight loop
+    lastSyncAt.current = Date.now();
+    try {
+      const fresh = await AuthService.getUser();
+      // Logged out (or switched account) while the request was in flight
+      if (authenticatedRef.current) setUser(fresh);
+    } catch {
+      // Offline / transient: keep the current user. A truly expired session
+      // surfaces as a 401 on the next real request and logs out there.
+    } finally {
+      syncInFlight.current = false;
+    }
+  }, []);
+
+  // Refresh when the app returns to the foreground
+  useEffect(() => {
+    if (!authState.authenticated) return;
+    const sub = AppState.addEventListener("change", (next) => {
+      if (next === "active") syncUserIfStale();
+    });
+    return () => sub.remove();
+  }, [authState.authenticated, syncUserIfStale]);
+
+  // A 403 on a company-scoped request may mean we were removed from the active
+  // company. Resync (a few seconds of de-duplication; CompaniesContext drops the
+  // company if it is no longer in the user's list). The failed request still
+  // rejects to its caller.
+  useEffect(() => {
+    if (!authState.authenticated) return;
+    setOnForbidden(() => syncUserIfStale(FORBIDDEN_SYNC_MIN_INTERVAL_MS));
+    return () => setOnForbidden(null);
+  }, [authState.authenticated, syncUserIfStale]);
 
   /**
    * Handles the logout process by clearing auth state and removing stored token
@@ -307,6 +364,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         clearError,
         updateUser,
         refreshUser,
+        syncUserIfStale,
         deleteAccount,
       }}
     >

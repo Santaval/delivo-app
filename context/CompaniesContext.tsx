@@ -1,6 +1,8 @@
+import { toast } from "@/context/ToastContext";
+import i18n from "@/i18n";
 import api from "@/services/api";
 import * as SecureStore from "expo-secure-store";
-import { createContext, useContext, useEffect, useMemo, useState } from "react";
+import { createContext, useContext, useEffect, useMemo, useRef, useState } from "react";
 import { useAuth } from "./AuthContext";
 
 interface CompaniesContextType {
@@ -34,6 +36,8 @@ export const CompaniesProvider = ({
   const { user, authState } = useAuth();
   // Derived straight from the user so it can never lag behind a refreshUser():
   // a stale copy would let loadActiveCompany resolve a company the user just left.
+  const activeCompanyRef = useRef<Company | null>(null);
+  activeCompanyRef.current = activeCompany;
   const companies = useMemo<Company[]>(() => user?.companies ?? [], [user]);
 
   const selectCompany = async (companyId: string) => {
@@ -47,6 +51,29 @@ export const CompaniesProvider = ({
     const company = companies.find((c) => c.id === companyId);
     if (company) setActiveCompany(company);
   };
+
+  // "You were added to X": a company id that appears in a later refresh of the
+  // same user. The first load / a login (no previous list for this user) never
+  // toasts, and neither does a company this device just created and selected
+  // (selectCompany sets the header before the refresh lands).
+  const knownCompanyIds = useRef<{ userId: string; ids: Set<string> } | null>(null);
+  useEffect(() => {
+    if (!user) {
+      knownCompanyIds.current = null;
+      return;
+    }
+    const previous = knownCompanyIds.current;
+    if (previous && previous.userId === user.id) {
+      const justSelectedId = api.defaults.headers.common["x-company-id"];
+      const added = companies.filter(
+        (c) => !previous.ids.has(c.id) && c.id !== justSelectedId,
+      );
+      for (const company of added) {
+        toast.info(i18n.t("addedToCompany", { company: company.name }));
+      }
+    }
+    knownCompanyIds.current = { userId: user.id, ids: new Set(companies.map((c) => c.id)) };
+  }, [companies, user]);
 
   useEffect(() => {
     // A newer run supersedes this one: its awaits must not write stale state
@@ -96,7 +123,10 @@ export const CompaniesProvider = ({
       // Set before the awaits below, otherwise a login right after a logout
       // (which set the flag false) would report "loaded with no company" and
       // make PurchasesContext log out of RevenueCat for no reason.
-      setIsLoadingActiveCompany(true);
+      // Skipped while a company is already active: this is then just a
+      // background refresh of the user, and flipping the flag would make the
+      // root layout treat the app as bootstrapping and flash the splash screen.
+      if (!activeCompanyRef.current) setIsLoadingActiveCompany(true);
 
       try {
         const storedCompanyId = await SecureStore.getItemAsync("activeCompany");
@@ -119,7 +149,11 @@ export const CompaniesProvider = ({
 
         // Set the active company and configure API headers
         api.defaults.headers.common["x-company-id"] = storedCompanyId;
-        setActiveCompany(company);
+        // Keep the same object when nothing changed so a background refresh of
+        // the user doesn't re-render every consumer of the context
+        setActiveCompany((prev) =>
+          prev && JSON.stringify(prev) === JSON.stringify(company) ? prev : company,
+        );
       } finally {
         // Every path out of here must settle the flag — PurchasesContext gates
         // the whole RevenueCat identity sync on it.

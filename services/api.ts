@@ -32,6 +32,19 @@ export const setOnPlanLimitExceeded = (
   onPlanLimitExceeded = handler;
 };
 
+/**
+ * Callback invoked when a company-scoped request returns 403. That may mean the
+ * user was removed from the active company, so the registrant (AuthContext)
+ * resyncs the user — the company then drops out of CompaniesContext. It is only
+ * a hint: the error still rejects to the caller, so legitimate 403s (e.g. an
+ * ADMIN trying to remove an OWNER) behave exactly as before.
+ */
+let onForbidden: (() => void) | null = null;
+
+export const setOnForbidden = (handler: (() => void) | null) => {
+  onForbidden = handler;
+};
+
 api.interceptors.response.use(
   (response) => response,
   (error) => {
@@ -43,6 +56,11 @@ api.interceptors.response.use(
     }
     if (status === 402) {
       onPlanLimitExceeded?.(parsePlanLimitPayload(error?.response?.data));
+    }
+    if (status === 403) {
+      const companyId =
+        error?.config?.headers?.['x-company-id'] ?? error?.config?.headers?.get?.('x-company-id');
+      if (companyId) onForbidden?.();
     }
     // Still rejects, so existing per-screen catch blocks keep working
     return Promise.reject(error);
