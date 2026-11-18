@@ -1,5 +1,7 @@
 {
-  "NSLocationWhenInUseUsageDescription": "Delivo uses your location while the app is open to show your position on the delivery map, calculate routes from where you are and let you save a client's address using your current location.",
-  "NSLocationAlwaysAndWhenInUseUsageDescription": "Delivo uses your location in the background only while you have an active delivery route, so your company's admins can see your position in real time even when the screen is locked or the app is in the background. When the route ends, Delivo stops sharing your location.",
-  "NSLocationAlwaysUsageDescription": "Delivo uses your location in the background only while you have an active delivery route, so your company's admins can see your position in real time even when the screen is locked or the app is in the background. When the route ends, Delivo stops sharing your location."
+  "ios": {
+    "NSLocationWhenInUseUsageDescription": "Delivo uses your location while the app is open to show your position on the delivery map, calculate routes from where you are and let you save a client's address using your current location.",
+    "NSLocationAlwaysAndWhenInUseUsageDescription": "Delivo uses your location in the background only while you have an active delivery route, so your company's admins can see your position in real time even when the screen is locked or the app is in the background. When the route ends, Delivo stops sharing your location.",
+    "NSLocationAlwaysUsageDescription": "Delivo uses your location in the background only while you have an active delivery route, so your company's admins can see your position in real time even when the screen is locked or the app is in the background. When the route ends, Delivo stops sharing your location."
+  }
 }
