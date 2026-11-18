@@ -448,5 +448,16 @@
   "priceWithIva": "Price with VAT",
   "allStops": "All stops",
   "completingDelivery": "Completing delivery…",
-  "mapUnavailable": "Map unavailable"
+  "mapUnavailable": "Map unavailable",
+  "addToRoute": "Add to route",
+  "addToRouteHint": "Assign this order to a delivery route",
+  "chooseRoute": "Choose a route",
+  "noOpenRoutes": "No routes available",
+  "noOpenRoutesHint": "Orders can only be added to routes that haven't started yet.",
+  "stopsCount_one": "{{count}} stop",
+  "stopsCount_other": "{{count}} stops",
+  "orderAddedToRoute": "Order added to the route",
+  "orderAlreadyOnRoute": "This order is already on a route",
+  "failedToAddOrderToRoute": "Couldn't add the order to the route. Please try again.",
+  "close": "Close"
 }

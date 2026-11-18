@@ -448,5 +448,16 @@
   "priceWithIva": "Precio con IVA",
   "allStops": "Todas las paradas",
   "completingDelivery": "Completando entrega…",
-  "mapUnavailable": "Mapa no disponible"
+  "mapUnavailable": "Mapa no disponible",
+  "addToRoute": "Agregar a ruta",
+  "addToRouteHint": "Asigna esta orden a una ruta de reparto",
+  "chooseRoute": "Elige una ruta",
+  "noOpenRoutes": "No hay rutas disponibles",
+  "noOpenRoutesHint": "Solo se pueden agregar órdenes a rutas que aún no han iniciado.",
+  "stopsCount_one": "{{count}} parada",
+  "stopsCount_other": "{{count}} paradas",
+  "orderAddedToRoute": "Orden agregada a la ruta",
+  "orderAlreadyOnRoute": "Esta orden ya está en una ruta",
+  "failedToAddOrderToRoute": "No se pudo agregar la orden a la ruta. Inténtalo de nuevo.",
+  "close": "Cerrar"
 }

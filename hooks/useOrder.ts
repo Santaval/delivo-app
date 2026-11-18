@@ -1,6 +1,7 @@
 import { OrderItem } from "@/components";
 import i18n from "@/i18n";
 import OrdersService from "@/services/orders/Orders.service";
+import RoutesService from "@/services/routes/Routes.service";
 import { useState } from "react";
 import useFocusRefetch from "./useFocusRefetch";
 
@@ -82,6 +83,22 @@ const useOrder = (orderId: string) => {
     }
   };
 
+  /**
+   * Adds the order as a stop of a (not yet started) route, then reloads it so
+   * `route` and `deliveryStatus` reflect the change. Rethrows so the screen can
+   * tell "already on a route" (409) apart from other failures.
+   */
+  const addToRoute = async (routeId: string) => {
+    if (!order) return;
+    setIsMutating(true);
+    try {
+      await RoutesService.addPoint(routeId, order.id);
+      await fetchOrder({ silent: true });
+    } finally {
+      setIsMutating(false);
+    }
+  };
+
   // Recarga al volver a la pantalla (ej. después de una pantalla hija)
   useFocusRefetch((isFirstFocus) => {
     if (isFirstFocus) setIsInitialLoading(true);
@@ -101,6 +118,7 @@ const useOrder = (orderId: string) => {
     addItems,
     removeItem,
     markAsDelivered,
+    addToRoute,
   };
 }
 

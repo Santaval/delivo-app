@@ -11,9 +11,16 @@ interface Order {
   status: OrderStatus;
   paid: number;
   deliveryStatus: OrderDeliveryStatus;
-  route?: Route;
+  /** The route the order is on, if any (summary only, not the full route). */
+  route?: OrderRoute | null;
   createdAt: string;
   updatedAt: string;
+}
+
+interface OrderRoute {
+  id: string;
+  name: string;
+  status: Route["status"];
 }
 
 type OrderDeliveryStatus = "PENDING" | "ON_ROUTE" | "IN_TRANSIT" | "DELIVERED" | "RETURNED";
