@@ -49,4 +49,19 @@ export default class RoutesService extends BaseApiService {
     const { data } = await this.patch<RoutePoint>(`/routes/points/${pointId}/complete`, {});
     return data;
   }
+
+  /**
+   * Sends a batch (1..50 points) of the driver's positions. Resolves with 204 on
+   * success. Rejects with 403/404/409 when the caller is no longer the driver or
+   * the route is not STARTED (the app must stop tracking), 429 when throttled.
+   */
+  static async reportLocation(routeId: string, locations: DriverLocationPoint[]) {
+    await this.post<void>(`/routes/${routeId}/location`, { locations });
+  }
+
+  /** Latest stored driver position, or `null`. Only the driver and OWNER/ADMIN may read it. */
+  static async getDriverLocation(routeId: string) {
+    const { data } = await this.get<RouteDriverLocation | null>(`/routes/${routeId}/location`);
+    return data ?? null;
+  }
 }

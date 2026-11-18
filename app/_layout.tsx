@@ -9,6 +9,8 @@ import { ToastProvider } from "@/context/ToastContext";
 import { VersionProvider, useVersion } from "@/context/VersionContext";
 import { PurchasesProvider } from "@/context/PurchasesContext";
 import RevenueCatService from "@/services/purchases/RevenueCat.service";
+// Registers the background location task (TaskManager.defineTask must run at module level)
+import "@/services/tracking/LocationTracking.task";
 import MapboxGL from "@rnmapbox/maps";
 import * as Sentry from '@sentry/react-native';
 import * as SplashScreen from 'expo-splash-screen';
