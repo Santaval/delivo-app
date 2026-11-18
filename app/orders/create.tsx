@@ -2,6 +2,7 @@ import { ClientSelect, LowCreditsBanner, OrderItem, PrimaryButton, ProductSelect
 import { OrdersCreateParams, Routes, Spacing } from '@/constants';
 import { useCredits } from '@/context/CreditsContext';
 import { useToast } from '@/context/ToastContext';
+import { isInsufficientCreditsError } from '@/services/errors/InsufficientCredits';
 import OrdersService from '@/services/orders/Orders.service';
 import { router, useLocalSearchParams } from 'expo-router';
 import React, { useEffect } from 'react';
@@ -45,6 +46,8 @@ export default function CreateOrder() {
       router.replace(Routes.orderView(order.id));
 
     } catch (error) {
+      // The out-of-credits sheet handles this; the form keeps its state.
+      if (isInsufficientCreditsError(error)) return;
       console.error('Error saving order:', error);
       toast.show({ message: t('failedToCreateOrder'), type: 'error' });
     } finally {

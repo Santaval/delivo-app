@@ -12,6 +12,7 @@ module.exports = {
     'services/orders/Orders.service.ts',
     'services/routes/Routes.service.ts',
     'services/errors/PlanLimit.ts',
+    'services/errors/InsufficientCredits.ts',
     'services/billing/Credits.service.ts',
     'context/CreditsContext.tsx',
     'hooks/useOrders.ts',

@@ -458,5 +458,8 @@
   "creditsPurchaseForCompany": "La compra se acreditará a {{company}}.",
   "creditsNoPacks": "No hay paquetes disponibles en este momento.",
   "creditsBuyOwnerOnly": "Solo el propietario o un administrador puede comprar facturas.",
-  "creditsStoreLoading": "Conectando con la tienda…"
+  "creditsStoreLoading": "Conectando con la tienda…",
+  "outOfCreditsTitle": "Te quedaste sin facturas",
+  "outOfCreditsMessage": "Compra más facturas para seguir facturando. Tu pedido no se perdió.",
+  "outOfCreditsDealerMessage": "La empresa se quedó sin facturas. Avísale al administrador."
 }

@@ -1,5 +1,9 @@
 import config from "@/config/env";
 import { parsePlanLimitPayload, type PlanLimitPayload } from "@/services/errors/PlanLimit";
+import {
+  parseInsufficientCreditsPayload,
+  type InsufficientCreditsPayload,
+} from "@/services/errors/InsufficientCredits";
 import axios from "axios";
 
 const api = axios.create({
@@ -33,6 +37,18 @@ export const setOnPlanLimitExceeded = (
 };
 
 /**
+ * Callback invoked when a 402 carries code INSUFFICIENT_CREDITS (the company is
+ * out of bills). Registered by CreditsContext so it can show the out-of-credits sheet.
+ */
+let onInsufficientCredits: ((payload: InsufficientCreditsPayload) => void) | null = null;
+
+export const setOnInsufficientCredits = (
+  handler: ((payload: InsufficientCreditsPayload) => void) | null,
+) => {
+  onInsufficientCredits = handler;
+};
+
+/**
  * Callback invoked when a company-scoped request returns 403. That may mean the
  * user was removed from the active company, so the registrant (AuthContext)
  * resyncs the user — the company then drops out of CompaniesContext. It is only
@@ -55,7 +71,10 @@ api.interceptors.response.use(
       onUnauthorized?.();
     }
     if (status === 402) {
-      onPlanLimitExceeded?.(parsePlanLimitPayload(error?.response?.data));
+      // Credits first: parsePlanLimitPayload is lax and would also accept this body.
+      const credits = parseInsufficientCreditsPayload(error?.response?.data);
+      if (credits) onInsufficientCredits?.(credits);
+      else onPlanLimitExceeded?.(parsePlanLimitPayload(error?.response?.data)); // legacy
     }
     if (status === 403) {
       const companyId =

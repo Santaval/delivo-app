@@ -1,4 +1,5 @@
 import { ErrorBoundary } from "@/components/feedback/ErrorBoundary";
+import { OutOfCreditsSheet } from "@/components/credits/OutOfCreditsSheet";
 import { OfflineBanner } from "@/components/feedback/OfflineBanner";
 import { FloatingTabBar } from "@/components/navigation/FloatingTabBar";
 import config from "@/config/env";
@@ -170,6 +171,7 @@ function RootNavigator() {
         </Stack.Protected>
       </Stack>
       <PlanLimitNavigator />
+      <OutOfCreditsSheet />
       {/* Main tabs on every signed-in screen (pushed screens included). Never on
           login, onboarding or force-update. */}
       {showTabBar && <FloatingTabBar />}

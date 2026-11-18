@@ -456,5 +456,8 @@
   "creditsPurchaseForCompany": "The purchase will be credited to {{company}}.",
   "creditsNoPacks": "No packs are available right now.",
   "creditsBuyOwnerOnly": "Only the owner or an administrator can buy bills.",
-  "creditsStoreLoading": "Connecting to the store…"
+  "creditsStoreLoading": "Connecting to the store…",
+  "outOfCreditsTitle": "You're out of bills",
+  "outOfCreditsMessage": "Buy more bills to keep billing. Your order wasn't lost.",
+  "outOfCreditsDealerMessage": "The company is out of bills. Let your administrator know."
 }

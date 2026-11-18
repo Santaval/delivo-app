@@ -1,6 +1,8 @@
 import { useCompanies } from "@/context/CompaniesContext";
 import useCompanyMembers from "@/hooks/useCompanyMembers";
+import { setOnInsufficientCredits } from "@/services/api";
 import CreditsService from "@/services/billing/Credits.service";
+import type { InsufficientCreditsPayload } from "@/services/errors/InsufficientCredits";
 import React, {
   createContext,
   useCallback,
@@ -37,6 +39,9 @@ type CreditsContextType = {
   refresh: () => Promise<CreditsStatus | null>;
   /** Optimistic -1 after a bill is created, followed by a refresh. */
   noteBillIssued: () => void;
+  /** Set when the API answered 402 INSUFFICIENT_CREDITS; drives the out-of-credits sheet. */
+  outOfCredits: InsufficientCreditsPayload | null;
+  dismissOutOfCredits: () => void;
 };
 
 const CreditsContext = createContext<CreditsContextType>({
@@ -55,6 +60,8 @@ const CreditsContext = createContext<CreditsContextType>({
   canPurchase: false,
   refresh: async () => null,
   noteBillIssued: () => {},
+  outOfCredits: null,
+  dismissOutOfCredits: () => {},
 });
 
 export function CreditsProvider({ children }: { children: React.ReactNode }) {
@@ -69,6 +76,9 @@ export function CreditsProvider({ children }: { children: React.ReactNode }) {
   const [packs, setPacks] = useState<CreditPack[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState(false);
+  const [outOfCredits, setOutOfCredits] = useState<InsufficientCreditsPayload | null>(null);
+  // Burst guard: parallel 402s must open one sheet. A ref avoids stale closures.
+  const shownRef = useRef(false);
 
   // Responses for an outdated request or a previous company are dropped by comparing
   // against these.
@@ -136,6 +146,22 @@ export function CreditsProvider({ children }: { children: React.ReactNode }) {
     void refresh();
   }, [refresh]);
 
+  useEffect(() => {
+    setOnInsufficientCredits((payload) => {
+      if (shownRef.current) return;
+      shownRef.current = true;
+      setOutOfCredits(payload);
+      if (payload.balance !== null) setBalance(payload.balance);
+      void refresh();
+    });
+    return () => setOnInsufficientCredits(null);
+  }, [refresh]);
+
+  const dismissOutOfCredits = useCallback(() => {
+    shownRef.current = false;
+    setOutOfCredits(null);
+  }, []);
+
   const value = useMemo<CreditsContextType>(
     () => ({
       companyId,
@@ -153,6 +179,8 @@ export function CreditsProvider({ children }: { children: React.ReactNode }) {
       canPurchase: myRole === "OWNER" || myRole === "ADMIN",
       refresh,
       noteBillIssued,
+      outOfCredits,
+      dismissOutOfCredits,
     }),
     [
       companyId,
@@ -166,6 +194,8 @@ export function CreditsProvider({ children }: { children: React.ReactNode }) {
       isRoleLoading,
       refresh,
       noteBillIssued,
+      outOfCredits,
+      dismissOutOfCredits,
     ],
   );
 
