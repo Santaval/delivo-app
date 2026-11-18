@@ -106,7 +106,7 @@ export default function ClientProfile() {
   if (isInitialLoading) {
     return (
       <ThemedView style={[styles.container, { backgroundColor: colors.backgroundSecondary }]}>
-        <TopBar title={t("clientProfile")} showBack backTo={Routes.clients} />
+        <TopBar title={t("clientProfile")} />
         <LoadingState message={t('loading')} />
       </ThemedView>
     );
@@ -115,7 +115,7 @@ export default function ClientProfile() {
   if (!client) {
     return (
       <ThemedView style={[styles.container, { backgroundColor: colors.backgroundSecondary }]}>
-        <TopBar title={t("clientProfile")} showBack backTo={Routes.clients} />
+        <TopBar title={t("clientProfile")} />
         <View style={styles.centerContent}>
           <MaterialIcons name="error-outline" size={48} color={colors.danger} />
           <ThemedText style={[styles.errorText, { color: colors.danger }]}>
@@ -133,7 +133,7 @@ export default function ClientProfile() {
 
   return (
     <SafeAreaView style={[styles.container, { backgroundColor: colors.backgroundSecondary }]}>
-      <TopBar title={t("clientProfile")} showBack backTo={Routes.clients} />
+      <TopBar title={t("clientProfile")} />
 
       <View style={styles.contentWrapper}>
         <ScrollView
@@ -265,6 +265,8 @@ export default function ClientProfile() {
       </View>
 
       <FloatingActionButton
+        // The screen already reserves the tab bar height (app/_layout.tsx).
+        bottom={Spacing.xl}
         icon="add-shopping-cart"
         onPress={() => {
           router.push(Routes.orderCreate(client.id));

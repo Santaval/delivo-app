@@ -15,7 +15,7 @@ export type BillCardProps = {
   onPress?: (orderId: string) => void;
 };
 
-export function BillCard({
+function BillCardComponent({
   order,
   onPress,
 }: BillCardProps) {
@@ -108,6 +108,9 @@ export function BillCard({
     </TouchableOpacity>
   );
 }
+
+/** Memoized: rendered inside FlashList, where cells are recycled while scrolling. */
+export const BillCard = React.memo(BillCardComponent);
 
 const styles = StyleSheet.create({
   container: {

@@ -1,24 +1,25 @@
-import { FloatingActionButton, SwipeButton, TopBar } from '@/components';
+import { SwipeButton, TopBar } from '@/components';
 import Map from '@/components/maps/Map';
+import RouteDriverSection from '@/components/routes/RouteDriverSection';
+import { ROUTE_SHEET_FOOTER_HEIGHT, RouteMapSheet, useRouteSheetCoverage } from '@/components/routes/RouteMapSheet';
 import { BorderRadius, Routes, Spacing, Typography } from '@/constants';
 import { useRoute } from '@/context/RouteContext';
 import { useThemeColor } from '@/hooks/useColorScheme';
+import { MaterialIcons } from '@expo/vector-icons';
+import { BottomSheetFlatList } from '@gorhom/bottom-sheet';
 import { router } from 'expo-router';
 import React from 'react';
 import { useTranslation } from 'react-i18next';
-import { ActivityIndicator, FlatList, StyleSheet, Text, View } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import { ActivityIndicator, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 
 export default function RoutePlanningScreen() {
 
   const { route, isLoading, error, startNavigation } = useRoute();
   const { t } = useTranslation();
   const colors = useThemeColor();
-
-
-
-
-
+  const insets = useSafeAreaInsets();
+  const sheetCoverage = useRouteSheetCoverage();
 
   const renderStopItem = ({ item, index }: { item: RoutePoint; index: number }) => (
     <View style={[styles.stopItem, { borderBottomColor: colors.border }]}>
@@ -44,7 +45,7 @@ export default function RoutePlanningScreen() {
   if (isLoading) {
     return (
       <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]}>
-        <TopBar title={t('routeMap')} showBack backTo={Routes.routes} />
+        <TopBar title={t('routeMap')} />
         <View style={styles.centerContent}>
           <ActivityIndicator size="large" color={colors.primary} />
           <Text style={[styles.loadingText, { color: colors.textSecondary }]}>{t('loadingRoute')}</Text>
@@ -56,7 +57,7 @@ export default function RoutePlanningScreen() {
   if (error || !route) {
     return (
       <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]}>
-        <TopBar title={t('routeMap')} showBack backTo={Routes.routes} />
+        <TopBar title={t('routeMap')} />
         <View style={styles.centerContent}>
           <Text style={[styles.errorText, { color: colors.danger }]}>{error || t('routeNotFound')}</Text>
         </View>
@@ -65,61 +66,66 @@ export default function RoutePlanningScreen() {
   }
 
   return (
-    <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]}>
-      <TopBar title={route.name} showBack backTo={Routes.routes} />
-
-      <View style={styles.content}>
-        {/* Map Section */}
-        <View style={[styles.mapContainer, { backgroundColor: colors.backgroundSecondary }]}>
-          <Map
-            markers={route.points.map((point, index) => ({
-              coordinate: {
-                latitude: point.order.client.location.lat || 37.7749,
-                longitude: point.order.client.location.lng || -122.4194,
-              },
-              title: point.order.client.name,
-              description: 'Delivery stop',
-              backgroundColor: colors.primary,
-            }))}
-            polylines={route.polyline}
-            fitToMarkers
-          />
-        </View>
-
-        {/* Planned Stops Section */}
-        <View style={[styles.stopsContainer, { backgroundColor: colors.background }]}>
-          <View style={styles.stopsHeader}>
-            <Text style={[styles.stopsTitle, { color: colors.text }]}>{t("plannedStops")}</Text>
-            <View style={[styles.stopsCount, { backgroundColor: colors.success + '20' }]}>
-              <Text style={[styles.stopsCountText, { color: colors.success }]}>{route.points.length} {t("stopsTotal")}</Text>
+    <RouteMapSheet
+      map={
+        <Map
+          markers={route.points.map((point) => ({
+            coordinate: {
+              latitude: point.order.client.location.lat || 37.7749,
+              longitude: point.order.client.location.lng || -122.4194,
+            },
+            title: point.order.client.name,
+            description: 'Delivery stop',
+            backgroundColor: colors.primary,
+          }))}
+          polylines={route.polyline}
+          fitToMarkers
+          fitInsets={{ top: insets.top, bottom: sheetCoverage }}
+        />
+      }
+      footer={
+        <SwipeButton
+          onSwipeComplete={startNavigation}
+          text={isLoading ? t("optimizingRoute") : t("slideToStartNavigation")}
+          isLoading={isLoading}
+          iconName="navigate"
+          backgroundColor={colors.success}
+          style={styles.navigationButton}
+        />
+      }
+    >
+      <BottomSheetFlatList
+        data={route.points}
+        keyExtractor={(item: RoutePoint, index: number) => `${item.id}-${index}`}
+        renderItem={renderStopItem}
+        showsVerticalScrollIndicator={false}
+        contentContainerStyle={[styles.sheetContent, { paddingBottom: ROUTE_SHEET_FOOTER_HEIGHT + Spacing.lg + insets.bottom }]}
+        ListHeaderComponent={
+          <>
+            {/* Title row: visible even when the sheet is collapsed */}
+            <View style={styles.titleRow}>
+              <Text style={[styles.routeName, { color: colors.text }]} numberOfLines={1}>{route.name}</Text>
+              <TouchableOpacity
+                style={[styles.addButton, { backgroundColor: colors.primary }]}
+                onPress={() => router.push(Routes.routeAddOrders(route.id))}
+                accessibilityRole="button"
+                accessibilityLabel={t('addOrdersToRoute')}
+                hitSlop={{ top: 6, bottom: 6, left: 6, right: 6 }}
+              >
+                <MaterialIcons name="add" size={22} color={colors.textInverse} />
+              </TouchableOpacity>
             </View>
-          </View>
-
-          <FlatList
-            data={route.points}
-            keyExtractor={(item, index) => `${item.id}-${index}`}
-            renderItem={renderStopItem}
-            showsVerticalScrollIndicator={false}
-            style={styles.stopsList}
-          />
-
-          <View style={[styles.navigationButtonContainer, { borderTopColor: colors.border, backgroundColor: colors.background }]}>
-            <SwipeButton
-              onSwipeComplete={startNavigation}
-              text={isLoading ? t("optimizingRoute") : t("slideToStartNavigation")}
-              isLoading={isLoading}
-              iconName="navigate"
-              backgroundColor={colors.success}
-              style={styles.navigationButton}
-            />
-          </View>
-        </View>
-      </View>
-      <FloatingActionButton
-        icon="add"
-        onPress={() => router.push(Routes.routeAddOrders(route.id))}
+            <RouteDriverSection />
+            <View style={styles.stopsHeader}>
+              <Text style={[styles.stopsTitle, { color: colors.text }]}>{t("plannedStops")}</Text>
+              <View style={[styles.stopsCount, { backgroundColor: colors.success + '20' }]}>
+                <Text style={[styles.stopsCountText, { color: colors.success }]}>{route.points.length} {t("stopsTotal")}</Text>
+              </View>
+            </View>
+          </>
+        }
       />
-    </SafeAreaView>
+    </RouteMapSheet>
   );
 }
 
@@ -127,14 +133,28 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
   },
-  content: {
-    flex: 1,
+  sheetContent: {
+    paddingHorizontal: Spacing.lg,
+    // paddingBottom (clears the sticky swipe-button footer) is set inline.
   },
-  mapContainer: {
-    height: 250,
+  titleRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: Spacing.md,
+    minHeight: 48,
+    marginBottom: Spacing.sm,
   },
-  map: {
+  routeName: {
     flex: 1,
+    fontSize: Typography.fontSize.xl,
+    fontWeight: Typography.fontWeight.bold,
+  },
+  addButton: {
+    width: 40,
+    height: 40,
+    borderRadius: BorderRadius.full,
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   centerContent: {
     flex: 1,
@@ -151,18 +171,11 @@ const styles = StyleSheet.create({
     fontSize: Typography.fontSize.lg,
     textAlign: 'center',
   },
-  stopsContainer: {
-    flex: 1,
-    borderTopLeftRadius: BorderRadius.xl,
-    borderTopRightRadius: BorderRadius.xl,
-    marginTop: -BorderRadius.xl,
-    paddingTop: Spacing.lg,
-  },
   stopsHeader: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    paddingHorizontal: Spacing.lg,
+    marginTop: Spacing.md,
     marginBottom: Spacing.lg,
   },
   stopsTitle: {
@@ -177,10 +190,6 @@ const styles = StyleSheet.create({
   stopsCountText: {
     fontSize: Typography.fontSize.sm,
     fontWeight: Typography.fontWeight.semibold,
-  },
-  stopsList: {
-    flex: 1,
-    paddingHorizontal: Spacing.lg,
   },
   stopItem: {
     flexDirection: 'row',
@@ -222,10 +231,6 @@ const styles = StyleSheet.create({
   },
   timeLabel: {
     fontSize: Typography.fontSize.xs,
-  },
-  navigationButtonContainer: {
-    padding: Spacing.lg,
-    borderTopWidth: 1,
   },
   navigationButton: {
     marginBottom: 0,

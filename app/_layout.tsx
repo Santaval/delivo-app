@@ -1,19 +1,23 @@
 import { ErrorBoundary } from "@/components/feedback/ErrorBoundary";
+import { OutOfCreditsSheet } from "@/components/credits/OutOfCreditsSheet";
 import { OfflineBanner } from "@/components/feedback/OfflineBanner";
+import { FloatingTabBar } from "@/components/navigation/FloatingTabBar";
 import config from "@/config/env";
-import { Routes } from "@/constants";
 import { AuthProvider, useAuth } from "@/context/AuthContext";
 import { CompaniesProvider, useCompanies } from "@/context/CompaniesContext";
-import { PlanLimitProvider, usePlanLimit } from "@/context/PlanLimitContext";
+import { CreditsProvider } from "@/context/CreditsContext";
 import { ToastProvider } from "@/context/ToastContext";
 import { VersionProvider, useVersion } from "@/context/VersionContext";
 import { PurchasesProvider } from "@/context/PurchasesContext";
-import RevenueCatService from "@/services/purchases/RevenueCat.service";
+import { useThemeColor } from "@/hooks/useColorScheme";
+import { useTabBarInset } from "@/hooks/useTabBarInset";
+// Registers the background location task (TaskManager.defineTask must run at module level)
+import "@/services/tracking/LocationTracking.task";
 import MapboxGL from "@rnmapbox/maps";
 import * as Sentry from '@sentry/react-native';
 import * as SplashScreen from 'expo-splash-screen';
 import { ObserveRoot } from 'expo-observe';
-import { router, Stack } from "expo-router";
+import { Stack } from "expo-router";
 import 'moment/locale/es';
 import { useEffect } from "react";
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
@@ -30,20 +34,11 @@ Sentry.init({
 });
 
 MapboxGL.setAccessToken(config.mapboxAccessToken);
-RevenueCatService.configure();
 SplashScreen.preventAutoHideAsync();
 
-/**
- * The 402 interceptor only flips state in PlanLimitContext; the navigation to
- * the plan-limit route is decided here, next to the route tree.
- */
-function PlanLimitNavigator() {
-  const { shouldShowPlanLimit } = usePlanLimit();
-  useEffect(() => {
-    if (shouldShowPlanLimit) router.push(Routes.planLimit);
-  }, [shouldShowPlanLimit]);
-  return null;
-}
+/** Root screens that don't reserve space for the FloatingTabBar: the tabs pad
+ *  their own scroll content, and the bar is hidden on the terminal screens. */
+const SCREENS_WITHOUT_TAB_INSET = new Set(["(main)", "delete-account/done", "routes/view/[id]"]);
 
 function RootNavigator() {
   const { authState } = useAuth();
@@ -64,6 +59,9 @@ function RootNavigator() {
 
   const isAuthenticated = authState.authenticated;
   const hasActiveCompany = !!activeCompany;
+  const showTabBar = isAuthenticated && hasActiveCompany && !needsUpdate && !isBootstrapping;
+  const tabBarInset = useTabBarInset();
+  const colors = useThemeColor();
 
   // The navigator stays mounted while bootstrapping — the native splash covers
   // it, so nothing intermediate is visible, and the router is ready to receive
@@ -80,7 +78,18 @@ function RootNavigator() {
           focused screen's guard turns false, expo-router falls back to the
           first still-available screen in declaration order, so the order below
           determines where each auth/company state lands the user. */}
-      <Stack screenOptions={{ headerShown: false }}>
+      <Stack
+        screenOptions={({ route }) => ({
+          headerShown: false,
+          // Pushed screens reserve the FloatingTabBar's height so no content,
+          // sticky button or map control ends up behind it. The tab screens
+          // handle it themselves (their content scrolls under the floating bar).
+          contentStyle: {
+            backgroundColor: colors.background,
+            paddingBottom: showTabBar && !SCREENS_WITHOUT_TAB_INSET.has(route.name) ? tabBarInset : 0,
+          },
+        })}
+      >
         {/* Force-update gate: declared first so its guard wins over every
             other group — if the backend flagged this build as unsupported,
             nothing else is reachable. `index` below still sees the splash
@@ -117,17 +126,23 @@ function RootNavigator() {
 
         {/* Fully signed in */}
         <Stack.Protected guard={isAuthenticated && hasActiveCompany}>
-          <Stack.Screen name="(drawer)" />
+          <Stack.Screen name="(main)" />
           <Stack.Screen name="account" />
           <Stack.Screen name="bills/index" />
           <Stack.Screen name="bills/view/[id]" />
+          <Stack.Screen name="companies/switch" />
+          <Stack.Screen name="credits/history" />
+          <Stack.Screen name="credits/buy" />
           <Stack.Screen name="clients/add" />
           <Stack.Screen name="clients/edit/[id]" />
           <Stack.Screen name="clients/profile/[id]" />
+          <Stack.Screen name="delete-account/confirm" />
+          <Stack.Screen name="delete-account/done" />
+          <Stack.Screen name="delete-account/export" />
+          <Stack.Screen name="delete-account/index" />
           <Stack.Screen name="orders/create" />
           <Stack.Screen name="orders/view/[id]" />
           <Stack.Screen name="payment-methods/add" />
-          <Stack.Screen name="plan-limit" />
           <Stack.Screen name="products/index" />
           <Stack.Screen name="products/add" />
           <Stack.Screen name="products/edit/[id]" />
@@ -135,9 +150,13 @@ function RootNavigator() {
           <Stack.Screen name="routes/create" />
           <Stack.Screen name="routes/view/[id]" />
           <Stack.Screen name="routes/view/addOrders" />
+          <Stack.Screen name="team" />
         </Stack.Protected>
       </Stack>
-      <PlanLimitNavigator />
+      <OutOfCreditsSheet />
+      {/* Main tabs on every signed-in screen (pushed screens included). Never on
+          login, onboarding or force-update. */}
+      {showTabBar && <FloatingTabBar />}
       <OfflineBanner />
     </ErrorBoundary>
   );
@@ -151,9 +170,9 @@ function RootLayout() {
           <PurchasesProvider>
             <GestureHandlerRootView>
               <ToastProvider>
-                <PlanLimitProvider>
+                <CreditsProvider>
                   <RootNavigator />
-                </PlanLimitProvider>
+                </CreditsProvider>
               </ToastProvider>
             </GestureHandlerRootView>
           </PurchasesProvider>

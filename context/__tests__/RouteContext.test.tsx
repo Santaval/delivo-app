@@ -44,6 +44,8 @@ const buildRoute = (points: RoutePoint[], overrides: Partial<Route> = {}): Route
   name: 'Ruta Centro',
   status: 'CREATED',
   companyId: 'company-1',
+  driverId: null,
+  driver: null,
   polyline: '',
   points,
   createdAt: '',

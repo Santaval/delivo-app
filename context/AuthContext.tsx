@@ -1,10 +1,12 @@
 import { toast } from "@/context/ToastContext";
 import i18n from "@/i18n";
-import api, { setOnUnauthorized } from "@/services/api";
+import api, { setOnForbidden, setOnUnauthorized } from "@/services/api";
 import AuthService from "@/services/auth/Auth.service";
+import { clearStoredActiveCompany } from "@/utils/activeCompanyStorage";
 import { Observe } from "expo-observe";
 import * as SecureStore from "expo-secure-store";
-import { createContext, useContext, useEffect, useState } from "react";
+import { createContext, useCallback, useContext, useEffect, useRef, useState } from "react";
+import { AppState } from "react-native";
 
 /**
  * Represents the authentication state of the application
@@ -44,7 +46,19 @@ interface AuthContextType {
   updateUser: (userData: Partial<User>) => Promise<void>;
   /** Function to refresh user data */
   refreshUser: () => Promise<void>;
+  /**
+   * Silently re-syncs the user (and therefore their companies) when the data is
+   * older than `minIntervalMs` (default 30s). Unlike `refreshUser` it never logs
+   * the user out on failure — it is meant for background triggers (foreground,
+   * drawer open) where being offline is normal.
+   */
+  syncUserIfStale: (minIntervalMs?: number) => Promise<void>;
+  /** Function to permanently delete the current account */
+  deleteAccount: () => Promise<void>;
 }
+
+const SYNC_MIN_INTERVAL_MS = 30_000;
+const FORBIDDEN_SYNC_MIN_INTERVAL_MS = 5_000;
 
 /**
  * Initial state for authentication
@@ -69,6 +83,8 @@ const AuthContext = createContext<AuthContextType>({
   clearError: () => {},
   updateUser: async () => {},
   refreshUser: async () => {},
+  syncUserIfStale: async () => {},
+  deleteAccount: async () => {},
 });
 
 /**
@@ -78,8 +94,14 @@ const AuthContext = createContext<AuthContextType>({
  */
 export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const [user, setUser] = useState<User | null>(null);
-  const [authMail, setAuthMail] = useState<string>("");
   const [authState, setAuthState] = useState<AuthState>(initialState);
+
+  // Bumped on every login and logout. Any async work that writes the user
+  // captures it first and drops its result if it changed, so a /auth/me that
+  // started under the previous account can never overwrite the new one.
+  const sessionRef = useRef(0);
+  const startSession = () => ++sessionRef.current;
+  const isCurrentSession = (epoch: number) => sessionRef.current === epoch;
 
   /**
    * Updates the loading state
@@ -129,7 +151,9 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   };
 
   const googleAuth = async (token: string) => {
+    const epoch = startSession();
     const { token: jwtToken, user } = await AuthService.googleAuth(token);
+    if (!isCurrentSession(epoch)) return;
     await SecureStore.setItemAsync("token", jwtToken);
     setupApiAuth(jwtToken);
     updateAuthState(jwtToken, true);
@@ -137,7 +161,9 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   };
 
   const appleAuth = async (token: string) => {
+    const epoch = startSession();
     const { token: jwtToken, user } = await AuthService.appleAuth(token);
+    if (!isCurrentSession(epoch)) return;
     await SecureStore.setItemAsync("token", jwtToken);
     setupApiAuth(jwtToken);
     updateAuthState(jwtToken, true);
@@ -147,10 +173,12 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const qaLogin = async (username: string, password: string) => {
     try {
       setLoading(true);
+      const epoch = startSession();
       const { token: jwtToken, user } = await AuthService.qaLogin(
         username,
         password,
       );
+      if (!isCurrentSession(epoch)) return;
       await SecureStore.setItemAsync("token", jwtToken);
       setupApiAuth(jwtToken);
       updateAuthState(jwtToken, true);
@@ -168,12 +196,15 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
    */
   useEffect(() => {
     const loadToken = async () => {
+      const epoch = sessionRef.current;
       try {
         const token = await SecureStore.getItemAsync("token");
 
-        if (token) {
+        if (token && isCurrentSession(epoch)) {
           setupApiAuth(token);
           const user = await AuthService.getUser();
+          // A login/logout happened while the stored session was loading
+          if (!isCurrentSession(epoch)) return;
 
           if (user) {
             updateAuthState(token, true);
@@ -183,6 +214,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
           }
         }
       } catch (error) {
+        if (!isCurrentSession(epoch)) return;
         await handleLogout();
         setError(
           error instanceof Error
@@ -221,19 +253,73 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     return () => setOnUnauthorized(null);
   }, []);
 
+  // Background re-sync, shared by the AppState/drawer/403 triggers. One request
+  // at a time, and not more often than `minIntervalMs`.
+  const lastSyncAt = useRef(0);
+  const syncInFlight = useRef(false);
+  const authenticatedRef = useRef(false);
+  authenticatedRef.current = authState.authenticated;
+
   const refreshUser = async () => {
+    const epoch = sessionRef.current;
     try {
       const user = await AuthService.getUser();
+      if (!isCurrentSession(epoch)) return;
+      lastSyncAt.current = Date.now();
       setUser(user);
     } catch (error) {
-      await handleLogout();
+      // A failure from a previous session must not log out the current one
+      if (isCurrentSession(epoch)) await handleLogout();
     }
   };
+
+  const syncUserIfStale = useCallback(async (minIntervalMs = SYNC_MIN_INTERVAL_MS) => {
+    if (!authenticatedRef.current || syncInFlight.current) return;
+    if (Date.now() - lastSyncAt.current < minIntervalMs) return;
+    const epoch = sessionRef.current;
+    syncInFlight.current = true;
+    // Stamped up front so a failing request is not retried in a tight loop
+    lastSyncAt.current = Date.now();
+    try {
+      const fresh = await AuthService.getUser();
+      // Logged out or switched account while the request was in flight:
+      // `fresh` belongs to the previous user, drop it
+      if (isCurrentSession(epoch) && authenticatedRef.current) setUser(fresh);
+    } catch {
+      // Offline / transient: keep the current user. A truly expired session
+      // surfaces as a 401 on the next real request and logs out there.
+    } finally {
+      // handleLogout already reset it for the new session
+      if (isCurrentSession(epoch)) syncInFlight.current = false;
+    }
+  }, []);
+
+  // Refresh when the app returns to the foreground
+  useEffect(() => {
+    if (!authState.authenticated) return;
+    const sub = AppState.addEventListener("change", (next) => {
+      if (next === "active") syncUserIfStale();
+    });
+    return () => sub.remove();
+  }, [authState.authenticated, syncUserIfStale]);
+
+  // A 403 on a company-scoped request may mean we were removed from the active
+  // company. Resync (a few seconds of de-duplication; CompaniesContext drops the
+  // company if it is no longer in the user's list). The failed request still
+  // rejects to its caller.
+  useEffect(() => {
+    if (!authState.authenticated) return;
+    setOnForbidden(() => syncUserIfStale(FORBIDDEN_SYNC_MIN_INTERVAL_MS));
+    return () => setOnForbidden(null);
+  }, [authState.authenticated, syncUserIfStale]);
 
   /**
    * Handles the logout process by clearing auth state and removing stored token
    */
   const handleLogout = async () => {
+    startSession();
+    lastSyncAt.current = 0;
+    syncInFlight.current = false;
     updateAuthState(null, false);
     setUser(null);
     await SecureStore.deleteItemAsync("token");
@@ -266,7 +352,9 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     try {
       setLoading(true);
       if (user) {
+        const epoch = sessionRef.current;
         const updatedUser = await AuthService.getUser();
+        if (!isCurrentSession(epoch)) return;
         setUser({ ...updatedUser, ...userData });
       }
     } catch (error) {
@@ -277,6 +365,20 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     } finally {
       setLoading(false);
     }
+  };
+
+  /**
+   * Permanently deletes the current account. Only clears the persisted
+   * company id — the session itself stays active until the caller explicitly
+   * logs out (e.g. from the "done" screen), matching the account-deletion flow.
+   */
+  const deleteAccount = async (): Promise<void> => {
+    const appleAuthCode = await SecureStore.getItemAsync("appleAuthCode");
+    await AuthService.deleteAccount(appleAuthCode || undefined);
+    // delete the apple auth code if it exists
+    await SecureStore.deleteItemAsync("appleAuthCode");
+    // La cuenta ya no existe: el id de empresa guardado nunca volverá a ser válido.
+    if (user) await clearStoredActiveCompany(user.id);
   };
 
   return (
@@ -291,6 +393,8 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         clearError,
         updateUser,
         refreshUser,
+        syncUserIfStale,
+        deleteAccount,
       }}
     >
       {children}

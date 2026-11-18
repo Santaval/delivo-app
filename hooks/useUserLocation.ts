@@ -8,7 +8,7 @@ import { Alert, Linking } from 'react-native';
  * before triggering the OS prompt so the user understands why.
  * Returns true when permission is granted.
  */
-const requestPermissionWithRationale = async (): Promise<boolean> => {
+export const requestPermissionWithRationale = async (): Promise<boolean> => {
   const current = await Location.getForegroundPermissionsAsync();
   if (current.status === 'granted') return true;
   if (!current.canAskAgain) return false;

@@ -2,6 +2,7 @@ import React from 'react';
 import { StyleSheet, View, TouchableOpacity, Text } from 'react-native';
 import { BorderRadius, Spacing, Typography } from '@/constants';
 import { useThemeColor } from '@/hooks/useColorScheme';
+import { useTranslation } from 'react-i18next';
 
 type Tab = 'current' | 'all';
 
@@ -12,6 +13,7 @@ type DeliveryTabsProps = {
 
 const DeliveryTabs: React.FC<DeliveryTabsProps> = ({ activeTab, onTabChange }) => {
   const colors = useThemeColor();
+  const { t } = useTranslation();
   return (
     <View style={[styles.container, { backgroundColor: colors.backgroundSecondary }]}>
       <TouchableOpacity
@@ -26,7 +28,7 @@ const DeliveryTabs: React.FC<DeliveryTabsProps> = ({ activeTab, onTabChange }) =
             activeTab === 'current' && [styles.activeTabText, { color: colors.primary }],
           ]}
         >
-          Current Location
+          {t('currentStop')}
         </Text>
       </TouchableOpacity>
 
@@ -42,7 +44,7 @@ const DeliveryTabs: React.FC<DeliveryTabsProps> = ({ activeTab, onTabChange }) =
             activeTab === 'all' && [styles.activeTabText, { color: colors.primary }],
           ]}
         >
-          All Stops
+          {t('allStops')}
         </Text>
       </TouchableOpacity>
     </View>

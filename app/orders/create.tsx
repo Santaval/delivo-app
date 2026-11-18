@@ -1,6 +1,8 @@
-import { ClientSelect, OrderItem, PrimaryButton, ProductSelect, TopBar } from '@/components';
+import { ClientSelect, LowCreditsBanner, OrderItem, PrimaryButton, ProductSelect, TopBar } from '@/components';
 import { OrdersCreateParams, Routes, Spacing } from '@/constants';
+import { useCredits } from '@/context/CreditsContext';
 import { useToast } from '@/context/ToastContext';
+import { isInsufficientCreditsError } from '@/services/errors/InsufficientCredits';
 import OrdersService from '@/services/orders/Orders.service';
 import { router, useLocalSearchParams } from 'expo-router';
 import React, { useEffect } from 'react';
@@ -14,6 +16,7 @@ export default function CreateOrder() {
   const [isSaving, setIsSaving] = React.useState<boolean>(false);
   const { t } = useTranslation();
   const toast = useToast();
+  const { noteBillIssued } = useCredits();
   const { clientId: defaultClientId } = useLocalSearchParams<OrdersCreateParams>();
 
   useEffect(() => {
@@ -28,6 +31,9 @@ export default function CreateOrder() {
         clientId,
       });
 
+      // POST /orders consumed a credit even if adding items fails below
+      noteBillIssued();
+
       // add items
       for (const item of orderItems) {
         await OrdersService.addItemToOrder(order.id, {
@@ -40,6 +46,8 @@ export default function CreateOrder() {
       router.replace(Routes.orderView(order.id));
 
     } catch (error) {
+      // The out-of-credits sheet handles this; the form keeps its state.
+      if (isInsufficientCreditsError(error)) return;
       console.error('Error saving order:', error);
       toast.show({ message: t('failedToCreateOrder'), type: 'error' });
     } finally {
@@ -51,8 +59,6 @@ export default function CreateOrder() {
     <SafeAreaView style={styles.container}>
       <TopBar
         title={t('createOrder')}
-        showBack
-        backTo={Routes.orders}
       />
       <ClientSelect
         label={t("assignedClient").toUpperCase()}
@@ -68,6 +74,8 @@ export default function CreateOrder() {
         // error={orderItems.length === 0 ? "Please add products" : undefined}
         onProductsChange={setOrderItems}
       />
+
+      <LowCreditsBanner />
 
       <PrimaryButton
         title={t('saveOrder')}

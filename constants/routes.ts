@@ -17,10 +17,15 @@ export const Routes = {
   routes: "/routes" as Href,
   clients: "/clients" as Href,
 
-  // Solo drawer
+  // Home header (fila horizontal de secciones)
   bills: "/bills" as Href,
   products: "/products" as Href,
   account: "/account" as Href,
+  team: "/team" as Href,
+  deleteAccount: "/delete-account" as Href,
+  deleteAccountExport: "/delete-account/export" as Href,
+  deleteAccountConfirm: "/delete-account/confirm" as Href,
+  deleteAccountDone: "/delete-account/done" as Href,
 
   clientsAdd: "/clients/add" as Href,
   productsAdd: "/products/add" as Href,
@@ -28,8 +33,10 @@ export const Routes = {
   routesCreate: "/routes/create" as Href,
   companiesAdd: "/companies/add" as Href,
   companiesSelect: "/companies/select" as Href,
+  companiesSwitch: "/companies/switch" as Href,
   paymentMethodsAdd: "/payment-methods/add" as Href,
-  planLimit: "/plan-limit" as Href,
+  creditsHistory: "/credits/history" as Href,
+  creditsBuy: "/credits/buy" as Href,
   forceUpdate: "/force-update" as Href,
   root: "/" as Href,
   qa: "/qa" as Href,

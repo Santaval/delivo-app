@@ -10,6 +10,7 @@ interface Config {
   revenueCatAndroidKey: string;
   termsUrl: string;
   privacyUrl: string;
+  supportEmail: string;
   appStoreUrl: string;
   playStoreUrl: string;
   isDevelopment: boolean;
@@ -30,6 +31,8 @@ const config: Config = {
   termsUrl: process.env.EXPO_PUBLIC_TERMS_URL || "https://appdelivo.com/terms",
   privacyUrl:
     process.env.EXPO_PUBLIC_PRIVACY_URL || "https://appdelivo.com/privacy",
+  supportEmail:
+    process.env.EXPO_PUBLIC_SUPPORT_EMAIL || "contact@savaldev.com",
   appStoreUrl:
     process.env.EXPO_PUBLIC_APP_STORE_URL ||
     "itms-apps://itunes.apple.com/app/idYOUR_APP_ID",

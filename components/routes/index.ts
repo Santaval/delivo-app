@@ -5,3 +5,4 @@ export { default as DeliveryActionButtons } from './DeliveryActionButtons';
 export { default as DeliveryMap } from './DeliveryMap';
 export { default as DeliveryTabs } from './DeliveryTabs';
 
+export { default as TrackingIndicator } from './TrackingIndicator';

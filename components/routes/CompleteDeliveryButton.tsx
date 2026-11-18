@@ -1,8 +1,8 @@
 import { SwipeButton } from '@/components';
-import { Spacing } from '@/constants';
 import { useThemeColor } from '@/hooks/useColorScheme';
 import React from 'react';
-import { StyleSheet, View } from 'react-native';
+import { useTranslation } from 'react-i18next';
+import { StyleSheet } from 'react-native';
 
 type CompleteDeliveryButtonProps = {
   onSwipeComplete: () => void;
@@ -13,28 +13,25 @@ type CompleteDeliveryButtonProps = {
 const CompleteDeliveryButton: React.FC<CompleteDeliveryButtonProps> = ({
   onSwipeComplete,
   isLoading = false,
-  text = 'Slide to complete delivery',
+  text,
 }) => {
   const colors = useThemeColor();
+  const { t } = useTranslation();
+  // No container chrome: it's rendered in the route sheet's sticky footer,
+  // which provides the padding and top border.
   return (
-    <View style={[styles.completeDeliveryContainer, { borderTopColor: colors.border, backgroundColor: colors.background }]}>
-      <SwipeButton
-        onSwipeComplete={onSwipeComplete}
-        text={isLoading ? 'Completing delivery...' : text}
-        isLoading={isLoading}
-        iconName="checkmark"
-        backgroundColor={colors.success}
-        style={styles.completeDeliveryButton}
-      />
-    </View>
+    <SwipeButton
+      onSwipeComplete={onSwipeComplete}
+      text={isLoading ? t('completingDelivery') : (text ?? t('slideToCompleteDelivery'))}
+      isLoading={isLoading}
+      iconName="checkmark"
+      backgroundColor={colors.success}
+      style={styles.completeDeliveryButton}
+    />
   );
 };
 
 const styles = StyleSheet.create({
-  completeDeliveryContainer: {
-    paddingTop: Spacing.md,
-    borderTopWidth: 1,
-  },
   completeDeliveryButton: {
     marginBottom: 0,
   },

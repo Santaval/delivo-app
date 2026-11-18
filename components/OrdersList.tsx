@@ -1,5 +1,6 @@
 import { BorderRadius, Spacing, Typography } from "@/constants";
 import { useThemeColor } from "@/hooks/useColorScheme";
+import { useTabBarInset } from "@/hooks/useTabBarInset";
 import { useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import {
@@ -38,6 +39,7 @@ export function OrdersList({
   onCreateFirst,
 }: OrdersListProps) {
   const colors = useThemeColor();
+  const tabBarInset = useTabBarInset({ withFab: true });
   const { t } = useTranslation();
   const [activeTab, setActiveTab] = useState<TabType>("ALL");
 
@@ -155,7 +157,7 @@ export function OrdersList({
       {/* Orders List */}
       <ScrollView
         style={styles.ordersContainer}
-        contentContainerStyle={styles.ordersContent}
+        contentContainerStyle={[styles.ordersContent, { paddingBottom: tabBarInset }]}
         showsVerticalScrollIndicator={false}
         refreshControl={
           <RefreshControl refreshing={isRefreshing} onRefresh={onRefresh} />

@@ -7,8 +7,11 @@ import {
 import ClientCompactCard from '@/components/clients/ClientCompactCard';
 import CurrencyText from '@/components/currency/CurrencyText';
 import AddProductsModal from '@/components/orders/AddProductsModal';
+import AddToRouteModal from '@/components/orders/AddToRouteModal';
+import OrderRouteCard from '@/components/orders/OrderRouteCard';
 import OrderStatusBadge from '@/components/orders/OrderStatusBadge';
 import { BorderRadius, OrdersViewParams, Routes, Shadows, Spacing, Typography } from '@/constants';
+import { useToast } from '@/context/ToastContext';
 import { useThemeColor } from '@/hooks/useColorScheme';
 import useOrder from '@/hooks/useOrder';
 import { confirmDestructive } from '@/utils/confirm';
@@ -90,8 +93,10 @@ export default function OrderDetailsPage() {
   const { id } = useLocalSearchParams<OrdersViewParams>();
   const colors = useThemeColor();
   const { t } = useTranslation();
-  const { order, isInitialLoading, isRefreshing, isMutating, error, refresh, addItems, removeItem, markAsDelivered } = useOrder(id);
+  const { order, isInitialLoading, isRefreshing, isMutating, error, refresh, addItems, removeItem, markAsDelivered, addToRoute } = useOrder(id);
+  const toast = useToast();
   const [showAddProductsModal, setShowAddProductsModal] = useState(false);
+  const [showAddToRouteModal, setShowAddToRouteModal] = useState(false);
   const isSomeProductDeleted = order?.items.some(item => item.deletedAt);
 
   const onMarkAsDelivered = async () => {
@@ -100,6 +105,19 @@ export default function OrderDetailsPage() {
       router.replace(Routes.billView(id));
     } catch (error) {
       console.error('Failed to mark as delivered', error);
+    }
+  };
+
+  const handleAddToRoute = async (routeId: string) => {
+    setShowAddToRouteModal(false);
+    try {
+      await addToRoute(routeId);
+      toast.show({ message: t('orderAddedToRoute'), type: 'success' });
+    } catch (err: any) {
+      // 409: the order is already on a route (or the route can't take stops anymore)
+      const message = err?.response?.status === 409 ? t('orderAlreadyOnRoute') : t('failedToAddOrderToRoute');
+      toast.show({ message, type: 'error' });
+      refresh();
     }
   };
 
@@ -113,8 +131,6 @@ export default function OrderDetailsPage() {
       <ThemedView style={[styles.container, { backgroundColor: colors.backgroundSecondary }]}>
         <TopBar
           title={t('orderDetails')}
-          showBack
-          backTo={Routes.orders}
         />
         <View style={styles.centerContent}>
           <ActivityIndicator size="large" color={colors.primary} />
@@ -131,8 +147,6 @@ export default function OrderDetailsPage() {
       <ThemedView style={[styles.container, { backgroundColor: colors.backgroundSecondary }]}>
         <TopBar
           title={t('orderDetails')}
-          showBack
-          backTo={Routes.orders}
         />
         <View style={styles.centerContent}>
           <MaterialIcons name="error-outline" size={48} color={colors.danger} />
@@ -154,8 +168,6 @@ export default function OrderDetailsPage() {
       style={[styles.container, { backgroundColor: colors.backgroundSecondary }]}>
       <TopBar
         title={t('invoiceDetails')}
-        showBack
-        backTo={Routes.orders}
       />
 
       <View style={styles.contentWrapper}>
@@ -189,6 +201,12 @@ export default function OrderDetailsPage() {
 
           <ClientCompactCard
             client={order.client}
+          />
+
+          <OrderRouteCard
+            order={order}
+            onAddToRoute={() => setShowAddToRouteModal(true)}
+            disabled={isMutating}
           />
 
           {/* Line Items */}
@@ -295,6 +313,14 @@ export default function OrderDetailsPage() {
               style={{ marginTop: Spacing.md }}
             />
           </View>
+
+          {/* Mounted only while open: it fetches the routes on mount */}
+          {showAddToRouteModal && (
+            <AddToRouteModal
+              onClose={() => setShowAddToRouteModal(false)}
+              onSelect={handleAddToRoute}
+            />
+          )}
 
           <AddProductsModal
             onAdd={addItems}

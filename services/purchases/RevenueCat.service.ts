@@ -1,77 +1,84 @@
 import config from "@/config/env";
 import { Platform } from "react-native";
 import Purchases, {
-  CustomerInfo,
   LOG_LEVEL,
   PurchasesOffering,
   PurchasesPackage,
 } from "react-native-purchases";
 
-export const ENTITLEMENTS = {
-  PRO: "arranque",
-} as const;
-
 export const OFFERING_IDENTIFIERS = {
-  DEFAULT: "delivo_arranque",
+  CREDITS: "delivo_credits",
 } as const;
 
+/**
+ * The app never uses an anonymous RevenueCat app user ID
+ * (https://github.com/Santaval/delivo-app/issues/77).
+ *
+ * Anonymous IDs post the device receipt, and RevenueCat aliases them into
+ * whichever customer already owns that receipt. A later `logIn(companyId)` from
+ * an anonymous ID then aliases the new company into that same customer, so
+ * purchases get reported under the wrong app_user_id. To avoid this the SDK is
+ * only configured once a company is known (with that company as appUserID) and
+ * afterwards only switches identified -> identified, which never aliases.
+ * There is deliberately no `logOut()`.
+ */
 class RevenueCatService {
-  configure(): void {
-    const apiKey =
-      Platform.OS === "ios"
-        ? config.revenueCatIosKey
-        : config.revenueCatAndroidKey;
+  private configured = false;
 
-    if (config.isDevelopment) {
-      Purchases.setLogLevel(LOG_LEVEL.DEBUG);
+  /** `companyId` is the active company id — credits belong to a company, not a user. */
+  async identify(companyId: string): Promise<void> {
+    if (!this.configured) {
+      const apiKey =
+        Platform.OS === "ios"
+          ? config.revenueCatIosKey
+          : config.revenueCatAndroidKey;
+
+      if (config.isDevelopment) {
+        Purchases.setLogLevel(LOG_LEVEL.DEBUG);
+      }
+
+      Purchases.configure({ apiKey, appUserID: companyId });
+      this.configured = true;
+      return;
     }
 
-    Purchases.configure({ apiKey });
+    if ((await Purchases.getAppUserID()) !== companyId) {
+      await Purchases.logIn(companyId);
+    }
   }
 
-  /** `appUserId` is the active company id — subscriptions belong to a company, not a user. */
-  async logIn(appUserId: string): Promise<void> {
-    await Purchases.logIn(appUserId);
+  isConfigured(): boolean {
+    return this.configured;
   }
 
-  async logOut(): Promise<void> {
-    // logOut rejects if the current app user id is already anonymous, which is
-    // a normal state here (fresh install, or logging out twice)
-    if (await Purchases.isAnonymous()) return;
-    await Purchases.logOut();
+  /** The SDK's current app user id, or null if it has not been configured yet. */
+  async currentAppUserId(): Promise<string | null> {
+    if (!this.configured) return null;
+    return Purchases.getAppUserID();
   }
 
-  async getCustomerInfo(): Promise<CustomerInfo> {
-    return Purchases.getCustomerInfo();
+  private assertConfigured(): void {
+    if (!this.configured) {
+      throw new Error(
+        "RevenueCat is not configured: call identify(companyId) first",
+      );
+    }
   }
 
-  async getOfferings(): Promise<PurchasesOffering | null> {
+  /**
+   * Fetched by identifier, not `offerings.current`, so the dashboard can keep the
+   * legacy offering as Current while old store builds are still in use.
+   */
+  async getCreditsOffering(): Promise<PurchasesOffering | null> {
+    this.assertConfigured();
     const offerings = await Purchases.getOfferings();
-    return offerings.current;
+    return offerings.all[OFFERING_IDENTIFIERS.CREDITS] ?? null;
   }
 
-  async purchasePackage(pkg: PurchasesPackage): Promise<CustomerInfo> {
-    const { customerInfo } = await Purchases.purchasePackage(pkg);
-    return customerInfo;
-  }
-
-  async restorePurchases(): Promise<CustomerInfo> {
-    return Purchases.restorePurchases();
-  }
-
-  isProActive(customerInfo: CustomerInfo): boolean {
-    const entitlement = customerInfo.entitlements.active[ENTITLEMENTS.PRO];
-    return customerInfo?.activeSubscriptions?.includes("delivo_monthly");
-  }
-
-  addCustomerInfoUpdateListener(callback: (info: CustomerInfo) => void): void {
-    Purchases.addCustomerInfoUpdateListener(callback);
-  }
-
-  removeCustomerInfoUpdateListener(
-    callback: (info: CustomerInfo) => void,
-  ): void {
-    Purchases.removeCustomerInfoUpdateListener(callback);
+  /** Purchases a consumable; credits are granted server-side by the webhook. */
+  async purchasePackage(pkg: PurchasesPackage): Promise<void> {
+    this.assertConfigured();
+    await Purchases.purchasePackage(pkg);
   }
 }
 
