@@ -1,5 +1,6 @@
 import { FloatingActionButton, SwipeButton, TopBar } from '@/components';
 import Map from '@/components/maps/Map';
+import RouteDriverSection from '@/components/routes/RouteDriverSection';
 import { BorderRadius, Routes, Spacing, Typography } from '@/constants';
 import { useRoute } from '@/context/RouteContext';
 import { useThemeColor } from '@/hooks/useColorScheme';
@@ -88,6 +89,7 @@ export default function RoutePlanningScreen() {
 
         {/* Planned Stops Section */}
         <View style={[styles.stopsContainer, { backgroundColor: colors.background }]}>
+          <RouteDriverSection />
           <View style={styles.stopsHeader}>
             <Text style={[styles.stopsTitle, { color: colors.text }]}>{t("plannedStops")}</Text>
             <View style={[styles.stopsCount, { backgroundColor: colors.success + '20' }]}>

@@ -7,6 +7,12 @@ jest.mock('@/context/ToastContext', () => ({
   toast: { error: jest.fn(), success: jest.fn(), info: jest.fn() },
 }));
 
+const mockMembers = jest.fn();
+jest.mock('@/hooks/useCompanyMembers', () => ({
+  __esModule: true,
+  default: () => mockMembers(),
+}));
+
 const mockedRoutesService = RoutesService as jest.Mocked<typeof RoutesService>;
 
 const buildRoute = (overrides: Partial<Route> = {}): Route => ({
@@ -14,6 +20,8 @@ const buildRoute = (overrides: Partial<Route> = {}): Route => ({
   name: 'Ruta Centro',
   status: 'CREATED',
   companyId: 'company-1',
+  driverId: null,
+  driver: null,
   polyline: '',
   points: [],
   createdAt: '2026-06-01T08:00:00.000Z',
@@ -24,6 +32,7 @@ const buildRoute = (overrides: Partial<Route> = {}): Route => ({
 describe('useRoutes (PBI-004: Inteligencia Logística y Optimización de Rutas)', () => {
   beforeEach(() => {
     jest.clearAllMocks();
+    mockMembers.mockReturnValue({ canManageRoutes: true, loading: false });
   });
 
   // CP-RUT-06
@@ -67,5 +76,32 @@ describe('useRoutes (PBI-004: Inteligencia Logística y Optimización de Rutas)'
 
     expect(result.current.error).not.toBeNull();
     expect(result.current.routes).toEqual([]);
+  });
+
+  it('un OWNER/ADMIN lista todas las rutas sin filtro', async () => {
+    mockedRoutesService.all.mockResolvedValueOnce({ data: [] } as any);
+
+    const { result } = renderHook(() => useRoutes());
+    await waitFor(() => expect(result.current.loading).toBe(false));
+
+    expect(mockedRoutesService.all).toHaveBeenCalledWith(undefined);
+  });
+
+  it('un DEALER lista solo sus rutas con driverId=me', async () => {
+    mockMembers.mockReturnValue({ canManageRoutes: false, loading: false });
+    mockedRoutesService.all.mockResolvedValueOnce({ data: [] } as any);
+
+    const { result } = renderHook(() => useRoutes());
+    await waitFor(() => expect(result.current.loading).toBe(false));
+
+    expect(mockedRoutesService.all).toHaveBeenCalledWith({ driverId: 'me' });
+  });
+
+  it('espera a conocer el rol antes de pedir las rutas', async () => {
+    mockMembers.mockReturnValue({ canManageRoutes: false, loading: true });
+
+    renderHook(() => useRoutes());
+
+    expect(mockedRoutesService.all).not.toHaveBeenCalled();
   });
 });

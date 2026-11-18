@@ -12,7 +12,10 @@ type MarkerProps = {
 
 type Props = {
   markers?: MarkerProps[];
-  polylines?: string
+  polylines?: string;
+  fitToMarkers?: boolean;
+  /** The live driver marker is not rendered on web (the map itself is unavailable). */
+  driver?: { coordinate: { latitude: number; longitude: number }; heading: number | null; name?: string | null } | null;
 };
 
 export default function Map({ markers, polylines }: Props) {

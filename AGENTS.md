@@ -10,7 +10,7 @@ Expo/React Native mobile app (Delivo) for small business expense/income tracking
 - `npm run android` / `npm run ios` — run on device/emulator
 - `npm run web` — start web dev server
 - `npm run lint` — ESLint via `expo lint`
-- No test runner is configured
+- `npm test` — Jest (jest-expo)
 
 ## Architecture
 
@@ -48,3 +48,11 @@ All env vars must be prefixed with `EXPO_PUBLIC_` for Expo to expose them to the
 ## Lint
 
 Uses `eslint-config-expo` (flat config). Ignores `dist/`.
+
+## Live driver location
+
+- The route's driver (`route.driverId === user.id`) shares their position while the route is `STARTED`: `hooks/useDriverTracking.ts` (permissions, start/stop/pause) and the headless task `services/tracking/LocationTracking.task.ts` (`TaskManager.defineTask` at module level, imported from `app/_layout.tsx`). Pure logic in `LocationTracking.core.ts`; the task reads the JWT from SecureStore (`token`) and the route/company/offline buffer from AsyncStorage, and builds its own request headers. It stops on 403/404/409.
+- `RouteScreenManager` starts/stops tracking and provides it via `DriverTrackingContext` (indicator: `components/routes/TrackingIndicator.tsx`).
+- OWNER/ADMIN watch the driver with `hooks/useDriverLiveLocation.ts` (SSE via `react-native-sse`, backoff, polling fallback, closes in background) and `DeliveryMap` renders `components/maps/DriverMarker.tsx`.
+- Needs a native build (background location, foreground service). Store declarations: `docs/live-location-store-submission.md`.
+

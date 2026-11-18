@@ -144,6 +144,16 @@ export function RouteCard({ route, onPress, onDetailsPress }: RouteCardProps) {
           </ThemedText>
         </View>
 
+        {/* Driver */}
+        <View style={styles.driverRow}>
+          <MaterialIcons name="person" size={16} color={colors.textSecondary} />
+          <ThemedText style={[styles.driverText, { color: colors.textSecondary }]}>
+            {route.driver
+              ? `${route.driver.name} ${route.driver.surnames}`.trim()
+              : t("unassigned")}
+          </ThemedText>
+        </View>
+
         {/* Progress */}
         <View style={styles.progressSection}>
           <View style={styles.progressHeader}>
@@ -240,7 +250,16 @@ const styles = StyleSheet.create({
     padding: Spacing.xs,
   },
   dateRow: {
+    marginBottom: Spacing.sm,
+  },
+  driverRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: Spacing.xs,
     marginBottom: Spacing.md,
+  },
+  driverText: {
+    fontSize: Typography.fontSize.sm,
   },
   dateText: {
     fontSize: Typography.fontSize.sm,

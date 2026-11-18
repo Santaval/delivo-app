@@ -19,6 +19,8 @@ const buildRoute = (overrides: Partial<Route> = {}): Route => ({
   name: 'Ruta Centro',
   status: 'CREATED',
   companyId: 'company-1',
+  driverId: null,
+  driver: null,
   polyline: '',
   points: [],
   createdAt: '2026-06-01T08:00:00.000Z',
@@ -121,5 +123,110 @@ describe('RoutesService (PBI-004: Inteligencia Logística y Optimización de Rut
 
     expect(mockedApi.get).toHaveBeenCalledWith('/routes/route-7', undefined);
     expect(result.id).toBe('route-7');
+  });
+
+  describe('repartidor (driver)', () => {
+    it('crea una ruta enviando el driverId elegido', async () => {
+      mockedApi.post.mockResolvedValueOnce({ data: buildRoute({ driverId: 'user-2' }) } as any);
+
+      const result = await RoutesService.create({ name: 'Ruta Centro', driverId: 'user-2' });
+
+      expect(mockedApi.post).toHaveBeenCalledWith(
+        '/routes',
+        { name: 'Ruta Centro', driverId: 'user-2' },
+        undefined,
+      );
+      expect(result.driverId).toBe('user-2');
+    });
+
+    it('asigna un repartidor con PATCH /routes/:id/driver', async () => {
+      const driver = { id: 'user-2', name: 'Ana', surnames: 'Mora' };
+      mockedApi.patch.mockResolvedValueOnce({ data: buildRoute({ driverId: 'user-2', driver }) } as any);
+
+      const result = await RoutesService.assignDriver('route-1', 'user-2');
+
+      expect(mockedApi.patch).toHaveBeenCalledWith('/routes/route-1/driver', { driverId: 'user-2' }, undefined);
+      expect(result.driver).toEqual(driver);
+    });
+
+    it('desasigna el repartidor enviando driverId null', async () => {
+      mockedApi.patch.mockResolvedValueOnce({ data: buildRoute() } as any);
+
+      const result = await RoutesService.assignDriver('route-1', null);
+
+      expect(mockedApi.patch).toHaveBeenCalledWith('/routes/route-1/driver', { driverId: null }, undefined);
+      expect(result.driverId).toBeNull();
+    });
+
+    it('propaga el rechazo del backend al asignar (422 / 409)', async () => {
+      mockedApi.patch.mockRejectedValueOnce({ response: { status: 422 } });
+
+      await expect(RoutesService.assignDriver('route-1', 'outsider')).rejects.toEqual({
+        response: { status: 422 },
+      });
+    });
+
+    it('filtra la lista por driverId=me', async () => {
+      mockedApi.get.mockResolvedValueOnce({ data: [buildRoute()] } as any);
+
+      await RoutesService.all({ driverId: 'me' });
+
+      expect(mockedApi.get).toHaveBeenCalledWith('/routes', { params: { driverId: 'me' } });
+    });
+
+    it('filtra la lista por el uuid de un repartidor', async () => {
+      mockedApi.get.mockResolvedValueOnce({ data: [] } as any);
+
+      await RoutesService.all({ driverId: 'user-2' });
+
+      expect(mockedApi.get).toHaveBeenCalledWith('/routes', { params: { driverId: 'user-2' } });
+    });
+  });
+
+  describe('ubicación en vivo del repartidor', () => {
+    const point: DriverLocationPoint = {
+      lat: 9.93,
+      lng: -84.08,
+      heading: 90,
+      speed: null,
+      accuracy: 12,
+      recordedAt: '2026-06-01T08:00:00.000Z',
+    };
+
+    it('reporta un lote de ubicaciones a POST /routes/:id/location', async () => {
+      mockedApi.post.mockResolvedValueOnce({ status: 204, data: '' } as any);
+
+      await RoutesService.reportLocation('route-1', [point]);
+
+      expect(mockedApi.post).toHaveBeenCalledWith(
+        '/routes/route-1/location',
+        { locations: [point] },
+        undefined,
+      );
+    });
+
+    it('propaga 409/403 al reportar para que el llamador detenga el seguimiento', async () => {
+      mockedApi.post.mockRejectedValueOnce({ response: { status: 409 } });
+
+      await expect(RoutesService.reportLocation('route-1', [point])).rejects.toEqual({
+        response: { status: 409 },
+      });
+    });
+
+    it('obtiene la última ubicación del repartidor', async () => {
+      const location = { lat: 9.93, lng: -84.08, heading: 10, recordedAt: '2026-06-01T08:00:00.000Z' };
+      mockedApi.get.mockResolvedValueOnce({ data: location } as any);
+
+      const result = await RoutesService.getDriverLocation('route-1');
+
+      expect(mockedApi.get).toHaveBeenCalledWith('/routes/route-1/location', undefined);
+      expect(result).toEqual(location);
+    });
+
+    it('devuelve null cuando todavía no hay ubicación', async () => {
+      mockedApi.get.mockResolvedValueOnce({ data: null } as any);
+
+      expect(await RoutesService.getDriverLocation('route-1')).toBeNull();
+    });
   });
 });
