@@ -6,13 +6,18 @@ import { useCompanies } from '@/context/CompaniesContext';
 import { usePurchases } from '@/context/PurchasesContext';
 import { useToast } from '@/context/ToastContext';
 import { useThemeColor } from '@/hooks/useColorScheme';
+import MeService from '@/services/users/Me.service';
 import { confirmDestructive } from '@/utils/confirm';
+import { formatMemberCode } from '@/utils/memberCode';
 import { MaterialIcons } from '@expo/vector-icons';
 import { router } from 'expo-router';
+import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
   ActivityIndicator,
+  Platform,
   ScrollView,
+  Share,
   StyleSheet,
   TouchableOpacity,
   View,
@@ -20,7 +25,7 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 export default function AccountScreen() {
-  const { user, logout } = useAuth();
+  const { user, logout, refreshUser } = useAuth();
   const { activeCompany } = useCompanies();
   const { t } = useTranslation();
   const toast = useToast();
@@ -34,6 +39,49 @@ export default function AccountScreen() {
     presentCustomerCenter,
     restorePurchases,
   } = usePurchases();
+
+  const [isRegenerating, setIsRegenerating] = useState(false);
+  const formattedCode = formatMemberCode(user?.memberCode);
+
+  const handleShareCode = async () => {
+    if (!formattedCode) return;
+    try {
+      await Share.share({ message: t('memberCodeShareMessage', { code: formattedCode }) });
+    } catch {
+      // The share sheet failing to open is not worth a toast
+    }
+  };
+
+  const regenerateCode = async () => {
+    setIsRegenerating(true);
+    try {
+      const newCode = await MeService.regenerateMemberCode();
+      await refreshUser();
+      toast.show({
+        message: t('memberCodeRegenerated', { code: formatMemberCode(newCode) }),
+        type: 'success',
+      });
+    } catch (e: any) {
+      toast.show({
+        message:
+          e?.response?.status === 429
+            ? t('memberCodeRegenerateRateLimited')
+            : t('memberCodeRegenerateFailed'),
+        type: 'error',
+      });
+    } finally {
+      setIsRegenerating(false);
+    }
+  };
+
+  const handleRegenerateCode = () => {
+    confirmDestructive({
+      title: t('memberCodeRegenerateConfirmTitle'),
+      message: t('memberCodeRegenerateConfirmMessage'),
+      confirmLabel: t('memberCodeRegenerate'),
+      onConfirm: regenerateCode,
+    });
+  };
 
   const handleUpgrade = async () => {
     await presentPaywall();
@@ -76,6 +124,47 @@ export default function AccountScreen() {
           <ThemedText variant="caption" style={[styles.userEmail, { color: colors.textSecondary }]}>
             {user?.email}
           </ThemedText>
+        </View>
+
+        {/* Member code */}
+        <View style={[styles.card, { backgroundColor: colors.surface, borderColor: colors.border }]}>
+          <View style={styles.cardHeader}>
+            <MaterialIcons name="badge" size={24} color={colors.primary} />
+            <ThemedText variant="subtitle" style={styles.cardTitle}>
+              {t('memberCodeTitle')}
+            </ThemedText>
+            {isRegenerating && <ActivityIndicator size="small" color={colors.primary} />}
+          </View>
+          <ThemedText
+            style={[styles.memberCode, { color: colors.text }]}
+            accessibilityLabel={user?.memberCode ? user.memberCode.split('').join(' ') : undefined}
+            selectable
+          >
+            {formattedCode || t('memberCodeUnavailable')}
+          </ThemedText>
+          <ThemedText variant="caption" style={[styles.cardDescription, { color: colors.textSecondary }]}>
+            {t('memberCodeDescription')}
+          </ThemedText>
+          <View style={styles.memberCodeActions}>
+            <TouchableOpacity
+              style={[styles.actionButton, styles.primaryButton, styles.flexButton, { backgroundColor: colors.primary }, (!formattedCode || isRegenerating) && styles.disabled]}
+              onPress={handleShareCode}
+              disabled={!formattedCode || isRegenerating}
+            >
+              <MaterialIcons name="share" size={20} color="#fff" />
+              <ThemedText style={styles.primaryButtonText}>{t('memberCodeShare')}</ThemedText>
+            </TouchableOpacity>
+            <TouchableOpacity
+              style={[styles.actionButton, styles.outlineButton, styles.flexButton, { borderColor: colors.border }, isRegenerating && styles.disabled]}
+              onPress={handleRegenerateCode}
+              disabled={isRegenerating}
+            >
+              <MaterialIcons name="refresh" size={20} color={colors.textSecondary} />
+              <ThemedText style={[styles.outlineButtonText, { color: colors.textSecondary }]}>
+                {t('memberCodeRegenerate')}
+              </ThemedText>
+            </TouchableOpacity>
+          </View>
         </View>
 
         {/* Subscription Status */}
@@ -228,6 +317,30 @@ const styles = StyleSheet.create({
     fontWeight: Typography.fontWeight.bold,
   },
   userEmail: {},
+  memberCode: {
+    fontFamily: Platform.select({ ios: 'Menlo', android: 'monospace' }),
+    fontSize: 36,
+    lineHeight: 44,
+    fontWeight: Typography.fontWeight.bold,
+    letterSpacing: 6,
+    textAlign: 'center',
+    marginVertical: Spacing.sm,
+  },
+  memberCodeActions: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: Spacing.md,
+    marginTop: Spacing.sm,
+  },
+  flexButton: {
+    flexGrow: 1,
+    flexBasis: 140,
+    paddingVertical: Spacing.md,
+    paddingHorizontal: Spacing.md,
+  },
+  disabled: {
+    opacity: 0.5,
+  },
   card: {
     borderRadius: 16,
     padding: Spacing.xl,
