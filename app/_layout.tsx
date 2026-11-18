@@ -5,6 +5,7 @@ import config from "@/config/env";
 import { Routes } from "@/constants";
 import { AuthProvider, useAuth } from "@/context/AuthContext";
 import { CompaniesProvider, useCompanies } from "@/context/CompaniesContext";
+import { CreditsProvider } from "@/context/CreditsContext";
 import { PlanLimitProvider, usePlanLimit } from "@/context/PlanLimitContext";
 import { ToastProvider } from "@/context/ToastContext";
 import { VersionProvider, useVersion } from "@/context/VersionContext";
@@ -145,6 +146,7 @@ function RootNavigator() {
           <Stack.Screen name="bills/index" />
           <Stack.Screen name="bills/view/[id]" />
           <Stack.Screen name="companies/switch" />
+          <Stack.Screen name="credits/history" />
           <Stack.Screen name="clients/add" />
           <Stack.Screen name="clients/edit/[id]" />
           <Stack.Screen name="clients/profile/[id]" />
@@ -183,9 +185,11 @@ function RootLayout() {
           <PurchasesProvider>
             <GestureHandlerRootView>
               <ToastProvider>
-                <PlanLimitProvider>
-                  <RootNavigator />
-                </PlanLimitProvider>
+                <CreditsProvider>
+                  <PlanLimitProvider>
+                    <RootNavigator />
+                  </PlanLimitProvider>
+                </CreditsProvider>
               </ToastProvider>
             </GestureHandlerRootView>
           </PurchasesProvider>

@@ -1,5 +1,6 @@
-import { ClientSelect, OrderItem, PrimaryButton, ProductSelect, TopBar } from '@/components';
+import { ClientSelect, LowCreditsBanner, OrderItem, PrimaryButton, ProductSelect, TopBar } from '@/components';
 import { OrdersCreateParams, Routes, Spacing } from '@/constants';
+import { useCredits } from '@/context/CreditsContext';
 import { useToast } from '@/context/ToastContext';
 import OrdersService from '@/services/orders/Orders.service';
 import { router, useLocalSearchParams } from 'expo-router';
@@ -14,6 +15,7 @@ export default function CreateOrder() {
   const [isSaving, setIsSaving] = React.useState<boolean>(false);
   const { t } = useTranslation();
   const toast = useToast();
+  const { noteBillIssued } = useCredits();
   const { clientId: defaultClientId } = useLocalSearchParams<OrdersCreateParams>();
 
   useEffect(() => {
@@ -27,6 +29,9 @@ export default function CreateOrder() {
       const order = await OrdersService.create({
         clientId,
       });
+
+      // POST /orders consumed a credit even if adding items fails below
+      noteBillIssued();
 
       // add items
       for (const item of orderItems) {
@@ -66,6 +71,8 @@ export default function CreateOrder() {
         // error={orderItems.length === 0 ? "Please add products" : undefined}
         onProductsChange={setOrderItems}
       />
+
+      <LowCreditsBanner />
 
       <PrimaryButton
         title={t('saveOrder')}

@@ -1,3 +1,4 @@
+import { CreditsCard } from '@/components/credits/CreditsCard';
 import { ThemedText } from '@/components/ThemedText';
 import { TopBar } from '@/components/TopBar';
 import { Routes, Spacing, Typography } from '@/constants';
@@ -168,6 +169,8 @@ export default function AccountScreen() {
             </TouchableOpacity>
           </View>
         </View>
+
+        <CreditsCard />
 
         {/* Subscription Status */}
         <View style={[

@@ -1,3 +1,4 @@
+import { CreditsBalanceLine } from '@/components/credits/CreditsBalanceLine';
 import { ThemedText } from '@/components/ThemedText';
 import { BorderRadius, Routes, Shadows, Spacing, Typography } from '@/constants';
 import { useAuth } from '@/context/AuthContext';
@@ -77,6 +78,7 @@ export function HomeHeader() {
               {userName}
             </ThemedText>
           ) : null}
+          <CreditsBalanceLine />
         </View>
 
         <View style={styles.rightSection}>
