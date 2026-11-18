@@ -30,7 +30,7 @@ const NAV_ITEMS: NavItem[] = [
 export function HomeHeader() {
   const colors = useThemeColor();
   const { t } = useTranslation();
-  const { user, syncUserIfStale } = useAuth();
+  const { syncUserIfStale } = useAuth();
   const { activeCompany, companies } = useCompanies();
 
   // Pick up membership changes (added to / removed from a company) whenever Home
@@ -42,7 +42,6 @@ export function HomeHeader() {
   );
 
   const canSwitchCompany = companies.length > 1;
-  const userName = user ? `${user.name} ${user.surnames}`.trim() : undefined;
 
   const companyContent = (
     <>
@@ -71,15 +70,10 @@ export function HomeHeader() {
           ) : (
             <View style={styles.companyRow}>{companyContent}</View>
           )}
-          {userName ? (
-            <ThemedText variant="caption" style={[styles.userName, { color: colors.textSecondary }]} numberOfLines={1}>
-              {userName}
-            </ThemedText>
-          ) : null}
-          <CreditsBalanceLine />
         </View>
 
         <View style={styles.rightSection}>
+          <CreditsBalanceLine />
           <TouchableOpacity
             style={styles.avatarButton}
             onPress={() => router.navigate(Routes.account)}
@@ -151,9 +145,6 @@ const styles = StyleSheet.create({
     fontSize: Typography.fontSize.base,
     fontWeight: Typography.fontWeight.semibold,
     flexShrink: 1,
-  },
-  userName: {
-    marginTop: -Spacing.xs,
   },
   rightSection: {
     flexDirection: 'row',
