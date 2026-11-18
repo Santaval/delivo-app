@@ -1,9 +1,11 @@
+import DriverSelect from '@/components/DriverSelect';
 import { FormField } from '@/components/FormField';
 import { PrimaryButton } from '@/components/PrimaryButton';
 import { ThemedText } from '@/components/ThemedText';
 import { BorderRadius, Routes, Spacing, Typography } from '@/constants';
 import { useToast } from '@/context/ToastContext';
 import { useColorScheme, useThemeColor } from '@/hooks/useColorScheme';
+import useCompanyMembers from '@/hooks/useCompanyMembers';
 import i18n from '@/i18n';
 import RoutesService from '@/services/routes/Routes.service';
 import { MaterialIcons } from '@expo/vector-icons';
@@ -39,6 +41,16 @@ export default function CreateRoute() {
 
   // Form state
   const [name, setName] = useState('');
+  const { members, userId, loading: membersLoading, error: membersError } = useCompanyMembers();
+  // null until the user picks one; falls back to the current user (default driver)
+  const [pickedDriverId, setPickedDriverId] = useState<string | null>(null);
+  const driverId =
+    pickedDriverId ?? (members.some((m) => m.userId === userId) ? userId ?? null : null);
+
+  useEffect(() => {
+    if (membersError) toast.show({ message: t('failedToLoadMembers'), type: 'error' });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [membersError]);
 
   // Set default route name on component mount
   useEffect(() => {
@@ -77,6 +89,7 @@ export default function CreateRoute() {
     try {
       const routeData = {
         name: name.trim(),
+        ...(driverId ? { driverId } : {}),
       };
 
       const route = await RoutesService.create(routeData);
@@ -157,6 +170,19 @@ export default function CreateRoute() {
                   {t('suggest')}
                 </ThemedText>
               </TouchableOpacity>
+            </View>
+
+            <View style={styles.driverField}>
+              <DriverSelect
+                label={t('driver')}
+                members={members}
+                value={driverId}
+                onSelect={setPickedDriverId}
+                disabled={membersLoading || members.length === 0}
+              />
+              <ThemedText style={[styles.driverHint, { color: colors.textSecondary }]}>
+                {t('driverAssignedHint')}
+              </ThemedText>
             </View>
 
             <View style={[styles.infoBox, { backgroundColor: colors.backgroundSecondary, borderLeftColor: colors.info }]}>
@@ -279,6 +305,13 @@ const styles = StyleSheet.create({
   suggestText: {
     fontSize: Typography.fontSize.xs,
     fontWeight: Typography.fontWeight.semibold,
+  },
+  driverField: {
+    marginBottom: Spacing.lg,
+  },
+  driverHint: {
+    fontSize: Typography.fontSize.xs,
+    marginTop: Spacing.xs,
   },
   infoBox: {
     flexDirection: 'row',

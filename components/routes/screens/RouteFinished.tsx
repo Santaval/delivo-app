@@ -1,5 +1,6 @@
 import { PrimaryButton, TopBar } from '@/components';
 import Map from '@/components/maps/Map';
+import RouteDriverSection from '@/components/routes/RouteDriverSection';
 import { BorderRadius, Routes, Spacing, Typography } from '@/constants';
 import { useRoute } from '@/context/RouteContext';
 import { useThemeColor } from '@/hooks/useColorScheme';
@@ -82,6 +83,8 @@ export default function RouteFinishedScreen() {
           <Text style={[styles.successTitle, { color: colors.text }]}>{t('routeFinishedExclamation')}</Text>
           <Text style={[styles.successSubtitle, { color: colors.textSecondary }]}>{t('allDeliveriesCompletedSuccessfully')}</Text>
         </View>
+
+        <RouteDriverSection />
 
         {/* Statistics Cards */}
         <View style={styles.statsContainer}>

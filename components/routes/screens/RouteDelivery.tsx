@@ -5,6 +5,7 @@ import CompleteDeliveryButton from '@/components/routes/CompleteDeliveryButton';
 import CurrentStopHeader from '@/components/routes/CurrentStopHeader';
 import DeliveryActionButtons from '@/components/routes/DeliveryActionButtons';
 import DeliveryMap from '@/components/routes/DeliveryMap';
+import RouteDriverSection from '@/components/routes/RouteDriverSection';
 import DeliveryTabs, { Tab } from '@/components/routes/DeliveryTabs';
 import { BorderRadius, Routes, Spacing, Typography } from '@/constants';
 import { useRoute } from '@/context/RouteContext';
@@ -110,6 +111,7 @@ export default function RouteDeliveryScreen() {
 
         {/* Client Info Section */}
         <View style={[styles.clientInfoContainer, { backgroundColor: colors.background }]}>
+          <RouteDriverSection />
           {/* Tabs */}
           <DeliveryTabs activeTab={activeTab} onTabChange={setActiveTab} />
 
