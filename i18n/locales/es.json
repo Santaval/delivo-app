@@ -353,5 +353,16 @@
   "deleteAccountDoneMessage": "Tu cuenta y todos tus datos han sido eliminados. Gracias por haber usado Delivo.",
   "deleteAccountDoneCta": "Entendido",
   "deleting": "Eliminando...",
-  "continue": "Continuar"
+  "continue": "Continuar",
+  "memberCodeTitle": "Tu código de miembro",
+  "memberCodeDescription": "Compártelo con el dueño o administrador de una empresa para que te agregue a su equipo.",
+  "memberCodeUnavailable": "—",
+  "memberCodeShare": "Compartir",
+  "memberCodeShareMessage": "Mi código de miembro en Delivo es {{code}}. Úsalo para agregarme a tu empresa.",
+  "memberCodeRegenerate": "Generar nuevo código",
+  "memberCodeRegenerateConfirmTitle": "¿Generar nuevo código?",
+  "memberCodeRegenerateConfirmMessage": "Tu código actual dejará de funcionar. Quien lo tenga ya no podrá usarlo para agregarte a una empresa.",
+  "memberCodeRegenerated": "Tu nuevo código es {{code}}",
+  "memberCodeRegenerateRateLimited": "Demasiados intentos. Inténtalo de nuevo más tarde.",
+  "memberCodeRegenerateFailed": "No se pudo generar el código. Intenta de nuevo."
 }
