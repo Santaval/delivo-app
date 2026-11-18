@@ -139,6 +139,7 @@ function RootNavigator() {
           <Stack.Screen name="routes/create" />
           <Stack.Screen name="routes/view/[id]" />
           <Stack.Screen name="routes/view/addOrders" />
+          <Stack.Screen name="team" />
         </Stack.Protected>
       </Stack>
       <PlanLimitNavigator />

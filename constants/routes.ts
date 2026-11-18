@@ -21,6 +21,7 @@ export const Routes = {
   bills: "/bills" as Href,
   products: "/products" as Href,
   account: "/account" as Href,
+  team: "/team" as Href,
   deleteAccount: "/delete-account" as Href,
   deleteAccountExport: "/delete-account/export" as Href,
   deleteAccountConfirm: "/delete-account/confirm" as Href,

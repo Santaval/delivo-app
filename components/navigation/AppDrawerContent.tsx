@@ -24,6 +24,7 @@ type DrawerEntry = {
 const DRAWER_ENTRIES: DrawerEntry[] = [
   { labelKey: 'bills', href: Routes.bills, icon: 'receipt' },
   { labelKey: 'products', href: Routes.products, icon: 'inventory-2' },
+  { labelKey: 'team', href: Routes.team, icon: 'groups' },
   { labelKey: 'account', href: Routes.account, icon: 'person' },
 ];
 

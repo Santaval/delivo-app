@@ -1,6 +1,6 @@
 import api from "@/services/api";
 import * as SecureStore from "expo-secure-store";
-import { createContext, useContext, useEffect, useState } from "react";
+import { createContext, useContext, useEffect, useMemo, useState } from "react";
 import { useAuth } from "./AuthContext";
 
 interface CompaniesContextType {
@@ -28,11 +28,13 @@ export const CompaniesProvider = ({
 }: {
   children: React.ReactNode;
 }) => {
-  const [companies, setCompanies] = useState<Company[]>([]);
   const [activeCompany, setActiveCompany] = useState<Company | null>(null);
   const [isLoadingActiveCompany, setIsLoadingActiveCompany] =
     useState<boolean>(true);
   const { user, authState } = useAuth();
+  // Derived straight from the user so it can never lag behind a refreshUser():
+  // a stale copy would let loadActiveCompany resolve a company the user just left.
+  const companies = useMemo<Company[]>(() => user?.companies ?? [], [user]);
 
   const selectCompany = async (companyId: string) => {
     // Awaited so the key is committed before loadActiveCompany can read it back
@@ -47,11 +49,22 @@ export const CompaniesProvider = ({
   };
 
   useEffect(() => {
-    if (authState.isLoading) return;
-    setCompanies(user?.companies || []);
-  }, [user, authState.isLoading]);
+    // A newer run supersedes this one: its awaits must not write stale state
+    let cancelled = false;
 
-  useEffect(() => {
+    /**
+     * The active company is gone (left, removed, or the user has none): drop it
+     * everywhere. Without clearing the header every later request would still
+     * claim the old tenant, and without the stored key the next launch would
+     * try to resolve it again.
+     */
+    const dropActiveCompany = async () => {
+      if (cancelled) return;
+      delete api.defaults.headers.common["x-company-id"];
+      await SecureStore.deleteItemAsync("activeCompany");
+      if (!cancelled) setActiveCompany(null);
+    };
+
     const loadActiveCompany = async () => {
       // Auth is still resolving — genuinely still loading, leave the flag alone
       if (authState.isLoading) return;
@@ -67,39 +80,40 @@ export const CompaniesProvider = ({
         return;
       }
 
-      // If user has no companies, there's nothing to resolve — the guard in
-      // app/_layout.tsx sends them to company creation.
-      if (!user.companies || user.companies.length === 0) {
-        setIsLoadingActiveCompany(false);
+      // The user has no companies (new account, or they left their last one):
+      // nothing to resolve, and nothing stored can be valid anymore. The guard
+      // in app/_layout.tsx sends them to company creation.
+      if (companies.length === 0) {
+        try {
+          await dropActiveCompany();
+        } finally {
+          if (!cancelled) setIsLoadingActiveCompany(false);
+        }
         return;
       }
 
       // A user with companies exists, so we're committed to resolving one.
-      // Set before the sync check below, otherwise a login right after a logout
+      // Set before the awaits below, otherwise a login right after a logout
       // (which set the flag false) would report "loaded with no company" and
       // make PurchasesContext log out of RevenueCat for no reason.
       setIsLoadingActiveCompany(true);
 
-      // Ensure companies state is synced with user data — still loading
-      if (companies.length === 0) {
-        return;
-      }
-
       try {
         const storedCompanyId = await SecureStore.getItemAsync("activeCompany");
+        if (cancelled) return;
 
         // No stored company ID — nothing to resolve. The guard in
         // app/_layout.tsx sends the user to company selection.
         if (!storedCompanyId) {
+          delete api.defaults.headers.common["x-company-id"];
           setActiveCompany(null);
           return;
         }
 
-        // Verify the stored company ID belongs to the current user
+        // Verify the stored company ID still belongs to the current user
         const company = companies.find((c) => c.id === storedCompanyId);
         if (!company) {
-          await SecureStore.deleteItemAsync("activeCompany"); // Clean up invalid stored ID
-          setActiveCompany(null);
+          await dropActiveCompany(); // Clean up invalid stored ID
           return;
         }
 
@@ -109,11 +123,14 @@ export const CompaniesProvider = ({
       } finally {
         // Every path out of here must settle the flag — PurchasesContext gates
         // the whole RevenueCat identity sync on it.
-        setIsLoadingActiveCompany(false);
+        if (!cancelled) setIsLoadingActiveCompany(false);
       }
     };
 
     loadActiveCompany();
+    return () => {
+      cancelled = true;
+    };
   }, [companies, authState.isLoading, user]);
 
   const needsCompanyCreation =
