@@ -1,7 +1,11 @@
 import { toast } from "@/context/ToastContext";
 import i18n from "@/i18n";
 import api from "@/services/api";
-import * as SecureStore from "expo-secure-store";
+import {
+  clearStoredActiveCompany,
+  getStoredActiveCompany,
+  setStoredActiveCompany,
+} from "@/utils/activeCompanyStorage";
 import { createContext, useContext, useEffect, useMemo, useRef, useState } from "react";
 import { useAuth } from "./AuthContext";
 
@@ -42,7 +46,7 @@ export const CompaniesProvider = ({
 
   const selectCompany = async (companyId: string) => {
     // Awaited so the key is committed before loadActiveCompany can read it back
-    await SecureStore.setItemAsync("activeCompany", companyId);
+    if (user) await setStoredActiveCompany(user.id, companyId);
     // set x-company-id header on axios instance
     api.defaults.headers.common["x-company-id"] = companyId;
     // Only set when the lookup hits — a miss means `companies` hasn't synced yet
@@ -85,10 +89,10 @@ export const CompaniesProvider = ({
      * claim the old tenant, and without the stored key the next launch would
      * try to resolve it again.
      */
-    const dropActiveCompany = async () => {
+    const dropActiveCompany = async (userId: string) => {
       if (cancelled) return;
       delete api.defaults.headers.common["x-company-id"];
-      await SecureStore.deleteItemAsync("activeCompany");
+      await clearStoredActiveCompany(userId);
       if (!cancelled) setActiveCompany(null);
     };
 
@@ -98,8 +102,8 @@ export const CompaniesProvider = ({
 
       // Logged out: drop the active company and stop sending the previous
       // tenant's id. Clearing activeCompany is what tells PurchasesContext to
-      // log out of RevenueCat. The stored key is kept so re-login lands back in
-      // the same company; it's validated against the new user's list below.
+      // log out of RevenueCat. The stored key is per user and kept, so the same
+      // user re-logging in lands back in the same company.
       if (!user) {
         setActiveCompany(null);
         delete api.defaults.headers.common["x-company-id"];
@@ -112,7 +116,7 @@ export const CompaniesProvider = ({
       // in app/_layout.tsx sends them to company creation.
       if (companies.length === 0) {
         try {
-          await dropActiveCompany();
+          await dropActiveCompany(user.id);
         } finally {
           if (!cancelled) setIsLoadingActiveCompany(false);
         }
@@ -129,7 +133,7 @@ export const CompaniesProvider = ({
       if (!activeCompanyRef.current) setIsLoadingActiveCompany(true);
 
       try {
-        const storedCompanyId = await SecureStore.getItemAsync("activeCompany");
+        const storedCompanyId = await getStoredActiveCompany(user.id);
         if (cancelled) return;
 
         // No stored company ID — nothing to resolve. The guard in
@@ -143,7 +147,7 @@ export const CompaniesProvider = ({
         // Verify the stored company ID still belongs to the current user
         const company = companies.find((c) => c.id === storedCompanyId);
         if (!company) {
-          await dropActiveCompany(); // Clean up invalid stored ID
+          await dropActiveCompany(user.id); // Clean up invalid stored ID
           return;
         }
 

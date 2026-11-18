@@ -103,6 +103,22 @@ describe('CompaniesContext — dropping the active company', () => {
     expect(result.current.activeCompany?.id).toBe('a');
     expect(api.defaults.headers.common['x-company-id']).toBe('a');
   });
+
+  it("another user signing in on the device does not inherit the previous user's company", async () => {
+    // u1 had company 'a' active; u2 is also a member of 'a'
+    store.activeCompany_u1 = 'a';
+    mockUseAuth.mockReturnValue({
+      user: { id: 'u2', companies: [company('a'), company('b')] } as User,
+      authState: { isLoading: false, authenticated: true },
+    });
+
+    const { result } = renderHook(() => useCompanies(), { wrapper });
+
+    await waitFor(() => expect(result.current.isLoadingActiveCompany).toBe(false));
+    expect(result.current.activeCompany).toBeNull();
+    expect(result.current.needsCompanySelection).toBe(true);
+    expect(store.activeCompany_u1).toBe('a');
+  });
 });
 
 describe('CompaniesContext — background refresh and "added to a company" toast', () => {

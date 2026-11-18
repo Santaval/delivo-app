@@ -1,7 +1,7 @@
 import { useAuth } from "@/context/AuthContext";
 import * as Google from "expo-auth-session/providers/google";
 import * as WebBrowser from "expo-web-browser";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 WebBrowser.maybeCompleteAuthSession();
 
@@ -21,8 +21,13 @@ export const useGoogleAuth = () => {
     // usePKCE: true,
   });
 
+  // The same response object can be re-emitted (re-render, token exchange);
+  // sign in with it only once.
+  const handledResponse = useRef<typeof response>(null);
+
   useEffect(() => {
-    if (response?.type === "success") {
+    if (response?.type === "success" && handledResponse.current !== response) {
+      handledResponse.current = response;
       const { authentication } = response;
       if (!authentication?.idToken) {
         console.error("No ID token received from Google");

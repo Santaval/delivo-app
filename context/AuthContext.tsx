@@ -2,6 +2,7 @@ import { toast } from "@/context/ToastContext";
 import i18n from "@/i18n";
 import api, { setOnForbidden, setOnUnauthorized } from "@/services/api";
 import AuthService from "@/services/auth/Auth.service";
+import { clearStoredActiveCompany } from "@/utils/activeCompanyStorage";
 import { Observe } from "expo-observe";
 import * as SecureStore from "expo-secure-store";
 import { createContext, useCallback, useContext, useEffect, useRef, useState } from "react";
@@ -95,6 +96,13 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const [user, setUser] = useState<User | null>(null);
   const [authState, setAuthState] = useState<AuthState>(initialState);
 
+  // Bumped on every login and logout. Any async work that writes the user
+  // captures it first and drops its result if it changed, so a /auth/me that
+  // started under the previous account can never overwrite the new one.
+  const sessionRef = useRef(0);
+  const startSession = () => ++sessionRef.current;
+  const isCurrentSession = (epoch: number) => sessionRef.current === epoch;
+
   /**
    * Updates the loading state
    * @param {boolean} isLoading - Whether an async operation is in progress
@@ -143,7 +151,9 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   };
 
   const googleAuth = async (token: string) => {
+    const epoch = startSession();
     const { token: jwtToken, user } = await AuthService.googleAuth(token);
+    if (!isCurrentSession(epoch)) return;
     await SecureStore.setItemAsync("token", jwtToken);
     setupApiAuth(jwtToken);
     updateAuthState(jwtToken, true);
@@ -151,7 +161,9 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   };
 
   const appleAuth = async (token: string) => {
+    const epoch = startSession();
     const { token: jwtToken, user } = await AuthService.appleAuth(token);
+    if (!isCurrentSession(epoch)) return;
     await SecureStore.setItemAsync("token", jwtToken);
     setupApiAuth(jwtToken);
     updateAuthState(jwtToken, true);
@@ -161,10 +173,12 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const qaLogin = async (username: string, password: string) => {
     try {
       setLoading(true);
+      const epoch = startSession();
       const { token: jwtToken, user } = await AuthService.qaLogin(
         username,
         password,
       );
+      if (!isCurrentSession(epoch)) return;
       await SecureStore.setItemAsync("token", jwtToken);
       setupApiAuth(jwtToken);
       updateAuthState(jwtToken, true);
@@ -182,12 +196,15 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
    */
   useEffect(() => {
     const loadToken = async () => {
+      const epoch = sessionRef.current;
       try {
         const token = await SecureStore.getItemAsync("token");
 
-        if (token) {
+        if (token && isCurrentSession(epoch)) {
           setupApiAuth(token);
           const user = await AuthService.getUser();
+          // A login/logout happened while the stored session was loading
+          if (!isCurrentSession(epoch)) return;
 
           if (user) {
             updateAuthState(token, true);
@@ -197,6 +214,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
           }
         }
       } catch (error) {
+        if (!isCurrentSession(epoch)) return;
         await handleLogout();
         setError(
           error instanceof Error
@@ -243,30 +261,36 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   authenticatedRef.current = authState.authenticated;
 
   const refreshUser = async () => {
+    const epoch = sessionRef.current;
     try {
       const user = await AuthService.getUser();
+      if (!isCurrentSession(epoch)) return;
       lastSyncAt.current = Date.now();
       setUser(user);
     } catch (error) {
-      await handleLogout();
+      // A failure from a previous session must not log out the current one
+      if (isCurrentSession(epoch)) await handleLogout();
     }
   };
 
   const syncUserIfStale = useCallback(async (minIntervalMs = SYNC_MIN_INTERVAL_MS) => {
     if (!authenticatedRef.current || syncInFlight.current) return;
     if (Date.now() - lastSyncAt.current < minIntervalMs) return;
+    const epoch = sessionRef.current;
     syncInFlight.current = true;
     // Stamped up front so a failing request is not retried in a tight loop
     lastSyncAt.current = Date.now();
     try {
       const fresh = await AuthService.getUser();
-      // Logged out (or switched account) while the request was in flight
-      if (authenticatedRef.current) setUser(fresh);
+      // Logged out or switched account while the request was in flight:
+      // `fresh` belongs to the previous user, drop it
+      if (isCurrentSession(epoch) && authenticatedRef.current) setUser(fresh);
     } catch {
       // Offline / transient: keep the current user. A truly expired session
       // surfaces as a 401 on the next real request and logs out there.
     } finally {
-      syncInFlight.current = false;
+      // handleLogout already reset it for the new session
+      if (isCurrentSession(epoch)) syncInFlight.current = false;
     }
   }, []);
 
@@ -293,6 +317,9 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
    * Handles the logout process by clearing auth state and removing stored token
    */
   const handleLogout = async () => {
+    startSession();
+    lastSyncAt.current = 0;
+    syncInFlight.current = false;
     updateAuthState(null, false);
     setUser(null);
     await SecureStore.deleteItemAsync("token");
@@ -325,7 +352,9 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     try {
       setLoading(true);
       if (user) {
+        const epoch = sessionRef.current;
         const updatedUser = await AuthService.getUser();
+        if (!isCurrentSession(epoch)) return;
         setUser({ ...updatedUser, ...userData });
       }
     } catch (error) {
@@ -349,7 +378,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     // delete the apple auth code if it exists
     await SecureStore.deleteItemAsync("appleAuthCode");
     // La cuenta ya no existe: el id de empresa guardado nunca volverá a ser válido.
-    await SecureStore.deleteItemAsync("activeCompany");
+    if (user) await clearStoredActiveCompany(user.id);
   };
 
   return (
