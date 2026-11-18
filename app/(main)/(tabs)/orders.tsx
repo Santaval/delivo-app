@@ -1,4 +1,4 @@
-import { FloatingActionButton, SearchBar, TopBar } from '@/components';
+import { FloatingActionButton, LowCreditsBanner, SearchBar, TopBar } from '@/components';
 import { OrdersList } from '@/components/OrdersList';
 import { Routes, Spacing } from '@/constants';
 import useOrders from '@/hooks/useOrders';
@@ -27,6 +27,8 @@ export default function Orders() {
         onSearch={search}
         showClearButton
       />
+
+      <LowCreditsBanner />
 
       <OrdersList
         onOrderPress={(orderId) => router.push(Routes.orderView(orderId))}
