@@ -6,11 +6,14 @@ import CurrentStopHeader from '@/components/routes/CurrentStopHeader';
 import DeliveryActionButtons from '@/components/routes/DeliveryActionButtons';
 import DeliveryMap from '@/components/routes/DeliveryMap';
 import RouteDriverSection from '@/components/routes/RouteDriverSection';
+import TrackingIndicator from '@/components/routes/TrackingIndicator';
 import DeliveryTabs, { Tab } from '@/components/routes/DeliveryTabs';
 import { BorderRadius, Routes, Spacing, Typography } from '@/constants';
 import { useRoute } from '@/context/RouteContext';
 import { useToast } from '@/context/ToastContext';
 import { useThemeColor } from '@/hooks/useColorScheme';
+import useCompanyMembers from '@/hooks/useCompanyMembers';
+import useDriverLiveLocation from '@/hooks/useDriverLiveLocation';
 import useUserLocation from '@/hooks/useUserLocation';
 import { router } from 'expo-router';
 import React, { useEffect, useState } from 'react';
@@ -24,6 +27,16 @@ export default function RouteDeliveryScreen() {
   const { t } = useTranslation();
   const toast = useToast();
   const colors = useThemeColor();
+  const { canManageRoutes, userId } = useCompanyMembers();
+
+  // Only OWNER/ADMIN watch the driver, and only while the route is STARTED. A driver
+  // keeps seeing their own map (their own position is the blue dot).
+  const watchDriver =
+    canManageRoutes && route?.status === 'STARTED' && !!route.driverId && route.driverId !== userId;
+  const { location: driverLocation } = useDriverLiveLocation(route?.id, {
+    enabled: watchDriver,
+    initial: route?.driverLocation ?? null,
+  });
 
   const [isCompletingDelivery, setIsCompletingDelivery] = React.useState(false);
   const [activeTab, setActiveTab] = useState<Tab>('current');
@@ -107,10 +120,13 @@ export default function RouteDeliveryScreen() {
           userLocation={location?.coords}
           polylines={route.polyline}
           fitToRoute
+          driverLocation={watchDriver ? driverLocation : null}
+          driverName={route.driver ? `${route.driver.name} ${route.driver.surnames}` : null}
         />
 
         {/* Client Info Section */}
         <View style={[styles.clientInfoContainer, { backgroundColor: colors.background }]}>
+          <TrackingIndicator />
           <RouteDriverSection />
           {/* Tabs */}
           <DeliveryTabs activeTab={activeTab} onTabChange={setActiveTab} />

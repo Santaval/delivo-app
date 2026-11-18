@@ -1,8 +1,10 @@
 import Map from "@/components/maps/Map";
 import { BorderRadius, Spacing } from "@/constants";
 import { useThemeColor } from "@/hooks/useColorScheme";
-import React from "react";
-import { StyleSheet, View } from "react-native";
+import { staleMinutes } from "@/utils/driverLocation";
+import React, { useEffect, useState } from "react";
+import { useTranslation } from "react-i18next";
+import { StyleSheet, Text, View } from "react-native";
 
 type DeliveryMapProps = {
   completedDeliveries: RoutePoint[];
@@ -16,6 +18,9 @@ type DeliveryMapProps = {
   polylines?: string;
   /** Encuadra la cámara sobre la ruta completa en lugar de centrarla en el usuario. */
   fitToRoute?: boolean;
+  /** Live position of the driver (OWNER/ADMIN watching a STARTED route). */
+  driverLocation?: RouteDriverLocation | null;
+  driverName?: string | null;
 };
 
 const DeliveryMap: React.FC<DeliveryMapProps> = ({
@@ -25,8 +30,22 @@ const DeliveryMap: React.FC<DeliveryMapProps> = ({
   pendingDeliveries,
   skippedDeliveries,
   fitToRoute,
+  driverLocation,
+  driverName,
 }) => {
   const colors = useThemeColor();
+  const { t } = useTranslation();
+
+  // Re-evaluated every 30 s so "last updated" appears without a new position
+  const [now, setNow] = useState(() => Date.now());
+  useEffect(() => {
+    if (!driverLocation) return;
+    setNow(Date.now());
+    const id = setInterval(() => setNow(Date.now()), 30_000);
+    return () => clearInterval(id);
+  }, [driverLocation]);
+  const minutesAgo = driverLocation ? staleMinutes(driverLocation.recordedAt, now) : null;
+
   const completedMarkers = completedDeliveries.map((delivery) => ({
     coordinate: {
       latitude: delivery.order.client.location.lat || 37.7749,
@@ -86,7 +105,24 @@ const DeliveryMap: React.FC<DeliveryMapProps> = ({
         ]}
         polylines={polylines}
         fitToMarkers={fitToRoute}
+        driver={
+          driverLocation
+            ? {
+                coordinate: { latitude: driverLocation.lat, longitude: driverLocation.lng },
+                heading: driverLocation.heading,
+                name: driverName,
+              }
+            : null
+        }
       />
+
+      {minutesAgo !== null && (
+        <View style={[styles.staleBadge, { backgroundColor: colors.background }]}>
+          <Text style={[styles.staleText, { color: colors.textSecondary }]}>
+            {t("lastUpdatedMinutesAgo", { count: minutesAgo })}
+          </Text>
+        </View>
+      )}
 
       {/* Distance indicator overlay */}
       <View
@@ -118,6 +154,19 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.25,
     shadowRadius: 3.84,
     elevation: 5,
+  },
+  staleBadge: {
+    position: "absolute",
+    top: Spacing.md,
+    left: Spacing.md,
+    paddingHorizontal: Spacing.sm,
+    paddingVertical: Spacing.xs,
+    borderRadius: BorderRadius.md,
+    elevation: 5,
+  },
+  staleText: {
+    fontSize: 12,
+    fontWeight: "600",
   },
   distanceText: {
     fontSize: 14,

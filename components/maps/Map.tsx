@@ -4,6 +4,7 @@ import MapboxGL from "@rnmapbox/maps";
 import { Component, ReactNode } from "react";
 import { StyleSheet, Text, View } from "react-native";
 import { CustomMarker } from "./CustomMarker";
+import DriverMarker, { type DriverMarkerData } from "./DriverMarker";
 
 type MarkerProps = {
   coordinate: {
@@ -22,6 +23,8 @@ type Props = {
   polylines?: string;
   /** Ajusta la cámara para que todos los marcadores y la ruta queden visibles. */
   fitToMarkers?: boolean;
+  /** Live position of the route's driver (admin view). Never part of the fit. */
+  driver?: DriverMarkerData | null;
 };
 
 const FIT_PADDING = 60;
@@ -61,7 +64,7 @@ class MapErrorBoundary extends Component<
   }
 }
 
-function MapContent({ markers, polylines, fitToMarkers }: Props) {
+function MapContent({ markers, polylines, fitToMarkers, driver }: Props) {
   const { location } = useUserLocation();
 
   const routeCoordinates: [number, number][] = polylines
@@ -136,6 +139,8 @@ function MapContent({ markers, polylines, fitToMarkers }: Props) {
           backgroundColor={marker.backgroundColor}
         />
       ))}
+
+      {driver && <DriverMarker {...driver} />}
 
       {routeShape && (
         <MapboxGL.ShapeSource id="routeSource" shape={routeShape}>
